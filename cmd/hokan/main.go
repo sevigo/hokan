@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/seviko/hokan/cmd/hokan/config"
-	"github.com/seviko/hokan/pkg/server"
+	"github.com/sevigo/hokan/cmd/hokan/config"
+	"github.com/sevigo/hokan/pkg/server"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	}
 
 	initLogging(config)
-	ctx := context.Background(),
+	ctx := context.Background()
 
 	app, err := InitializeApplication(config)
 	if err != nil {
@@ -30,9 +30,9 @@ func main() {
 	g.Go(func() error {
 		logrus.WithFields(
 			logrus.Fields{
-				"host":  config.Server.Host,
-				"port":  config.Server.Port,
-				"url":   config.Server.Addr,
+				"host": config.Server.Host,
+				"port": config.Server.Port,
+				"url":  config.Server.Addr,
 			},
 		).Infoln("starting the http server")
 		return app.server.ListenAndServe(ctx)
