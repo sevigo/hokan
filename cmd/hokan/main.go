@@ -7,6 +7,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/sevigo/hokan/cmd/hokan/config"
+	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/server"
 )
 
@@ -51,11 +52,13 @@ func initLogging(c config.Config) {
 
 // application is the main struct.
 type application struct {
+	dirs   *core.DirectoryStore
 	server *server.Server
 }
 
-func newApplication(server *server.Server) application {
+func newApplication(server *server.Server, dirs *core.DirectoryStore) application {
 	return application{
+		dirs:   dirs,
 		server: server,
 	}
 }
