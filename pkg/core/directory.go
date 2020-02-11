@@ -1,12 +1,29 @@
 package core
 
+import "context"
+
 type Directory struct {
 	Path        string
 	Recursive   bool
+	Machine     string
 	IgnoreFiles []string
 	Target      []string
 }
 
-type DirectoryService interface{}
+type DirectoryStore interface {
+	List(context.Context, int64) ([]*Directory, error)
 
-type DirectoryStore interface{}
+	Find(context.Context, int64) (*Directory, error)
+
+	FindName(context.Context, int64, string) (*Directory, error)
+
+	Create(context.Context, *Directory) error
+
+	Update(context.Context, *Directory) error
+
+	Delete(context.Context, *Directory) error
+}
+
+func (d *Directory) Validate() error {
+	return nil
+}
