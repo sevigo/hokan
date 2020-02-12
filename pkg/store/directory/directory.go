@@ -2,6 +2,7 @@ package directory
 
 import (
 	"context"
+	"log"
 
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/store/db"
@@ -42,5 +43,6 @@ func (s *directoryStore) Delete(ctx context.Context, dir *core.Directory) error 
 }
 
 func (s *directoryStore) Create(ctx context.Context, dir *core.Directory) error {
+	log.Printf("directory.Create(): %#v\n", dir)
 	return nil
 }
