@@ -52,11 +52,11 @@ func initLogging(c config.Config) {
 
 // application is the main struct.
 type application struct {
-	dirs   *core.DirectoryStore
+	dirs   core.DirectoryStore
 	server *server.Server
 }
 
-func newApplication(server *server.Server, dirs *core.DirectoryStore) application {
+func newApplication(server *server.Server, dirs core.DirectoryStore) application {
 	return application{
 		dirs:   dirs,
 		server: server,

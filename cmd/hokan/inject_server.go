@@ -45,6 +45,6 @@ func provideServer(handler *chi.Mux, config config.Config) *server.Server {
 	}
 }
 
-func provideEventCreator(config event.Config) core.EventCreator {
+func provideEventCreator() core.EventCreator {
 	return event.New(event.Config{})
 }
