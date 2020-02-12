@@ -1,6 +1,8 @@
 package config
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // Config provides the system configuration.
 type Config struct {
@@ -32,6 +34,7 @@ type Database struct {
 func Environ() (Config, error) {
 	cfg := Config{}
 	defaultAddress(&cfg)
+	defaultStore(&cfg)
 	return cfg, nil
 }
 

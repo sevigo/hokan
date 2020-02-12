@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/sevigo/hokan/cmd/hokan/config"
@@ -45,9 +46,8 @@ func main() {
 }
 
 func initLogging(c config.Config) {
-	logrus.SetFormatter(&logrus.JSONFormatter{
-		PrettyPrint: c.Logging.Pretty,
-	})
+	logrus.SetFormatter(new(prefixed.TextFormatter))
+	logrus.SetLevel(logrus.DebugLevel)
 }
 
 // application is the main struct.

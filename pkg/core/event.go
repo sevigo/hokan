@@ -5,5 +5,5 @@ import "context"
 type EventData struct{}
 
 type EventCreator interface {
-	Create(context.Context, *EventData)
+	Publish(context.Context, *EventData) error
 }

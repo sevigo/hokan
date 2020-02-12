@@ -1,6 +1,6 @@
 
 run:
-	cd cmd/hokan; go run .\main.go .\wire_gen.go .\inject_server.go 
+	cd cmd/hokan; go run main.go inject_server.go  inject_store.go  wire_gen.go  wire.g
 
 wire:
 	go get github.com/google/wire/cmd/wire

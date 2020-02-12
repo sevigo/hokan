@@ -14,6 +14,7 @@ func New(config Config) core.EventCreator {
 	return creator{}
 }
 
-func (c *creator) Create(ctx context.Context, data *core.EventData) error {
+// Create(context.Context, *EventData) error
+func (c creator) Publish(ctx context.Context, data *core.EventData) error {
 	return nil
 }
