@@ -37,5 +37,4 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 
 		render.JSON(w, dir, 200)
 	}
-
 }

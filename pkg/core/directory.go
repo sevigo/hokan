@@ -11,11 +11,11 @@ type Directory struct {
 }
 
 type DirectoryStore interface {
-	List(context.Context, int64) ([]*Directory, error)
+	List(context.Context) ([]*Directory, error)
 
 	Find(context.Context, int64) (*Directory, error)
 
-	FindName(context.Context, int64, string) (*Directory, error)
+	FindName(context.Context, string) (*Directory, error)
 
 	Create(context.Context, *Directory) error
 
