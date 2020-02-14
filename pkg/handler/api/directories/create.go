@@ -31,7 +31,7 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 		if err != nil {
 			render.InternalError(w, err)
 			// logger.FromRequest(r).WithError(err).
-			// 	Warnln("api: cannot create user")
+			// 	Warnln("api: cannot store a new directory")
 			return
 		}
 

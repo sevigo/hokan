@@ -80,7 +80,3 @@ func (s *directoryStore) Create(ctx context.Context, dir *core.Directory) error 
 	}
 	return s.db.Write(bucketName, key, value.String())
 }
-
-// bucket => watch:directories
-// key =>
-// &core.Directory{Path:"C:\\Users\\Igor\\Files", Recursive:true, Machine:"tokyo", IgnoreFiles:[]string(nil), Target:[]string(nil)}

@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"os"
+	"time"
 
-	"github.com/sirupsen/logrus"
-	prefixed "github.com/x-cray/logrus-prefixed-formatter"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/sevigo/hokan/cmd/hokan/config"
@@ -15,8 +17,7 @@ import (
 func main() {
 	config, err := config.Environ()
 	if err != nil {
-		logger := logrus.WithError(err)
-		logger.Fatalln("main: invalid configuration")
+		log.Fatal().Err(err).Msg("main: invalid configuration")
 	}
 
 	initLogging(config)
@@ -24,30 +25,26 @@ func main() {
 
 	app, err := InitializeApplication(config)
 	if err != nil {
-		logger := logrus.WithError(err)
-		logger.Fatalln("main: cannot initialize server")
+		log.Fatal().Err(err).Msg("main: cannot initialize server")
 	}
 
 	g := errgroup.Group{}
 	g.Go(func() error {
-		logrus.WithFields(
-			logrus.Fields{
-				"host": config.Server.Host,
-				"port": config.Server.Port,
-				"url":  config.Server.Addr,
-			},
-		).Infoln("starting the http server")
+		log.Info().
+			Str("port", config.Server.Port).
+			Str("url", config.Server.Addr).
+			Msg("starting the http server")
 		return app.server.ListenAndServe(ctx)
 	})
 
 	if err := g.Wait(); err != nil {
-		logrus.WithError(err).Fatalln("program terminated")
+		log.Fatal().Err(err).Msg("main: program terminated")
 	}
 }
 
 func initLogging(c config.Config) {
-	logrus.SetFormatter(new(prefixed.TextFormatter))
-	logrus.SetLevel(logrus.DebugLevel)
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC822})
 }
 
 // application is the main struct.

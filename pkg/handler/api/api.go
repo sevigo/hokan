@@ -8,6 +8,7 @@ import (
 
 	"github.com/sevigo/hokan/pkg/core"
 	dirs "github.com/sevigo/hokan/pkg/handler/api/directories"
+	"github.com/sevigo/hokan/pkg/logger"
 )
 
 type Server struct {
@@ -25,6 +26,8 @@ func New(dirs core.DirectoryStore, events core.EventCreator) Server {
 func (s Server) Handler() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
+
+	r.Use(logger.Middleware())
 
 	r.Route("/directories", func(r chi.Router) {
 		r.Post("/", dirs.HandleCreate(s.Dirs, s.Events))
