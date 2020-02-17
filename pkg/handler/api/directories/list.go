@@ -10,13 +10,10 @@ import (
 
 func HandleList(dirStore core.DirectoryStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger.FromRequest(r).Debug().Str("XXXXXXXXXXXXXXXXXXXXX", "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
-
 		dirs, err := dirStore.List(r.Context())
 		if err != nil {
 			render.InternalError(w, err)
-			// logger.FromRequest(r).WithError(err).
-			// 	Warnln("api: cannot list users")
+			logger.FromRequest(r).Err(err).Msg("api: cannot list users")
 			return
 		}
 
