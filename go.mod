@@ -7,6 +7,8 @@ require (
 	github.com/go-chi/render v1.0.1
 	github.com/golang/mock v1.4.0
 	github.com/google/wire v0.4.0
+	github.com/mattn/go-colorable v0.1.4
+	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rs/zerolog v1.18.0
 	github.com/segmentio/ksuid v1.0.2
