@@ -2,7 +2,11 @@ package server
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -21,6 +25,25 @@ func (s Server) ListenAndServe(ctx context.Context) error {
 		Addr:    s.Addr,
 		Handler: s.Handler,
 	}
+
+	// Setup our Ctrl+C handler
+	// go SetupCloseHandler()
+	g.Go(func() error {
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+		killSignal := <-interrupt
+		switch killSignal {
+		case os.Interrupt:
+			log.Print("Got SIGINT...")
+		case syscall.SIGTERM:
+			log.Print("Got SIGTERM...")
+		}
+		s1.Shutdown(ctx)
+		os.Exit(0)
+		return nil
+	})
+
 	g.Go(func() error {
 		select {
 		case <-ctx.Done():
