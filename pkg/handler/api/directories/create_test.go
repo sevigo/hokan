@@ -32,5 +32,14 @@ func TestCreate(t *testing.T) {
 	r := httptest.NewRequest("POST", "/", in)
 
 	HandleCreate(dirStore, eventCreator)(w, r)
-	assert.Equal(t, w.Code, 201)
+	assert.Equal(t, 201, w.Code)
+}
+
+func TestCreateBadRequest(t *testing.T) {
+	in := new(bytes.Buffer)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/", in)
+
+	HandleCreate(nil, nil)(w, r)
+	assert.Equal(t, 400, w.Code)
 }

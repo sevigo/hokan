@@ -23,7 +23,3 @@ type DirectoryStore interface {
 
 	Delete(context.Context, *Directory) error
 }
-
-func (d *Directory) Validate() error {
-	return nil
-}

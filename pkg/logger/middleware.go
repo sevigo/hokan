@@ -3,10 +3,12 @@ package logger
 import (
 	"context"
 	"net/http"
+	"os"
 	"runtime/debug"
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/segmentio/ksuid"
 
 	"github.com/go-chi/chi/middleware"
@@ -64,14 +66,23 @@ func Middleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 
 type loggerKey struct{}
 
+func DefaultLoggert() *zerolog.Logger {
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC822})
+	return &log.Logger
+}
+
 func WithContext(ctx context.Context, logger *zerolog.Logger) context.Context {
 	return context.WithValue(ctx, loggerKey{}, logger)
 }
 
 func FromContext(ctx context.Context) *zerolog.Logger {
 	logger := ctx.Value(loggerKey{})
-	l := logger.(*zerolog.Logger)
-	return l
+	l := logger
+	if l == nil {
+		l = DefaultLoggert()
+	}
+	return l.(*zerolog.Logger)
 }
 
 func FromRequest(r *http.Request) *zerolog.Logger {
