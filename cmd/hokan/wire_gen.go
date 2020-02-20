@@ -7,14 +7,22 @@ package main
 
 import (
 	"github.com/sevigo/hokan/cmd/hokan/config"
+	"github.com/sevigo/hokan/pkg/handler/api"
 )
 
 // Injectors from wire.go:
 
 func InitializeApplication(config2 config.Config) (application, error) {
+	db, err := provideDatabase(config2)
+	if err != nil {
+		return application{}, err
+	}
+	directoryStore := provideDirectoryStore(db)
+	eventCreator := provideEventCreator()
+	server := api.New(directoryStore, eventCreator)
 	mainHealthzHandler := provideHealthz()
-	mux := provideRouter(mainHealthzHandler)
-	server := provideServer(mux, config2)
-	mainApplication := newApplication(server)
+	mux := provideRouter(server, mainHealthzHandler)
+	serverServer := provideServer(mux, config2)
+	mainApplication := newApplication(serverServer, directoryStore)
 	return mainApplication, nil
 }

@@ -1,11 +1,14 @@
 package config
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // Config provides the system configuration.
 type Config struct {
-	Logging Logging
-	Server  Server
+	Database Database
+	Logging  Logging
+	Server   Server
 }
 
 type Logging struct {
@@ -24,9 +27,14 @@ type Server struct {
 	Handler http.Handler
 }
 
+type Database struct {
+	Path string
+}
+
 func Environ() (Config, error) {
 	cfg := Config{}
 	defaultAddress(&cfg)
+	defaultStore(&cfg)
 	return cfg, nil
 }
 
