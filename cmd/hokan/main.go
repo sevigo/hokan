@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"os"
 	"time"
 
+	"github.com/mattn/go-colorable"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
@@ -44,7 +44,7 @@ func main() {
 
 func initLogging(c config.Config) {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC822})
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout(), TimeFormat: time.RFC822})
 }
 
 // application is the main struct.
