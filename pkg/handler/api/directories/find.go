@@ -16,7 +16,7 @@ func HandleFind(dirStore core.DirectoryStore) http.HandlerFunc {
 		path, err := base64.StdEncoding.DecodeString(pathRaw)
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: "invlid path"})
+			render.JSON(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: "invalid path"})
 			logger.FromRequest(r).Err(err).Msg("api: cannot encode path")
 			return
 		}

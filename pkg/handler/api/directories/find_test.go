@@ -55,5 +55,5 @@ func TestErrorPath(t *testing.T) {
 	assert.Equal(t, 400, w.Code)
 
 	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"code":400,"message":"invlid path"}`, body)
+	assert.Equal(t, `{"code":400,"message":"invalid path"}`, body)
 }
