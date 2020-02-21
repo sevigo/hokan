@@ -23,7 +23,7 @@ func HandleFind(dirStore core.DirectoryStore) http.HandlerFunc {
 		dir, err := dirStore.FindName(r.Context(), string(path))
 		if err != nil {
 			render.Status(r, 400)
-			logger.FromRequest(r).Err(err).Msg("api: invlid directory")
+			logger.FromRequest(r).Err(err).Msg("api: invalid directory")
 			return
 		}
 		render.Status(r, 200)

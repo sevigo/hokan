@@ -15,15 +15,15 @@ import (
 )
 
 func main() {
-	config, err := config.Environ()
+	conf, err := config.Environ()
 	if err != nil {
 		log.Fatal().Err(err).Msg("main: invalid configuration")
 	}
 
-	initLogging(config)
+	initLogging()
 	ctx := context.Background()
 
-	app, err := InitializeApplication(config)
+	app, err := InitializeApplication(conf)
 	if err != nil {
 		log.Fatal().Err(err).Msg("main: cannot initialize server")
 	}
@@ -31,8 +31,8 @@ func main() {
 	g := errgroup.Group{}
 	g.Go(func() error {
 		log.Info().
-			Str("port", config.Server.Port).
-			Str("url", config.Server.Addr).
+			Str("port", conf.Server.Port).
+			Str("url", conf.Server.Addr).
 			Msg("starting the http server")
 		return app.server.ListenAndServe(ctx)
 	})
@@ -42,7 +42,7 @@ func main() {
 	}
 }
 
-func initLogging(c config.Config) {
+func initLogging() {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout(), TimeFormat: time.RFC822})
 }
@@ -53,9 +53,9 @@ type application struct {
 	server *server.Server
 }
 
-func newApplication(server *server.Server, dirs core.DirectoryStore) application {
+func newApplication(srv *server.Server, dirs core.DirectoryStore) application {
 	return application{
 		dirs:   dirs,
-		server: server,
+		server: srv,
 	}
 }

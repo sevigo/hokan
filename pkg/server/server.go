@@ -27,7 +27,6 @@ func (s Server) ListenAndServe(ctx context.Context) error {
 	}
 
 	// Setup our Ctrl+C handler
-	// go SetupCloseHandler()
 	g.Go(func() error {
 		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
@@ -39,19 +38,15 @@ func (s Server) ListenAndServe(ctx context.Context) error {
 		case syscall.SIGTERM:
 			log.Print("Got SIGTERM...")
 		}
-		s1.Shutdown(ctx)
-		os.Exit(0)
-		return nil
+		return s1.Shutdown(ctx)
 	})
 
 	g.Go(func() error {
-		select {
-		case <-ctx.Done():
-			return s1.Shutdown(ctx)
-		}
+		<-ctx.Done()
+		return s1.Shutdown(ctx)
 	})
-	g.Go(func() error {
-		return s1.ListenAndServe()
-	})
+
+	g.Go(s1.ListenAndServe)
+
 	return g.Wait()
 }

@@ -58,7 +58,6 @@ func Middleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 					"bytes_in":   r.Header.Get("Content-Length"),
 					"bytes_out":  ww.BytesWritten(),
 				}).Msg("request_in")
-
 		}
 		return http.HandlerFunc(fn)
 	}

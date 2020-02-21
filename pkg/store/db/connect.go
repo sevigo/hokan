@@ -19,7 +19,7 @@ func Connect(path string) (*DB, error) {
 	}, nil
 }
 
-// Close the database conection
+// Close the database connection
 func (db *DB) Close() error {
-	return db.Close()
+	return db.conn.Close()
 }

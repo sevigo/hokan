@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 
 	bolt "go.etcd.io/bbolt"
 )
@@ -13,7 +12,7 @@ type DB struct {
 	path string
 }
 
-var BucketNotFound = errors.New("Bucket was not found")
+var ErrBucketNotFound = errors.New("bucket was not found")
 
 // Add basic funtcions here
 func (db *DB) Write(bucketName, key, value string) error {
@@ -31,7 +30,7 @@ func (db *DB) Read(bucketName, key string) ([]byte, error) {
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
-			return BucketNotFound
+			return ErrBucketNotFound
 		}
 		result = b.Get([]byte(key))
 		return nil
@@ -44,14 +43,12 @@ func (db *DB) ReadBucket(bucketName string) (map[string]string, error) {
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
-			return BucketNotFound
+			return ErrBucketNotFound
 		}
-		b.ForEach(func(k, v []byte) error {
-			fmt.Printf("key=%s, value=%s\n", k, v)
+		return b.ForEach(func(k, v []byte) error {
 			result[string(k)] = string(v)
 			return nil
 		})
-		return nil
 	})
 	return result, err
 }

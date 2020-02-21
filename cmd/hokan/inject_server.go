@@ -25,10 +25,10 @@ var serverSet = wire.NewSet(
 	provideEventCreator,
 )
 
-func provideRouter(api api.Server, healthz healthzHandler) *chi.Mux {
+func provideRouter(apiHandler api.Server, healthz healthzHandler) *chi.Mux {
 	r := chi.NewRouter()
 	r.Mount("/healthz", healthz)
-	r.Mount("/api", api.Handler())
+	r.Mount("/api", apiHandler.Handler())
 	return r
 }
 
@@ -37,7 +37,7 @@ func provideHealthz() healthzHandler {
 	return healthzHandler(v)
 }
 
-func provideServer(handler *chi.Mux, config config.Config) *server.Server {
+func provideServer(handler http.Handler, config config.Config) *server.Server {
 	return &server.Server{
 		Addr:    config.Server.Addr,
 		Host:    config.Server.Host,

@@ -1,11 +1,11 @@
 package health
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/render"
 )
 
 // New returns a new health check router
@@ -20,8 +20,7 @@ func New() http.Handler {
 // Handler creates an http.HandlerFunc that performs system healthchecks
 func Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		w.Header().Set("Content-Type", "text/plain")
-		io.WriteString(w, "OK")
+		render.Status(r, 200)
+		render.PlainText(w, r, "OK")
 	}
 }
