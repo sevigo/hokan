@@ -6,14 +6,14 @@ import (
 
 	"github.com/go-chi/render"
 
-	"github.com/go-chi/chi"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
 func HandleFind(dirStore core.DirectoryStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		path, err := base64.StdEncoding.DecodeString(chi.URLParam(r, "path"))
+		pathRaw := r.URL.Query().Get("path")
+		path, err := base64.StdEncoding.DecodeString(pathRaw)
 		if err != nil {
 			render.Status(r, 500)
 			logger.FromRequest(r).Err(err).Msg("api: cannot encode path")
