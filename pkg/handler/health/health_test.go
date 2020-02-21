@@ -14,4 +14,6 @@ func TestHandleHealthz(t *testing.T) {
 	Handler().ServeHTTP(w, r)
 
 	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "text/plain; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(t, "OK", w.Body.String())
 }

@@ -17,9 +17,9 @@ type Server struct {
 	Events core.EventCreator
 }
 
-func New(dirs core.DirectoryStore, events core.EventCreator) Server {
+func New(dirStore core.DirectoryStore, events core.EventCreator) Server {
 	return Server{
-		Dirs:   dirs,
+		Dirs:   dirStore,
 		Events: events,
 	}
 }

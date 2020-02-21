@@ -15,8 +15,8 @@ import (
 
 var bucketName = "watch:directories"
 
-func New(db *db.DB) core.DirectoryStore {
-	return &directoryStore{db}
+func New(database *db.DB) core.DirectoryStore {
+	return &directoryStore{database}
 }
 
 type directoryStore struct {
@@ -33,7 +33,10 @@ func (s *directoryStore) List(ctx context.Context) ([]*core.Directory, error) {
 
 	for _, v := range data {
 		dir := &core.Directory{}
-		json.NewDecoder(strings.NewReader(v)).Decode(dir)
+		err := json.NewDecoder(strings.NewReader(v)).Decode(dir)
+		if err != nil {
+			return nil, err
+		}
 		dirs = append(dirs, dir)
 	}
 
@@ -56,7 +59,7 @@ func (s *directoryStore) FindName(ctx context.Context, name string) (*core.Direc
 		return nil, err
 	}
 	if value == nil {
-		return nil, errors.New("Entry was not found")
+		return nil, errors.New("entry was not found")
 	}
 
 	err = json.NewDecoder(bytes.NewReader(value)).Decode(dir)
