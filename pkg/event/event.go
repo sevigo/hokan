@@ -51,7 +51,6 @@ func (c *creator) Subscribe(ctx context.Context, eventType core.EventType) <-cha
 		<-ctx.Done()
 		c.Lock()
 		defer c.Unlock()
-		delete(c.subs[eventType], handler)
 		close(handler)
 	}()
 
