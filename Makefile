@@ -23,7 +23,7 @@ install-golangci-lint:
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b ${LOCAL_BIN}
 
 lint: install-golangci-lint
-	${LOCAL_BIN}/golangci-lint run -v
+	${LOCAL_BIN}/golangci-lint run
 
 test:
 	go test -timeout 10s -v -cover ./...

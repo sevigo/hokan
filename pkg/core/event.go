@@ -19,5 +19,5 @@ type EventData struct {
 
 type EventCreator interface {
 	Publish(context.Context, *EventData) error
-	Subscribe(context.Context, EventType) (<-chan *EventData, <-chan error)
+	Subscribe(context.Context, EventType) <-chan *EventData
 }

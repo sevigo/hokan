@@ -37,7 +37,7 @@ func TestSubscriptionpubSub(t *testing.T) {
 }
 
 func subscribeTester(t *testing.T) {
-	dataChan, _ := eventCreator.Subscribe(context.TODO(), core.WatchDirStart)
+	dataChan := eventCreator.Subscribe(context.TODO(), core.WatchDirStart)
 	wgSubscriberReady.Done()
 	data := <-dataChan
 	assert.Equal(t, WatchDirStartData, string(data.Data))
