@@ -157,3 +157,17 @@ func (mr *MockEventCreatorMockRecorder) Publish(arg0, arg1 interface{}) *gomock.
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockEventCreator)(nil).Publish), arg0, arg1)
 }
+
+// Subscribe mocks base method
+func (m *MockEventCreator) Subscribe(arg0 context.Context, arg1 core.EventType) <-chan *core.EventData {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Subscribe", arg0, arg1)
+	ret0, _ := ret[0].(<-chan *core.EventData)
+	return ret0
+}
+
+// Subscribe indicates an expected call of Subscribe
+func (mr *MockEventCreatorMockRecorder) Subscribe(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockEventCreator)(nil).Subscribe), arg0, arg1)
+}
