@@ -14,7 +14,7 @@ const (
 
 type EventData struct {
 	Type EventType
-	Data []byte
+	Data interface{}
 }
 
 type EventCreator interface {

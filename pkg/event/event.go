@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/rs/zerolog/log"
 	"github.com/sevigo/hokan/pkg/core"
 )
 
@@ -27,6 +28,8 @@ func New(config Config) core.EventCreator {
 func (c *creator) Publish(ctx context.Context, data *core.EventData) error {
 	c.Lock()
 	defer c.Unlock()
+
+	log.Debug().Str("caller", "event.Publish").Msgf("%#v", data.Data)
 
 	eventType := data.Type
 	for _, c := range c.subs[eventType] {

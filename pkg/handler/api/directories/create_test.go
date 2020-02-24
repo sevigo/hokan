@@ -26,6 +26,10 @@ func TestCreate(t *testing.T) {
 		return nil
 	})
 	eventCreator := mocks.NewMockEventCreator(controller)
+	eventCreator.EXPECT().Publish(gomock.Any(), &core.EventData{
+		Type: core.WatchDirStart,
+		Data: &core.Directory{Path: "C:\\Documents\\Fotos"},
+	})
 
 	in := new(bytes.Buffer)
 	err := json.NewEncoder(in).Encode(&core.Directory{Path: "C:\\Documents\\Fotos"})
