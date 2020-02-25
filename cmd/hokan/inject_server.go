@@ -25,7 +25,7 @@ var serverSet = wire.NewSet(
 	provideEventCreator,
 )
 
-func provideRouter(apiHandler api.Server, healthz healthzHandler) *chi.Mux {
+func provideRouter(apiHandler api.Server, healthz healthzHandler) http.Handler {
 	r := chi.NewRouter()
 	r.Mount("/healthz", healthz)
 	r.Mount("/api", apiHandler.Handler())

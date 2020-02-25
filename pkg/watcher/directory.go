@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/prometheus/common/log"
+	"github.com/rs/zerolog/log"
 	"github.com/sevigo/hokan/pkg/core"
 )
 
@@ -17,6 +17,8 @@ type Watch struct {
 }
 
 func New(ctx context.Context, dirStore core.DirectoryStore, event core.EventCreator) (*Watch, error) {
+	log.Printf("watcher.New(): start")
+
 	w := &Watch{
 		ctx:   ctx,
 		event: event,
@@ -33,7 +35,7 @@ func New(ctx context.Context, dirStore core.DirectoryStore, event core.EventCrea
 }
 
 func (w *Watch) StartDirWatcher() {
-	log.Debugln("dir-watcher: starting subscriber")
+	log.Printf("watcher.StartDirWatcher(): starting subscriber")
 	ctx := w.ctx
 	eventData := w.event.Subscribe(ctx, core.WatchDirStart)
 	wg.Done()
@@ -41,27 +43,31 @@ func (w *Watch) StartDirWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Debugln("dir-watcher: stream canceled")
+			log.Printf("dir-watcher: stream canceled")
 			return
 		case e := <-eventData:
-			log.Debugf("dir-watcher: %#v", e.Data)
+			log.Printf("dir-watcher: %#v", e.Data)
 		}
 	}
 }
 
 func (w *Watch) GetDirsToWatch() error {
+	log.Printf("watcher.GetDirsToWatch(): running publishers")
 	dirs, err := w.store.List(w.ctx)
 	if err != nil {
+		log.Err(err).Msg("Can't list all directories")
 		return err
 	}
 	for _, dir := range dirs {
 		if dir.Active {
+			log.Printf("watcher.GetDirsToWatch(): publish %#v", dir)
 			err = w.event.Publish(w.ctx, &core.EventData{
 				Type: core.WatchDirStart,
 				Data: dir,
 			})
 			if err != nil {
-				return err
+				// return err
+				log.Err(err).Msg("Can't publish [WatchDirStart] event")
 			}
 		}
 	}

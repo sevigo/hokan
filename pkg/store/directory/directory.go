@@ -5,10 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
 	"path"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/store/db"
 )
@@ -28,6 +28,9 @@ func (s *directoryStore) List(ctx context.Context) ([]*core.Directory, error) {
 
 	data, err := s.db.ReadBucket(bucketName)
 	if err != nil {
+		if _, ok := err.(*db.ErrBucketNotFound); ok {
+			return dirs, nil
+		}
 		return nil, err
 	}
 
