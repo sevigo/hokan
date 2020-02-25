@@ -24,7 +24,7 @@ func New(ctx context.Context, dirStore core.DirectoryStore, event core.EventCrea
 		event: event,
 		store: dirStore,
 	}
-	wg.Add(1)
+	wg.Add(1) //nolint:gomnd
 	go w.StartDirWatcher()
 	wg.Wait()
 	err := w.GetDirsToWatch()
@@ -66,7 +66,6 @@ func (w *Watch) GetDirsToWatch() error {
 				Data: dir,
 			})
 			if err != nil {
-				// return err
 				log.Err(err).Msg("Can't publish [WatchDirStart] event")
 			}
 		}
