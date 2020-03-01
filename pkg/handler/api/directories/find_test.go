@@ -37,7 +37,7 @@ func TestFindByPath(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"Path":"C:\\Documents\\Fotos","Recursive":true,"Machine":"test","IgnoreFiles":null,"Target":null}`, body)
+	assert.Equal(t, `{"Active":false,"Path":"C:\\Documents\\Fotos","Recursive":true,"Machine":"test","IgnoreFiles":null,"Target":null}`, body)
 }
 
 func TestErrorPath(t *testing.T) {
