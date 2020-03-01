@@ -3,6 +3,7 @@ if /I %1 == default goto :default
 if /I %1 == build goto :build
 if /I %1 == run goto :run
 if /I %1 == clean goto :clean
+if /I %1 == lint goto :lint
 
 goto :eof ::can be ommited to run the `default` function similarly to makefiles
 
@@ -23,3 +24,7 @@ echo RUN ...
 cd cmd\hokan
 go run main.go inject_server.go inject_store.go inject_watcher.go wire_gen.go
 goto :eof
+
+:lint
+echo LINT ...
+bin\golangci-lint run
