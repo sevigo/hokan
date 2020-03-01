@@ -7,11 +7,11 @@ if /I %1 == clean goto :clean
 goto :eof ::can be ommited to run the `default` function similarly to makefiles
 
 :default
-echo DEFAULT
+echo DEFAULT ...
 goto :eof
 
 :build
-echo BUILD
+echo BUILD ...
 cd cmd\hokan
 go build -o ..\..\bin\hokan.exe
 cd ..\..
@@ -19,7 +19,7 @@ start /wait bin\hokan.exe
 goto :eof
 
 :run
-echo RUN
+echo RUN ...
 cd cmd\hokan
-go run main.go inject_server.go  inject_store.go  wire_gen.go
+go run main.go inject_server.go inject_store.go inject_watcher.go wire_gen.go
 goto :eof
