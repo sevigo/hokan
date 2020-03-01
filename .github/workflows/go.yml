@@ -21,7 +21,8 @@ jobs:
         go get -v -t -d ./...
 
     - name: Lint
-      run: make lint
+      run: |
+        make lint
 
     - name: Test
       run: make test

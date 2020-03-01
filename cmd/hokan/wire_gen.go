@@ -24,7 +24,8 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	mainHealthzHandler := provideHealthz()
 	handler := provideRouter(server, mainHealthzHandler)
 	serverServer := provideServer(handler, config2)
-	watcher, err := provideWatcher(ctx, directoryStore, eventCreator)
+	notifier := provideNotifier(ctx)
+	watcher, err := provideWatcher(ctx, directoryStore, eventCreator, notifier)
 	if err != nil {
 		return application{}, err
 	}
