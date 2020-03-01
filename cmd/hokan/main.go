@@ -23,7 +23,7 @@ func main() {
 	initLogging()
 	ctx := context.Background()
 
-	app, err := InitializeApplication(conf)
+	app, err := InitializeApplication(ctx, conf)
 	if err != nil {
 		log.Fatal().Err(err).Msg("main: cannot initialize server")
 	}
@@ -49,13 +49,15 @@ func initLogging() {
 
 // application is the main struct.
 type application struct {
-	dirs   core.DirectoryStore
-	server *server.Server
+	dirs    core.DirectoryStore
+	watcher core.Watcher
+	server  *server.Server
 }
 
-func newApplication(srv *server.Server, dirs core.DirectoryStore) application {
+func newApplication(srv *server.Server, dirs core.DirectoryStore, watcher core.Watcher) application {
 	return application{
-		dirs:   dirs,
-		server: srv,
+		dirs:    dirs,
+		server:  srv,
+		watcher: watcher,
 	}
 }

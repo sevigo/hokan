@@ -26,6 +26,10 @@ func TestCreate(t *testing.T) {
 		return nil
 	})
 	eventCreator := mocks.NewMockEventCreator(controller)
+	eventCreator.EXPECT().Publish(gomock.Any(), &core.EventData{
+		Type: core.WatchDirStart,
+		Data: &core.Directory{Path: "C:\\Documents\\Fotos"},
+	})
 
 	in := new(bytes.Buffer)
 	err := json.NewEncoder(in).Encode(&core.Directory{Path: "C:\\Documents\\Fotos"})
@@ -37,7 +41,7 @@ func TestCreate(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	assert.Equal(t, 201, w.Code)
-	assert.Equal(t, `{"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"","IgnoreFiles":null,"Target":null}`, body)
+	assert.Equal(t, `{"Active":false,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"","IgnoreFiles":null,"Target":null}`, body)
 }
 
 func TestCreateBadRequest(t *testing.T) {

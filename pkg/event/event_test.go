@@ -28,7 +28,7 @@ func TestSubscriptionpubSub(t *testing.T) {
 
 	err := eventCreator.Publish(context.TODO(), &core.EventData{
 		Type: core.WatchDirStart,
-		Data: []byte(WatchDirStartData),
+		Data: WatchDirStartData,
 	})
 	assert.NoError(t, err)
 
@@ -40,7 +40,7 @@ func subscribeTester(t *testing.T) {
 	dataChan := eventCreator.Subscribe(context.TODO(), core.WatchDirStart)
 	wgSubscriberReady.Done()
 	data := <-dataChan
-	assert.Equal(t, WatchDirStartData, string(data.Data))
+	assert.Equal(t, WatchDirStartData, data.Data)
 	assert.Equal(t, core.WatchDirStart, data.Type)
 	atomic.AddUint64(&totalEventCounter, 1)
 	wgDone.Done()

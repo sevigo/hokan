@@ -29,6 +29,17 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 			return
 		}
 
+		err = event.Publish(r.Context(), &core.EventData{
+			Type: core.WatchDirStart,
+			Data: dir,
+		})
+		if err != nil {
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, core.ErrorResp{Code: http.StatusInternalServerError, Msg: "cannot store a new directory"})
+			logger.FromRequest(r).Err(err).Msg("api: cannot store a new directory")
+			return
+		}
+
 		render.Status(r, http.StatusCreated)
 		render.JSON(w, r, dir)
 	}

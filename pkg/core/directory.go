@@ -3,6 +3,7 @@ package core
 import "context"
 
 type Directory struct {
+	Active      bool
 	Path        string
 	Recursive   bool
 	Machine     string

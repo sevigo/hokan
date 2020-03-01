@@ -2,14 +2,16 @@ package server
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
+
+const ErrOnShutdownCode = 1
 
 // A Server defines parameters for running an HTTP server.
 type Server struct {
@@ -38,7 +40,14 @@ func (s Server) ListenAndServe(ctx context.Context) error {
 		case syscall.SIGTERM:
 			log.Print("Got SIGTERM...")
 		}
-		return s1.Shutdown(ctx)
+		err := s1.Shutdown(ctx)
+		if err != nil {
+			log.Err(err).Msg("Shutdown error")
+			os.Exit(ErrOnShutdownCode)
+		} else {
+			os.Exit(0)
+		}
+		return nil
 	})
 
 	g.Go(func() error {
