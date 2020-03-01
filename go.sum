@@ -69,6 +69,8 @@ github.com/sevigo/notify v0.0.0-20200127181504-91562c40bd0c h1:SFT02KnNXLelU5Hu/
 github.com/sevigo/notify v0.0.0-20200127181504-91562c40bd0c/go.mod h1:A6gXBuIRw2ZrE7qxxw+GEEC9fcKVlv84D65x525x2Yo=
 github.com/sevigo/notify v0.1.0 h1:WWzNKBBGGIuteuzA3LSzWojp9dUtaeFIV89zCWaUz30=
 github.com/sevigo/notify v0.1.0/go.mod h1:7x5cNW6hI2PX9+B+/H0OR8yiUuVoTGrO83IAbbK+VGE=
+github.com/sevigo/notify v0.2.0 h1:au6x7aEmHCSmqDVsvlPcXNzhhc4RHuxLK/Rpavcj6Ro=
+github.com/sevigo/notify v0.2.0/go.mod h1:7x5cNW6hI2PX9+B+/H0OR8yiUuVoTGrO83IAbbK+VGE=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.2 h1:SPIRibHv4MatM3XXNO2BJeFLZwZ2LvZgfQ5+UNI2im4=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=

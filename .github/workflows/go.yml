@@ -22,8 +22,7 @@ jobs:
 
     - name: Lint
       run: |
-        echo "skip"
-        # make lint
+        make lint
 
     - name: Test
       run: make test
