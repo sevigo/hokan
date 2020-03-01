@@ -51,7 +51,10 @@ func (w *Watch) StartDirWatcher() {
 			return
 		case e := <-eventData:
 			log.Printf("dir-watcher: %#v", e.Data)
-			w.processWatchEvent(e)
+			err := w.processWatchEvent(e)
+			if err != nil {
+				log.Err(err).Msg("Can't add/remove directory from the watch list")
+			}
 		}
 	}
 }
@@ -82,7 +85,7 @@ func (w *Watch) GetDirsToWatch() error {
 func (w *Watch) processWatchEvent(e *core.EventData) error {
 	data, ok := e.Data.(*core.Directory)
 	if !ok {
-		return fmt.Errorf("some error")
+		return fmt.Errorf("can't convert EventData %#v", e)
 	}
 
 	switch e.Type {

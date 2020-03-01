@@ -96,6 +96,7 @@ issues:
           - gomnd
       - path: inject_
         linters:
+          - lll
           - unused
           - deadcode
           - varcheck
