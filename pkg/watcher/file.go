@@ -1,14 +1,11 @@
 package watcher
 
 import (
-	"fmt"
-
 	"github.com/rs/zerolog/log"
 	"github.com/sevigo/notify/watcher"
 )
 
 func (w *Watch) StartFileWatcher() {
-	fmt.Println(">>> watcher.StartFileWatcher(): wait for file change events ...")
 	ctx := w.ctx
 
 	for {

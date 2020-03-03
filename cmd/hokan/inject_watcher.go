@@ -22,5 +22,5 @@ func provideWatcher(ctx context.Context, dirStore core.DirectoryStore, event cor
 
 // notifier
 func provideNotifier(ctx context.Context) core.Notifier {
-	return notify.Setup(ctx, &notifywatcher.Options{Rescan: true})
+	return notify.Setup(ctx, &notifywatcher.Options{})
 }

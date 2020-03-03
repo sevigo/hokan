@@ -1,6 +1,13 @@
 package core
 
-import "github.com/sevigo/notify/event"
+import (
+	"github.com/sevigo/notify/core"
+	"github.com/sevigo/notify/event"
+)
+
+type WatchOptions struct {
+	Rescan bool
+}
 
 // Notifier is an interface for start/stop watching directories for changes
 type Notifier interface {
@@ -8,5 +15,5 @@ type Notifier interface {
 	Error() chan event.Error
 	Scan(string) error
 	StopWatching(string)
-	StartWatching(string)
+	StartWatching(string, *core.WatchingOptions)
 }
