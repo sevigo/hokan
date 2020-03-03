@@ -46,7 +46,7 @@ func (s *directoryStore) List(ctx context.Context) ([]*core.Directory, error) {
 	return dirs, nil
 }
 
-func (s *directoryStore) Find(ctx context.Context, id int64) (*core.Directory, error) {
+func (s *directoryStore) Find(ctx context.Context, path int64) (*core.Directory, error) {
 	dir := &core.Directory{}
 
 	return dir, nil
