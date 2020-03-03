@@ -6,7 +6,9 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog/log"
+
 	"github.com/sevigo/hokan/pkg/core"
+	notify "github.com/sevigo/notify/core"
 )
 
 var wg sync.WaitGroup
@@ -19,8 +21,6 @@ type Watch struct {
 }
 
 func New(ctx context.Context, dirStore core.DirectoryStore, event core.EventCreator, notifier core.Notifier) (*Watch, error) {
-	log.Printf("watcher.New(): start")
-
 	w := &Watch{
 		ctx:      ctx,
 		event:    event,
@@ -60,14 +60,12 @@ func (w *Watch) StartDirWatcher() {
 }
 
 func (w *Watch) GetDirsToWatch() error {
-	fmt.Println(">>> watcher.GetDirsToWatch(): running publishers ...")
 	dirs, err := w.store.List(w.ctx)
 	if err != nil {
 		log.Err(err).Msg("Can't list all directories")
 		return err
 	}
 	for _, dir := range dirs {
-		fmt.Printf(">>> GetDirsToWatch(): %#v\n", dir)
 		if dir.Active {
 			log.Printf("watcher.GetDirsToWatch(): publish %#v", dir)
 			err = w.event.Publish(w.ctx, &core.EventData{
@@ -90,7 +88,7 @@ func (w *Watch) processWatchEvent(e *core.EventData) error {
 
 	switch e.Type {
 	case core.WatchDirStart:
-		w.notifier.StartWatching(data.Path)
+		w.notifier.StartWatching(data.Path, &notify.WatchingOptions{Rescan: true})
 	case core.WatchDirStop:
 		w.notifier.StopWatching(data.Path)
 	}
