@@ -51,13 +51,15 @@ func initLogging() {
 type application struct {
 	dirs    core.DirectoryStore
 	watcher core.Watcher
+	target  core.Target
 	server  *server.Server
 }
 
-func newApplication(srv *server.Server, dirs core.DirectoryStore, watcher core.Watcher) application {
+func newApplication(srv *server.Server, dirs core.DirectoryStore, watcher core.Watcher, target core.Target) application {
 	return application{
 		dirs:    dirs,
 		server:  srv,
 		watcher: watcher,
+		target:  target,
 	}
 }

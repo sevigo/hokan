@@ -20,7 +20,6 @@ func provideWatcher(ctx context.Context, dirStore core.DirectoryStore, event cor
 	return watcher.New(ctx, dirStore, event, notifier)
 }
 
-// notifier
 func provideNotifier(ctx context.Context) core.Notifier {
 	return notify.Setup(ctx, &notifywatcher.Options{})
 }

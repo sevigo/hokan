@@ -29,6 +29,11 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	if err != nil {
 		return application{}, err
 	}
-	mainApplication := newApplication(serverServer, directoryStore, watcher)
+	fileStore := provideFileStore(db)
+	target, err := provideTarget(ctx, fileStore, eventCreator)
+	if err != nil {
+		return application{}, err
+	}
+	mainApplication := newApplication(serverServer, directoryStore, watcher, target)
 	return mainApplication, nil
 }

@@ -1,42 +1,13 @@
 package watcher
 
 import (
-	"context"
 	"fmt"
-	"sync"
 
 	"github.com/rs/zerolog/log"
 
 	"github.com/sevigo/hokan/pkg/core"
 	notify "github.com/sevigo/notify/core"
 )
-
-var wg sync.WaitGroup
-
-type Watch struct {
-	ctx      context.Context
-	event    core.EventCreator
-	store    core.DirectoryStore
-	notifier core.Notifier
-}
-
-func New(ctx context.Context, dirStore core.DirectoryStore, event core.EventCreator, notifier core.Notifier) (*Watch, error) {
-	w := &Watch{
-		ctx:      ctx,
-		event:    event,
-		store:    dirStore,
-		notifier: notifier,
-	}
-	wg.Add(1) //nolint:gomnd
-	go w.StartDirWatcher()
-	wg.Wait()
-	err := w.GetDirsToWatch()
-	if err != nil {
-		return nil, err
-	}
-	go w.StartFileWatcher()
-	return w, nil
-}
 
 func (w *Watch) StartDirWatcher() {
 	log.Printf("watcher.StartDirWatcher(): starting subscriber")
