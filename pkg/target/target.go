@@ -62,7 +62,10 @@ func (r *register) StartFileAddedWatcher() {
 			log.Printf("file-watcher: stream canceled")
 			return
 		case e := <-eventData:
-			log.Printf("file-watcher: %#v", e.Data)
+			log.Debug().
+				Str("event", "FileAdded").
+				Str("caller", "target.StartFileAddedWatcher").
+				Msgf("Data: %#v", e.Data)
 			// err := w.processWatchEvent(e)
 			// if err != nil {
 			// 	log.Err(err).Msg("Can't add/remove directory from the watch list")
