@@ -14,7 +14,7 @@ var targets = map[string]core.TargetFactory{
 	void.TargetName: void.New,
 }
 
-type register struct {
+type Register struct {
 	ctx context.Context
 	sync.Mutex
 	fileStore core.FileStore
@@ -22,8 +22,8 @@ type register struct {
 	register  map[string]core.TargetStorage
 }
 
-func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*register, error) {
-	r := &register{
+func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*Register, error) {
+	r := &Register{
 		ctx:       ctx,
 		fileStore: fileStore,
 		event:     event,
@@ -34,7 +34,7 @@ func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator)
 	return r, nil
 }
 
-func (r *register) InitTargets() {
+func (r *Register) InitTargets() {
 	for name, target := range targets {
 		ts, err := target(r.fileStore)
 		if err != nil {
@@ -45,13 +45,13 @@ func (r *register) InitTargets() {
 	}
 }
 
-func (r *register) addTarget(name string, ts core.TargetStorage) {
+func (r *Register) addTarget(name string, ts core.TargetStorage) {
 	r.Lock()
 	defer r.Unlock()
 	r.register[name] = ts
 }
 
-func (r *register) StartFileAddedWatcher() {
+func (r *Register) StartFileAddedWatcher() {
 	log.Printf("target.StartFileChangeWatcher(): starting subscriber")
 	ctx := r.ctx
 	eventData := r.event.Subscribe(ctx, core.FileAdded)

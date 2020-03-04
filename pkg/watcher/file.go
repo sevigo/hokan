@@ -33,7 +33,6 @@ func (w *Watch) StartFileWatcher() {
 }
 
 func (w *Watch) publishFileChange(path string) error {
-
 	var targets []string
 	for _, dir := range w.catalog {
 		if strings.Contains(path, dir.Path) {

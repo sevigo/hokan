@@ -8,8 +8,6 @@ import (
 	"github.com/sevigo/hokan/pkg/store/db"
 )
 
-var bucketName = "file::snapshot"
-
 type fileStore struct {
 	db *db.DB
 }
