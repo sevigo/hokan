@@ -22,7 +22,7 @@ func New(fs core.FileStore) (core.TargetStorage, error) {
 }
 
 func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
-	log.Printf("[void] save %#v\n", file)
+	log.Printf(">>> [void] save %#v", file)
 	return nil
 }
 

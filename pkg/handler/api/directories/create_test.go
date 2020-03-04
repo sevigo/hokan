@@ -41,7 +41,7 @@ func TestCreate(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	assert.Equal(t, 201, w.Code)
-	assert.Equal(t, `{"Active":false,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"","IgnoreFiles":null,"Target":null}`, body)
+	assert.Equal(t, `{"Active":false,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"","IgnoreFiles":null,"Targets":null}`, body)
 }
 
 func TestCreateBadRequest(t *testing.T) {
