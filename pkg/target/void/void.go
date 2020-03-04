@@ -11,10 +11,10 @@ import (
 const TargetName = "void"
 
 type voidStorage struct {
-	fs *core.FileStore
+	fs core.FileStore
 }
 
-func New(fs *core.FileStore) (core.TargetStorage, error) {
+func New(fs core.FileStore) (core.TargetStorage, error) {
 	log.Printf("New void storage created\n")
 	return &voidStorage{
 		fs: fs,

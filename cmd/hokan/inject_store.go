@@ -7,11 +7,13 @@ import (
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/store/db"
 	"github.com/sevigo/hokan/pkg/store/directory"
+	"github.com/sevigo/hokan/pkg/store/file"
 )
 
 var storeSet = wire.NewSet(
 	provideDatabase,
 	provideDirectoryStore,
+	provideFileStore,
 )
 
 func provideDatabase(config config.Config) (*db.DB, error) {
@@ -21,4 +23,9 @@ func provideDatabase(config config.Config) (*db.DB, error) {
 func provideDirectoryStore(db *db.DB) core.DirectoryStore {
 	dirs := directory.New(db)
 	return dirs
+}
+
+func provideFileStore(db *db.DB) core.FileStore {
+	files := file.New(db)
+	return files
 }

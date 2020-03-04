@@ -2,7 +2,9 @@ package core
 
 import "context"
 
-type Target struct{}
+type Target interface {
+	InitTargets()
+}
 
 type TargetStorage interface {
 	List(context.Context) ([]*File, error)
@@ -15,4 +17,4 @@ type TargetStorage interface {
 }
 
 // TargetFactory is a function that returns a TargetStorage.
-type TargetFactory func(*FileStore) (TargetStorage, error)
+type TargetFactory func(FileStore) (TargetStorage, error)

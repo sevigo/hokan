@@ -14,34 +14,59 @@ var targets = map[string]core.TargetFactory{
 	void.TargetName: void.New,
 }
 
-var registerM sync.Mutex
-var register map[string]core.TargetStorage = make(map[string]core.TargetStorage)
-
-// type Target struct {
-// 	ctx      context.Context
-// 	event    core.EventCreator
-// 	store    core.DirectoryStore
-// 	notifier core.Notifier
-// 	catalog  []*core.Directory
-// }
-
-func New(ctx context.Context, fileStore *core.FileStore, event core.EventCreator) {
-	initTargets(fileStore)
+type register struct {
+	ctx context.Context
+	sync.Mutex
+	fileStore core.FileStore
+	event     core.EventCreator
+	register  map[string]core.TargetStorage
 }
 
-func initTargets(fileStore *core.FileStore) {
+func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*register, error) {
+	r := &register{
+		ctx:       ctx,
+		fileStore: fileStore,
+		event:     event,
+		register:  make(map[string]core.TargetStorage),
+	}
+	r.InitTargets()
+	go r.StartFileAddedWatcher()
+	return r, nil
+}
+
+func (r *register) InitTargets() {
 	for name, target := range targets {
-		ts, err := target(fileStore)
+		ts, err := target(r.fileStore)
 		if err != nil {
 			log.Err(err).Msg("Can't create new target storage")
 			continue
 		}
-		addTarget(name, ts)
+		r.addTarget(name, ts)
 	}
 }
 
-func addTarget(name string, ts core.TargetStorage) {
-	registerM.Lock()
-	defer registerM.Unlock()
-	register[name] = ts
+func (r *register) addTarget(name string, ts core.TargetStorage) {
+	r.Lock()
+	defer r.Unlock()
+	r.register[name] = ts
+}
+
+func (r *register) StartFileAddedWatcher() {
+	log.Printf("target.StartFileChangeWatcher(): starting subscriber")
+	ctx := r.ctx
+	eventData := r.event.Subscribe(ctx, core.FileAdded)
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("file-watcher: stream canceled")
+			return
+		case e := <-eventData:
+			log.Printf("file-watcher: %#v", e.Data)
+			// err := w.processWatchEvent(e)
+			// if err != nil {
+			// 	log.Err(err).Msg("Can't add/remove directory from the watch list")
+			// }
+		}
+	}
 }
