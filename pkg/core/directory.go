@@ -8,8 +8,7 @@ type Directory struct {
 	Recursive   bool
 	Machine     string
 	IgnoreFiles []string
-	// 	TODO: rename to Targets []string
-	Target []string
+	Targets     []string
 }
 
 type DirectoryStore interface {

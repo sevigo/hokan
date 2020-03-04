@@ -2,6 +2,7 @@ package target
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/rs/zerolog/log"
@@ -45,12 +46,6 @@ func (r *Register) InitTargets() {
 	}
 }
 
-func (r *Register) addTarget(name string, ts core.TargetStorage) {
-	r.Lock()
-	defer r.Unlock()
-	r.register[name] = ts
-}
-
 func (r *Register) StartFileAddedWatcher() {
 	log.Printf("target.StartFileChangeWatcher(): starting subscriber")
 	ctx := r.ctx
@@ -66,10 +61,36 @@ func (r *Register) StartFileAddedWatcher() {
 				Str("event", "FileAdded").
 				Str("caller", "target.StartFileAddedWatcher").
 				Msgf("Data: %#v", e.Data)
-			// err := w.processWatchEvent(e)
-			// if err != nil {
-			// 	log.Err(err).Msg("Can't add/remove directory from the watch list")
-			// }
+			err := r.processFileAddedEvent(e)
+			if err != nil {
+				log.Err(err).Msg("can't send the file to the target storage")
+			}
 		}
 	}
+}
+
+func (r *Register) processFileAddedEvent(e *core.EventData) error {
+	file, ok := e.Data.(core.File)
+	if !ok {
+		fmt.Printf(">>> processFileAddedEvent(): file=%#v\n", file)
+		return fmt.Errorf("invalid event data: %v", e)
+	}
+	for _, target := range file.Targets {
+		if ts := r.getTarget(target); ts != nil {
+			ts.Save(r.ctx, &file)
+		}
+	}
+	return nil
+}
+
+func (r *Register) addTarget(name string, ts core.TargetStorage) {
+	r.Lock()
+	defer r.Unlock()
+	r.register[name] = ts
+}
+
+func (r *Register) getTarget(name string) core.TargetStorage {
+	r.Lock()
+	defer r.Unlock()
+	return r.register[name]
 }

@@ -36,15 +36,16 @@ func (w *Watch) publishFileChange(path string) error {
 	var targets []string
 	for _, dir := range w.catalog {
 		if strings.Contains(path, dir.Path) {
-			targets = dir.Target
+			targets = dir.Targets
 		}
 	}
 
 	return w.event.Publish(w.ctx, &core.EventData{
 		Type: core.FileAdded,
 		Data: core.File{
-			Path:    path,
-			Targets: targets,
+			Path:     path,
+			Checksum: "TODO",
+			Targets:  targets,
 		},
 	})
 }

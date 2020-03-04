@@ -3,8 +3,9 @@ package core
 import "context"
 
 type File struct {
-	Path    string
-	Targets []string
+	Path     string
+	Checksum string
+	Targets  []string
 }
 
 type FileStore interface {
