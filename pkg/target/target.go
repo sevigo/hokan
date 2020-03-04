@@ -72,12 +72,17 @@ func (r *Register) StartFileAddedWatcher() {
 func (r *Register) processFileAddedEvent(e *core.EventData) error {
 	file, ok := e.Data.(core.File)
 	if !ok {
-		fmt.Printf(">>> processFileAddedEvent(): file=%#v\n", file)
 		return fmt.Errorf("invalid event data: %v", e)
 	}
 	for _, target := range file.Targets {
 		if ts := r.getTarget(target); ts != nil {
-			ts.Save(r.ctx, &file)
+			err := ts.Save(r.ctx, &file)
+			if err != nil {
+				log.Err(err).
+					Str("target", target).
+					Str("file", file.Path).
+					Msg("can't save the file to the target storage")
+			}
 		}
 	}
 	return nil
