@@ -47,7 +47,7 @@ func (r *Register) InitTargets() {
 }
 
 func (r *Register) StartFileAddedWatcher() {
-	log.Printf("target.StartFileChangeWatcher(): starting subscriber")
+	log.Print("target.StartFileChangeWatcher(): starting subscriber")
 	ctx := r.ctx
 	eventData := r.event.Subscribe(ctx, core.FileAdded)
 
