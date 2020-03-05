@@ -3,13 +3,15 @@ module github.com/sevigo/hokan
 go 1.13
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-chi/render v1.0.1
+	github.com/go-ini/ini v1.52.0 // indirect
 	github.com/golang/mock v1.4.1
 	github.com/google/wire v0.4.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.4
+	github.com/minio/minio-go v6.0.14+incompatible
+	github.com/minio/minio-go/v6 v6.0.49 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rs/zerolog v1.18.0
 	github.com/segmentio/ksuid v1.0.2
