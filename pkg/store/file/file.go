@@ -41,8 +41,8 @@ func (s *fileStore) Find(ctx context.Context, bucketName, filePath string) (*cor
 		return nil, errors.New("entry was not found")
 	}
 
-	errJson := json.NewDecoder(bytes.NewReader(value)).Decode(file)
-	return file, errJson
+	errJ := json.NewDecoder(bytes.NewReader(value)).Decode(file)
+	return file, errJ
 }
 
 func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File) error {
