@@ -74,14 +74,14 @@ func (f FileInfo) MarshalJSON() ([]byte, error) {
 }
 
 func fileChecksumInfo(path string) (string, string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return "", "", err
+	f, erro := os.Open(path)
+	if erro != nil {
+		return "", "", erro
 	}
 	defer f.Close()
-	info, err := f.Stat()
-	if err != nil {
-		return "", "", err
+	info, errs := f.Stat()
+	if errs != nil {
+		return "", "", errs
 	}
 
 	if info.IsDir() {
@@ -93,12 +93,12 @@ func fileChecksumInfo(path string) (string, string, error) {
 		return "", "", err
 	}
 
-	infoJson, err := json.Marshal(FileInfo{info})
-	if _, err := io.Copy(h, f); err != nil {
-		return "", "", err
+	infoJSON, errj := json.Marshal(FileInfo{info})
+	if errj != nil {
+		return "", "", errj
 	}
 
 	sum := fmt.Sprintf("%x", h.Sum(nil))
 
-	return sum, string(infoJson), nil
+	return sum, string(infoJSON), nil
 }
