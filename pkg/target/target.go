@@ -6,13 +6,16 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog/log"
+
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/target/minio"
 	"github.com/sevigo/hokan/pkg/target/void"
 )
 
 // All known targets
 var targets = map[string]core.TargetFactory{
-	void.TargetName: void.New,
+	void.TargetName:  void.New,
+	minio.TargetName: minio.New,
 }
 
 type Register struct {
