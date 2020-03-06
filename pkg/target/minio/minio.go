@@ -18,17 +18,12 @@ const secretAccessKeyDefault = "miniostorage"
 const useSSL = false
 
 type minioStore struct {
-	// endpoint        string //:= "play.min.io"
-	// accessKeyID     string //:= "Q3AM3UQ867SPQQA43P2F"
-	// secretAccessKey string //:= "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-
 	client     *minio.Client
 	fs         core.FileStore
 	bucketName string
 }
 
 func New(fs core.FileStore) (core.TargetStorage, error) {
-
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpointDefault, accessKeyIDDefault, secretAccessKeyDefault, useSSL)
 	if err != nil {
@@ -87,7 +82,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 			// StorageClass            string
 			// WebsiteRedirectLocation string
 		}
-		n, err := s.client.FPutObject(s.bucketName, objectName, file.Path, options)
+		n, err := s.client.FPutObjectWithContext(ctx, s.bucketName, objectName, file.Path, options)
 		if err != nil {
 			return err
 		}
