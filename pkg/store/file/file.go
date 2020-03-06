@@ -13,6 +13,8 @@ import (
 	"github.com/sevigo/hokan/pkg/store/db"
 )
 
+var ErrFileEntryNotFound = errors.New("file entry not found")
+
 type fileStore struct {
 	db *db.DB
 }
@@ -38,7 +40,7 @@ func (s *fileStore) Find(ctx context.Context, bucketName, filePath string) (*cor
 		return nil, err
 	}
 	if value == nil {
-		return nil, errors.New("entry was not found")
+		return nil, ErrFileEntryNotFound
 	}
 
 	errJ := json.NewDecoder(bytes.NewReader(value)).Decode(file)
@@ -58,5 +60,5 @@ func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File
 func (s *fileStore) Delete(ctx context.Context, bucketName string, file *core.File) error {
 	log.Printf("file.Delete() %#v\n", file)
 
-	return nil
+	return errors.New("not implemented")
 }

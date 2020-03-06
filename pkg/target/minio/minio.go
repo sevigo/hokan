@@ -2,12 +2,14 @@ package minio
 
 import (
 	"context"
+	"errors"
 	"path"
 
 	"github.com/minio/minio-go"
 	"github.com/rs/zerolog/log"
 
 	"github.com/sevigo/hokan/pkg/core"
+	filestore "github.com/sevigo/hokan/pkg/store/file"
 )
 
 const TargetName = "minio"
@@ -56,14 +58,22 @@ func New(fs core.FileStore) (core.TargetStorage, error) {
 	}, nil
 }
 
-func (s *minioStore) Save(ctx context.Context, file *core.File) error {
-	f, err := s.fs.Find(ctx, TargetName, file.Path)
-	if err != nil { // TODO: not fount error
-		log.Printf(">>> [%s] save a new file [%v]", TargetName, file)
+func fileHasChanged(newFile, storedFile *core.File) bool {
+	if storedFile == nil {
+		return true
+	}
+	if newFile.Checksum != storedFile.Checksum {
+		return true
+	}
+	return false
+}
 
+func (s *minioStore) Save(ctx context.Context, file *core.File) error {
+	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	if errors.Is(err, filestore.ErrFileEntryNotFound) || fileHasChanged(file, storedFile) {
+		log.Printf(">>> [%s] save a new file [%v]", TargetName, file)
 		// Upload the file
 		objectName := path.Clean(file.Path)
-
 		// Upload the file with FPutObject
 		options := minio.PutObjectOptions{
 			UserMetadata: map[string]string{
@@ -71,16 +81,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 				"info":     file.Info,
 				"checksum": file.Checksum,
 			},
-			// Progress                io.Reader
-			// ContentType             string
-			// ContentEncoding         string
-			// ContentDisposition      string
-			// ContentLanguage         string
-			// CacheControl            string
-			// ServerSideEncryption    encrypt.ServerSide
-			// NumThreads              uint
-			// StorageClass            string
-			// WebsiteRedirectLocation string
+			// TODO: we can use Progress for the reporting the progress back to the client
 		}
 		n, err := s.client.FPutObjectWithContext(ctx, s.bucketName, objectName, file.Path, options)
 		if err != nil {
@@ -89,30 +90,22 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		log.Printf("Successfully uploaded %s of size %d\n", objectName, n)
 		return s.fs.Save(ctx, TargetName, file)
 	}
-	if f != nil && f.Checksum == file.Checksum {
-		log.Printf("!!! [%s] ignore saving, file [%v] already stored", TargetName, file)
-		return nil
-	}
-	if f != nil && f.Checksum != file.Checksum {
-		log.Printf("!!! [%s] save changed file [%v]", TargetName, file)
-		return s.fs.Save(ctx, TargetName, file)
-	}
 
+	log.Printf("!!! [%s] ignore saving, file [%v] already stored", TargetName, file)
 	return nil
 }
 
 func (s *minioStore) List(context.Context) ([]*core.File, error) {
 	log.Printf("[minio] list\n")
-	return nil, nil
+	return nil, errors.New("not implemented")
 }
 
 func (s *minioStore) Find(ctx context.Context, q string) (*core.File, error) {
 	log.Printf("[minio] find %q\n", q)
-	return nil, nil
+	return nil, errors.New("not implemented")
 }
 
 func (s *minioStore) Delete(ctx context.Context, file *core.File) error {
 	log.Printf("[minio] save %#v\n", file)
-
-	return nil
+	return errors.New("not implemented")
 }
