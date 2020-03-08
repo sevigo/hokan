@@ -23,7 +23,7 @@ func (w *Watch) StartFileWatcher() {
 			log.Printf("file-watcher: stream canceled")
 			return
 		case ev := <-w.notifier.Event():
-			log.Printf("[EVENT] %s: %q", watcher.ActionToString(ev.Action), ev.Path)
+			log.Debug().Str("event", watcher.ActionToString(ev.Action)).Msgf("file: %q\n", ev.Path)
 			// TODO: adapt ev.Action to core action
 			err := w.publishFileChange(ev.Path)
 			if err != nil {
@@ -31,7 +31,7 @@ func (w *Watch) StartFileWatcher() {
 			}
 		case err := <-w.notifier.Error():
 			if err.Level == "ERROR" {
-				log.Printf("[%s] %s", err.Level, err.Message)
+				log.Error().Msgf("[%s] %s", err.Level, err.Message)
 			}
 		}
 	}

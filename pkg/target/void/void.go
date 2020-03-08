@@ -14,7 +14,7 @@ type voidStorage struct {
 	fs core.FileStore
 }
 
-func New(fs core.FileStore) (core.TargetStorage, error) {
+func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
 	return &voidStorage{
 		fs: fs,
 	}, nil
@@ -23,15 +23,15 @@ func New(fs core.FileStore) (core.TargetStorage, error) {
 func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
 	f, err := s.fs.Find(ctx, TargetName, file.Path)
 	if err != nil {
-		log.Printf(">>> [void] save a new file [%v] to %q", file, TargetName)
+		log.Debug().Str("target", TargetName).Str("file", file.Path).Msg("save a new file")
 		return s.fs.Save(ctx, TargetName, file)
 	}
 	if f != nil && f.Checksum == file.Checksum {
-		log.Printf("!!! [void] ignore saving, file [%v] already stored in %q", file, TargetName)
+		// log.Printf("!!! [void] ignore saving, file [%v] already stored in %q", file, TargetName)
 		return nil
 	}
 	if f != nil && f.Checksum != file.Checksum {
-		log.Printf("!!! [void] save changed file [%v] to %q", file, TargetName)
+		// log.Printf("!!! [void] save changed file [%v] to %q", file, TargetName)
 		return s.fs.Save(ctx, TargetName, file)
 	}
 

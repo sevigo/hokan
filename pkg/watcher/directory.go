@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/rs/zerolog/log"
+	notify "github.com/sevigo/notify/core"
 
 	"github.com/sevigo/hokan/pkg/core"
-	notify "github.com/sevigo/notify/core"
 )
 
 func (w *Watch) StartDirWatcher() {
-	log.Print("watcher.StartDirWatcher(): starting subscriber")
+	log.Debug().Msg("watcher.StartDirWatcher(): starting subscriber")
 	ctx := w.ctx
 	eventData := w.event.Subscribe(ctx, core.WatchDirStart)
 	wg.Done()
@@ -21,10 +21,28 @@ func (w *Watch) StartDirWatcher() {
 			log.Printf("dir-watcher: stream canceled")
 			return
 		case e := <-eventData:
-			err := w.processWatchEvent(e)
-			if err != nil {
-				log.Err(err).Msg("Can't add/remove directory from the watch list")
+			data, ok := e.Data.(*core.Directory)
+			if !ok {
+				log.Error().Msg("Can't add directory to the watch list")
 			}
+			w.notifier.StartWatching(data.Path, &notify.WatchingOptions{Rescan: true})
+		}
+	}
+}
+
+func (w *Watch) StartRescanWatcher() {
+	log.Debug().Msg("watcher.StartRescanWatcher(): starting subscriber")
+	ctx := w.ctx
+	eventData := w.event.Subscribe(ctx, core.WatchDirRescan)
+	wg.Done()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-eventData:
+			fmt.Println(">>> received event WatchDirRescan")
+			w.notifier.RescanAll()
 		}
 	}
 }
@@ -47,21 +65,5 @@ func (w *Watch) GetDirsToWatch() error {
 			}
 		}
 	}
-	return nil
-}
-
-func (w *Watch) processWatchEvent(e *core.EventData) error {
-	data, ok := e.Data.(*core.Directory)
-	if !ok {
-		return fmt.Errorf("can't convert EventData %#v", e)
-	}
-
-	switch e.Type {
-	case core.WatchDirStart:
-		w.notifier.StartWatching(data.Path, &notify.WatchingOptions{Rescan: true})
-	case core.WatchDirStop:
-		w.notifier.StopWatching(data.Path)
-	}
-
 	return nil
 }

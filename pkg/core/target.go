@@ -3,7 +3,7 @@ package core
 import "context"
 
 type Target interface {
-	InitTargets()
+	// InitTargets(ctx)
 }
 
 type TargetStorage interface {
@@ -17,4 +17,4 @@ type TargetStorage interface {
 }
 
 // TargetFactory is a function that returns a TargetStorage.
-type TargetFactory func(FileStore) (TargetStorage, error)
+type TargetFactory func(context.Context, FileStore) (TargetStorage, error)

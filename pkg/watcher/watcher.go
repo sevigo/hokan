@@ -24,8 +24,9 @@ func New(ctx context.Context, dirStore core.DirectoryStore, event core.EventCrea
 		store:    dirStore,
 		notifier: notifier,
 	}
-	wg.Add(1) //nolint:gomnd
+	wg.Add(2) //nolint:gomnd
 	go w.StartDirWatcher()
+	go w.StartRescanWatcher()
 	wg.Wait()
 	err := w.GetDirsToWatch()
 	if err != nil {
