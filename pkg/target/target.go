@@ -67,16 +67,16 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 			if err == nil {
 				r.addTarget(name, ts)
 				if counter > 0 {
-					fmt.Println(">>> send event WatchDirRescan")
-					r.event.Publish(ctx, &core.EventData{
-						Type: core.WatchDirRescan,
-					})
+					errEvent := r.event.Publish(ctx, &core.EventData{Type: core.WatchDirRescan})
+					if errEvent != nil {
+						log.Err(errEvent).Msg("Can't publish [FileAdded] event")
+					}
 				}
 				return
 			}
 			log.Error().Err(err).Str("target", name).Msg("Can't create new target storage")
 			if counter%10 == 0 {
-				mod = mod * 2
+				mod *= 2
 				ticker = time.NewTicker(time.Duration(mod) * time.Second)
 			}
 			counter++
