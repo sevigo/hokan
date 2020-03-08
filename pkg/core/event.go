@@ -7,6 +7,7 @@ type EventType int
 const (
 	WatchDirStart EventType = iota
 	WatchDirStop
+	WatchDirRescan
 	FileAdded
 	FileChanged
 	FileRemoved

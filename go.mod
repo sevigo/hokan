@@ -15,7 +15,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rs/zerolog v1.18.0
 	github.com/segmentio/ksuid v1.0.2
-	github.com/sevigo/notify v0.3.0
+	github.com/sevigo/notify v0.4.0
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
 	github.com/stretchr/testify v1.5.1
 	go.etcd.io/bbolt v1.3.3

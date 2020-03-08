@@ -25,26 +25,23 @@ type minioStore struct {
 	bucketName string
 }
 
-func New(fs core.FileStore) (core.TargetStorage, error) {
+func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpointDefault, accessKeyIDDefault, secretAccessKeyDefault, useSSL)
 	if err != nil {
-		log.Fatal().Err(err).Msg("can't create new minio client")
+		log.Fatal().Err(err).Msg("Can't create new minio client")
 		return nil, err
 	}
 
 	// Make a new bucket with mchine name (must be from the config)
 	bucketName := "osaka"
-	location := "us-east-1"
-
-	err = minioClient.MakeBucket(bucketName, location)
+	err = minioClient.MakeBucket(bucketName, "")
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if you run this twice)
 		exists, errBucketExists := minioClient.BucketExists(bucketName)
 		if errBucketExists == nil && exists {
 			log.Printf("We already own %s\n", bucketName)
 		} else {
-			log.Fatal().Err(err).Msg("can't create new minio client")
 			return nil, err
 		}
 	} else {
@@ -70,8 +67,9 @@ func fileHasChanged(newFile, storedFile *core.File) bool {
 
 func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	logger := log.Debug().Str("target", TargetName).Str("file", file.Path).Str("op", "save")
 	if errors.Is(err, filestore.ErrFileEntryNotFound) || fileHasChanged(file, storedFile) {
-		log.Printf(">>> [%s] save a new file [%v]", TargetName, file)
+		logger.Msg("save a new file")
 		// Upload the file
 		objectName := path.Clean(file.Path)
 		// Upload the file with FPutObject
@@ -87,11 +85,10 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Successfully uploaded %s of size %d\n", objectName, n)
+		logger.Msgf("Successfully uploaded %s of size %d\n", objectName, n)
 		return s.fs.Save(ctx, TargetName, file)
 	}
-
-	log.Printf("!!! [%s] ignore saving, file [%v] already stored", TargetName, file)
+	logger.Msg("save a new file")
 	return nil
 }
 

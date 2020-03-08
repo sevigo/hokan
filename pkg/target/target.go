@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -27,30 +28,63 @@ type Register struct {
 }
 
 func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*Register, error) {
+	log.Debug().Str("op", "target.New()").Msg("start")
 	r := &Register{
 		ctx:       ctx,
 		fileStore: fileStore,
 		event:     event,
 		register:  make(map[string]core.TargetStorage),
 	}
-	r.InitTargets()
+	r.InitTargets(ctx)
 	go r.StartFileAddedWatcher()
 	return r, nil
 }
 
-func (r *Register) InitTargets() {
+func (r *Register) InitTargets(ctx context.Context) {
 	for name, target := range targets {
-		ts, err := target(r.fileStore)
-		if err != nil {
-			log.Err(err).Msg("Can't create new target storage")
-			continue
+		go r.initWithRetry(ctx, name, target)
+	}
+}
+
+func (r *Register) initWithRetry(ctx context.Context, name string, target core.TargetFactory) {
+	counter := 0
+	mod := 10
+	ticker := time.NewTicker(time.Duration(mod) * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Debug().Str("op", "target.retryTarger()").Str("target", name).Msg("stream canceled")
+			return
+		case <-ticker.C:
+			log.Debug().
+				Str("op", "target.retryTarger()").
+				Str("target", name).Str("offset", fmt.Sprintf("%d sec", mod)).
+				Str("counter", fmt.Sprintf("%d", counter)).
+				Msg("retry target setup")
+			ts, err := target(ctx, r.fileStore)
+			if err == nil {
+				r.addTarget(name, ts)
+				if counter > 0 {
+					errEvent := r.event.Publish(ctx, &core.EventData{Type: core.WatchDirRescan})
+					if errEvent != nil {
+						log.Err(errEvent).Msg("Can't publish [FileAdded] event")
+					}
+				}
+				return
+			}
+			log.Error().Err(err).Str("target", name).Msg("Can't create new target storage")
+			if counter%10 == 0 {
+				mod *= 2
+				ticker = time.NewTicker(time.Duration(mod) * time.Second)
+			}
+			counter++
 		}
-		r.addTarget(name, ts)
 	}
 }
 
 func (r *Register) StartFileAddedWatcher() {
-	log.Print("target.StartFileChangeWatcher(): starting subscriber")
 	ctx := r.ctx
 	eventData := r.event.Subscribe(ctx, core.FileAdded)
 
@@ -60,10 +94,7 @@ func (r *Register) StartFileAddedWatcher() {
 			log.Printf("file-watcher: stream canceled")
 			return
 		case e := <-eventData:
-			log.Debug().
-				Str("event", "FileAdded").
-				Str("caller", "target.StartFileAddedWatcher").
-				Msgf("Data: %#v", e.Data)
+			log.Debug().Msgf("StartFileAddedWatcher(): %#v\n", e.Data)
 			err := r.processFileAddedEvent(e)
 			if err != nil {
 				log.Err(err).Msg("can't send the file to the target storage")

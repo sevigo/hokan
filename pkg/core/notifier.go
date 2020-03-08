@@ -13,7 +13,7 @@ type WatchOptions struct {
 type Notifier interface {
 	Event() chan event.Event
 	Error() chan event.Error
-	Scan(string) error
+	RescanAll()
 	StopWatching(string)
 	StartWatching(string, *core.WatchingOptions)
 }
