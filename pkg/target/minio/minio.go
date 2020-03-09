@@ -6,9 +6,9 @@ import (
 	"path"
 
 	"github.com/minio/minio-go"
-	"github.com/rs/zerolog/log"
-
 	"github.com/sevigo/hokan/pkg/core"
+	log "github.com/sirupsen/logrus"
+
 	filestore "github.com/sevigo/hokan/pkg/store/file"
 )
 
@@ -29,7 +29,7 @@ func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpointDefault, accessKeyIDDefault, secretAccessKeyDefault, useSSL)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Can't create new minio client")
+		log.WithError(err).Error("Can't create new minio client")
 		return nil, err
 	}
 
@@ -67,12 +67,15 @@ func fileHasChanged(newFile, storedFile *core.File) bool {
 
 func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
-	logger := log.Debug().Str("target", TargetName).Str("file", file.Path).Str("op", "save")
+
+	logger := log.WithFields(log.Fields{
+		"target": TargetName,
+		"file":   file.Path,
+	})
+
 	if errors.Is(err, filestore.ErrFileEntryNotFound) || fileHasChanged(file, storedFile) {
-		logger.Msg("save a new file")
-		// Upload the file
+		logger.Debug("saving file")
 		objectName := path.Clean(file.Path)
-		// Upload the file with FPutObject
 		options := minio.PutObjectOptions{
 			UserMetadata: map[string]string{
 				"path":     file.Path,
@@ -85,10 +88,9 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		if err != nil {
 			return err
 		}
-		logger.Msgf("Successfully uploaded %s of size %d\n", objectName, n)
+		logger.Infof("Successfully uploaded %s of size %d\n", objectName, n)
 		return s.fs.Save(ctx, TargetName, file)
 	}
-	logger.Msg("save a new file")
 	return nil
 }
 

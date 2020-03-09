@@ -3,18 +3,16 @@ package logger
 import (
 	"context"
 	"net/http"
-	"os"
 	"runtime/debug"
 	"time"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/segmentio/ksuid"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-chi/chi/middleware"
 )
 
-func Middleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
+func Middleware(logger *logrus.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			id := r.Header.Get("X-Request-ID")
@@ -22,8 +20,8 @@ func Middleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 				id = ksuid.New().String()
 			}
 			ctx := r.Context()
-			log := logger.With().Str("request-id", id).Logger()
-			ctx = WithContext(ctx, &log)
+			log := logger.WithField("request-id", id)
+			ctx = WithContext(ctx, log)
 
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
@@ -31,12 +29,11 @@ func Middleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 			defer func() {
 				// Recover and record stack traces in case of a panic
 				if rec := recover(); rec != nil {
-					log.Error().
-						Str("type", "error").
-						Timestamp().
-						Interface("recover_info", rec).
-						Bytes("debug_stack", debug.Stack()).
-						Msg("log system error")
+					log.WithFields(logrus.Fields{
+						"recover_info": rec,
+						"debug_stack":  debug.Stack(),
+					}).Error("log system error")
+
 					http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				}
 			}()
@@ -45,19 +42,17 @@ func Middleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 
 			// log end request
 			end := time.Now()
-			log.Info().
-				Str("type", "access").Timestamp().
-				Fields(map[string]interface{}{
-					"remote_ip":  r.RemoteAddr,
-					"url":        r.URL.Path,
-					"proto":      r.Proto,
-					"method":     r.Method,
-					"ua":         r.Header.Get("User-Agent"),
-					"status":     ww.Status(),
-					"latency_ms": float64(start.Sub(end).Nanoseconds()) / 1000000.0,
-					"bytes_in":   r.Header.Get("Content-Length"),
-					"bytes_out":  ww.BytesWritten(),
-				}).Msg("request_in")
+			log.WithFields(logrus.Fields{
+				"remote_ip":  r.RemoteAddr,
+				"url":        r.URL.Path,
+				"proto":      r.Proto,
+				"method":     r.Method,
+				"ua":         r.Header.Get("User-Agent"),
+				"status":     ww.Status(),
+				"latency_ms": float64(start.Sub(end).Nanoseconds()) / 1000000.0,
+				"bytes_in":   r.Header.Get("Content-Length"),
+				"bytes_out":  ww.BytesWritten(),
+			}).Info("request_in")
 		}
 		return http.HandlerFunc(fn)
 	}
@@ -65,25 +60,23 @@ func Middleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 
 type loggerKey struct{}
 
-func DefaultLoggert() *zerolog.Logger {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC822})
-	return &log.Logger
+func DefaultLoggert() *logrus.Entry {
+	return logrus.NewEntry(logrus.StandardLogger())
 }
 
-func WithContext(ctx context.Context, logger *zerolog.Logger) context.Context {
+func WithContext(ctx context.Context, logger *logrus.Entry) context.Context {
 	return context.WithValue(ctx, loggerKey{}, logger)
 }
 
-func FromContext(ctx context.Context) *zerolog.Logger {
+func FromContext(ctx context.Context) *logrus.Entry {
 	logger := ctx.Value(loggerKey{})
 	l := logger
 	if l == nil {
 		l = DefaultLoggert()
 	}
-	return l.(*zerolog.Logger)
+	return l.(*logrus.Entry)
 }
 
-func FromRequest(r *http.Request) *zerolog.Logger {
+func FromRequest(r *http.Request) *logrus.Entry {
 	return FromContext(r.Context())
 }

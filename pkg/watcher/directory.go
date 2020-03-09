@@ -3,14 +3,14 @@ package watcher
 import (
 	"fmt"
 
-	"github.com/rs/zerolog/log"
 	notify "github.com/sevigo/notify/core"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
 )
 
 func (w *Watch) StartDirWatcher() {
-	log.Debug().Msg("watcher.StartDirWatcher(): starting subscriber")
+	log.Debug("watcher.StartDirWatcher(): starting subscriber")
 	ctx := w.ctx
 	eventData := w.event.Subscribe(ctx, core.WatchDirStart)
 	wg.Done()
@@ -18,12 +18,12 @@ func (w *Watch) StartDirWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("dir-watcher: stream canceled")
+			log.Debug("stream canceled")
 			return
 		case e := <-eventData:
 			data, ok := e.Data.(*core.Directory)
 			if !ok {
-				log.Error().Msg("Can't add directory to the watch list")
+				log.Error("Can't add directory to the watch list")
 			}
 			w.notifier.StartWatching(data.Path, &notify.WatchingOptions{Rescan: true})
 		}
@@ -31,7 +31,7 @@ func (w *Watch) StartDirWatcher() {
 }
 
 func (w *Watch) StartRescanWatcher() {
-	log.Debug().Msg("watcher.StartRescanWatcher(): starting subscriber")
+	log.Debug("watcher.StartRescanWatcher(): starting subscriber")
 	ctx := w.ctx
 	eventData := w.event.Subscribe(ctx, core.WatchDirRescan)
 	wg.Done()
@@ -50,7 +50,7 @@ func (w *Watch) StartRescanWatcher() {
 func (w *Watch) GetDirsToWatch() error {
 	dirs, err := w.store.List(w.ctx)
 	if err != nil {
-		log.Err(err).Msg("Can't list all directories")
+		log.WithError(err).Print("Can't list all directories")
 		return err
 	}
 	for _, dir := range dirs {
@@ -61,7 +61,7 @@ func (w *Watch) GetDirsToWatch() error {
 				Data: dir,
 			})
 			if err != nil {
-				log.Err(err).Msg("Can't publish [WatchDirStart] event")
+				log.WithError(err).Print("Can't publish [WatchDirStart] event")
 			}
 		}
 	}

@@ -4,11 +4,11 @@ linters-settings:
       packages:
         # logging is allowed only by logutils.Log, logrus
         # is allowed to use only in logutils package
-        - github.com/sirupsen/logrus
+        - github.com/rs/zerolog/log
         - log
       packages-with-error-message:
-        - github.com/sirupsen/logrus: "logging is allowed only by github.com/rs/zerolog/log"
-        - log: "logging is allowed only by github.com/rs/zerolog/log"
+        - github.com/rs/zerolog/log: "logging is allowed only by github.com/sirupsen/logrus"
+        - log: "logging is allowed only by github.com/sirupsen/logrus"
     dupl:
       threshold: 100
     funlen:

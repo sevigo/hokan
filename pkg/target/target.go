@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/target/minio"
@@ -28,7 +28,8 @@ type Register struct {
 }
 
 func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*Register, error) {
-	log.Debug().Str("op", "target.New()").Msg("start")
+	log.Debug("target.New(): start")
+
 	r := &Register{
 		ctx:       ctx,
 		fileStore: fileStore,
@@ -47,7 +48,15 @@ func (r *Register) InitTargets(ctx context.Context) {
 }
 
 func (r *Register) initWithRetry(ctx context.Context, name string, target core.TargetFactory) {
-	counter := 0
+	// first run
+	ts, err := target(ctx, r.fileStore)
+	if err == nil {
+		r.addTarget(name, ts)
+		return
+	}
+
+	// retry
+	counter := 1
 	mod := 10
 	ticker := time.NewTicker(time.Duration(mod) * time.Second)
 	defer ticker.Stop()
@@ -55,26 +64,24 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 	for {
 		select {
 		case <-ctx.Done():
-			log.Debug().Str("op", "target.retryTarger()").Str("target", name).Msg("stream canceled")
+			log.Info("stream canceled")
 			return
 		case <-ticker.C:
-			log.Debug().
-				Str("op", "target.retryTarger()").
-				Str("target", name).Str("offset", fmt.Sprintf("%d sec", mod)).
-				Str("counter", fmt.Sprintf("%d", counter)).
-				Msg("retry target setup")
+			log.WithFields(log.Fields{
+				"target":         name,
+				"retry-counter":  counter,
+				"offset-seconds": mod,
+			}).Error("retry target setup")
 			ts, err := target(ctx, r.fileStore)
 			if err == nil {
 				r.addTarget(name, ts)
-				if counter > 0 {
-					errEvent := r.event.Publish(ctx, &core.EventData{Type: core.WatchDirRescan})
-					if errEvent != nil {
-						log.Err(errEvent).Msg("Can't publish [FileAdded] event")
-					}
+				errEvent := r.event.Publish(ctx, &core.EventData{Type: core.WatchDirRescan})
+				if errEvent != nil {
+					log.WithError(errEvent).Error("Can't publish [FileAdded] event")
 				}
 				return
 			}
-			log.Error().Err(err).Str("target", name).Msg("Can't create new target storage")
+			log.WithError(err).Error("Can't create new target storage")
 			if counter%10 == 0 {
 				mod *= 2
 				ticker = time.NewTicker(time.Duration(mod) * time.Second)
@@ -94,10 +101,10 @@ func (r *Register) StartFileAddedWatcher() {
 			log.Printf("file-watcher: stream canceled")
 			return
 		case e := <-eventData:
-			log.Debug().Msgf("StartFileAddedWatcher(): %#v\n", e.Data)
+			// log.Debugf("StartFileAddedWatcher(): %#v\n", e.Data)
 			err := r.processFileAddedEvent(e)
 			if err != nil {
-				log.Err(err).Msg("can't send the file to the target storage")
+				log.WithError(err).Error("can't send the file to the target storage")
 			}
 		}
 	}
@@ -112,10 +119,10 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 		if ts := r.getTarget(target); ts != nil {
 			err := ts.Save(r.ctx, &file)
 			if err != nil {
-				log.Err(err).
-					Str("target", target).
-					Str("file", file.Path).
-					Msg("can't save the file to the target storage")
+				log.WithError(err).WithFields(log.Fields{
+					"target": target,
+					"file":   file.Path,
+				}).Error("can't save the file to the target storage")
 			}
 		}
 	}
