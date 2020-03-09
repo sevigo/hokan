@@ -46,7 +46,7 @@ func initLogging() {
 	log.SetReportCaller(false)
 	log.SetLevel(log.DebugLevel)
 	log.SetOutput(os.Stdout)
-	log.Errorf("Hello Hokan!")
+	log.Info("Hello Hokan!")
 }
 
 // application is the main struct.
