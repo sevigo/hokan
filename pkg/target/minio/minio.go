@@ -68,7 +68,6 @@ func fileHasChanged(newFile, storedFile *core.File) bool {
 func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
 
-	// logger := log.Debug().Str("target", TargetName).Str("file", file.Path).Str("op", "save")
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,

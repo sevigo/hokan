@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -18,7 +17,7 @@ func main() {
 		log.Fatal("main: invalid configuration")
 	}
 
-	initLogging()
+	// initLogging()
 	ctx := context.Background()
 
 	app, err := InitializeApplication(ctx, conf)
@@ -39,15 +38,14 @@ func main() {
 	}
 }
 
-func initLogging() {
-	log.SetFormatter(&log.TextFormatter{
-		ForceColors: true,
-	})
-	log.SetReportCaller(false)
-	log.SetLevel(log.DebugLevel)
-	log.SetOutput(os.Stdout)
-	log.Info("Hello Hokan!")
-}
+// func initLogging() {
+// 	log.SetFormatter(&log.TextFormatter{
+// 		ForceColors: true,
+// 	})
+// 	log.SetReportCaller(false)
+// 	log.SetLevel(log.DebugLevel)
+// 	log.SetOutput(os.Stdout)
+// }
 
 // application is the main struct.
 type application struct {

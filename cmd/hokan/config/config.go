@@ -35,7 +35,16 @@ func Environ() (Config, error) {
 	cfg := Config{}
 	defaultAddress(&cfg)
 	defaultStore(&cfg)
+	defaultLogger(&cfg)
 	return cfg, nil
+}
+
+func defaultLogger(c *Config) {
+	c.Logging = Logging{
+		Debug: true,
+		Color: true,
+		Text:  true,
+	}
 }
 
 func defaultAddress(c *Config) {
