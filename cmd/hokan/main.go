@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"time"
+	"os"
 
-	"github.com/mattn/go-colorable"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/sevigo/hokan/cmd/hokan/config"
@@ -17,7 +15,7 @@ import (
 func main() {
 	conf, err := config.Environ()
 	if err != nil {
-		log.Fatal().Err(err).Msg("main: invalid configuration")
+		log.Fatal("main: invalid configuration")
 	}
 
 	initLogging()
@@ -25,26 +23,30 @@ func main() {
 
 	app, err := InitializeApplication(ctx, conf)
 	if err != nil {
-		log.Fatal().Err(err).Msg("main: cannot initialize server")
+		log.Fatal("main: cannot initialize server")
 	}
 
 	g := errgroup.Group{}
 	g.Go(func() error {
-		log.Info().
-			Str("port", conf.Server.Port).
-			Str("url", conf.Server.Addr).
-			Msg("starting the http server")
+		log.WithFields(log.Fields{
+			"port": conf.Server.Port,
+		}).Info("starting the http server")
 		return app.server.ListenAndServe(ctx)
 	})
 
 	if err := g.Wait(); err != nil {
-		log.Fatal().Err(err).Msg("main: program terminated")
+		log.Fatal("main: program terminated")
 	}
 }
 
 func initLogging() {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: colorable.NewColorableStdout(), TimeFormat: time.RFC822})
+	log.SetFormatter(&log.TextFormatter{
+		ForceColors: true,
+	})
+	log.SetReportCaller(false)
+	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stdout)
+	log.Errorf("Hello Hokan!")
 }
 
 // application is the main struct.

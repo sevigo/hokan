@@ -8,7 +8,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/rs/zerolog/log"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/store/db"
 )

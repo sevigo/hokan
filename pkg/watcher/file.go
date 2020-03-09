@@ -8,10 +8,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-	"github.com/sevigo/notify/watcher"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/notify/watcher"
 )
 
 func (w *Watch) StartFileWatcher() {
@@ -23,15 +23,18 @@ func (w *Watch) StartFileWatcher() {
 			log.Printf("file-watcher: stream canceled")
 			return
 		case ev := <-w.notifier.Event():
-			log.Debug().Str("event", watcher.ActionToString(ev.Action)).Msgf("file: %q\n", ev.Path)
+			log.WithFields(log.Fields{
+				"event": watcher.ActionToString(ev.Action),
+				"file":  ev.Path,
+			}).Debug("event fired")
 			// TODO: adapt ev.Action to core action
 			err := w.publishFileChange(ev.Path)
 			if err != nil {
-				log.Err(err).Msg("Can't publish [FileAdded] event")
+				log.Error("Can't publish [FileAdded] event")
 			}
 		case err := <-w.notifier.Error():
 			if err.Level == "ERROR" {
-				log.Error().Msgf("[%s] %s", err.Level, err.Message)
+				log.Error("[%s] %s", err.Level, err.Message)
 			}
 		}
 	}

@@ -5,11 +5,9 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/rs/zerolog/log"
 
 	"github.com/sevigo/hokan/pkg/core"
 	dirs "github.com/sevigo/hokan/pkg/handler/api/directories"
-	"github.com/sevigo/hokan/pkg/logger"
 )
 
 type Server struct {
@@ -28,7 +26,8 @@ func (s Server) Handler() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 
-	r.Use(logger.Middleware(&log.Logger))
+	// log "github.com/sirupsen/logrus"
+	// r.Use(logger.Middleware(&log.Logger))
 
 	r.Route("/directories", func(r chi.Router) {
 		r.Post("/", dirs.HandleCreate(s.Dirs, s.Events))

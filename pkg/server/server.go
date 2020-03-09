@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/rs/zerolog/log"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -42,7 +42,7 @@ func (s Server) ListenAndServe(ctx context.Context) error {
 		}
 		err := s1.Shutdown(ctx)
 		if err != nil {
-			log.Err(err).Msg("Shutdown error")
+			log.Error("Shutdown error")
 			os.Exit(ErrOnShutdownCode)
 		} else {
 			os.Exit(0)

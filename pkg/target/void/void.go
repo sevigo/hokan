@@ -3,7 +3,7 @@ package void
 import (
 	"context"
 
-	"github.com/rs/zerolog/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
 )
@@ -21,17 +21,22 @@ func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
 }
 
 func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
+	logger := log.WithFields(log.Fields{
+		"target": TargetName,
+		"file":   file.Path,
+	})
+
 	f, err := s.fs.Find(ctx, TargetName, file.Path)
 	if err != nil {
-		log.Debug().Str("target", TargetName).Str("file", file.Path).Msg("save a new file")
+		logger.Debug("saving new file")
 		return s.fs.Save(ctx, TargetName, file)
 	}
 	if f != nil && f.Checksum == file.Checksum {
-		// log.Printf("!!! [void] ignore saving, file [%v] already stored in %q", file, TargetName)
+		logger.Debug("ignore, file already stored")
 		return nil
 	}
 	if f != nil && f.Checksum != file.Checksum {
-		// log.Printf("!!! [void] save changed file [%v] to %q", file, TargetName)
+		logger.Debug("save changed file")
 		return s.fs.Save(ctx, TargetName, file)
 	}
 

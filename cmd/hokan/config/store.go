@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	home "github.com/mitchellh/go-homedir"
-	"github.com/rs/zerolog/log"
+	log "github.com/sirupsen/logrus"
 )
 
 func defaultStore(c *Config) {
@@ -21,7 +21,7 @@ func createDirIfNotExist(dir string) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, 0755)
 		if err != nil {
-			log.Fatal().Err(err).Msg("cannot create application directory")
+			log.Fatal("cannot create application directory")
 		}
 	}
 }
