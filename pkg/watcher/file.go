@@ -34,7 +34,7 @@ func (w *Watch) StartFileWatcher() {
 			}
 		case err := <-w.notifier.Error():
 			if err.Level == "ERROR" {
-				log.Error("[%s] %s", err.Level, err.Message)
+				log.Errorf("[%s] %s", err.Level, err.Message)
 			}
 		}
 	}

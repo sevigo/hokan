@@ -89,7 +89,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		if err != nil {
 			return err
 		}
-		logger.Debug("Successfully uploaded %s of size %d\n", objectName, n)
+		logger.Infof("Successfully uploaded %s of size %d\n", objectName, n)
 		return s.fs.Save(ctx, TargetName, file)
 	}
 	return nil
