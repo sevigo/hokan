@@ -31,7 +31,6 @@ func (s *fileStore) List(ctx context.Context, bucketName string) ([]*core.File, 
 }
 
 func (s *fileStore) Find(ctx context.Context, bucketName, filePath string) (*core.File, error) {
-	log.Printf("file.List() %q\n", filePath)
 	file := &core.File{}
 
 	key := path.Clean(filePath)
@@ -48,7 +47,7 @@ func (s *fileStore) Find(ctx context.Context, bucketName, filePath string) (*cor
 }
 
 func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File) error {
-	log.Printf("file.Save() %#v\n", file)
+	log.Printf("file.Save() %q\n", file.Path)
 	key := path.Clean(file.Path)
 	var value bytes.Buffer
 	if err := json.NewEncoder(&value).Encode(file); err != nil {
