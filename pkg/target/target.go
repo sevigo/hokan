@@ -2,7 +2,6 @@ package target
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -22,19 +21,21 @@ var targets = map[string]core.TargetFactory{
 type Register struct {
 	ctx context.Context
 	sync.Mutex
-	fileStore core.FileStore
-	event     core.EventCreator
-	register  map[string]core.TargetStorage
+	fileStore      core.FileStore
+	event          core.EventCreator
+	register       map[string]core.TargetStorage
+	registerStatus map[string]core.TargetStorageStatus
 }
 
 func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*Register, error) {
 	log.Debug("target.New(): start")
 
 	r := &Register{
-		ctx:       ctx,
-		fileStore: fileStore,
-		event:     event,
-		register:  make(map[string]core.TargetStorage),
+		ctx:            ctx,
+		fileStore:      fileStore,
+		event:          event,
+		register:       make(map[string]core.TargetStorage),
+		registerStatus: make(map[string]core.TargetStorageStatus),
 	}
 	r.InitTargets(ctx)
 	go r.StartFileAddedWatcher()
@@ -75,10 +76,7 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 			ts, err := target(ctx, r.fileStore)
 			if err == nil {
 				r.addTarget(name, ts)
-				errEvent := r.event.Publish(ctx, &core.EventData{Type: core.WatchDirRescan})
-				if errEvent != nil {
-					log.WithError(errEvent).Error("Can't publish [FileAdded] event")
-				}
+				r.rescanAllWatchedDirs()
 				return
 			}
 			log.WithError(err).Error("Can't create new target storage")
@@ -91,52 +89,27 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 	}
 }
 
-func (r *Register) StartFileAddedWatcher() {
-	ctx := r.ctx
-	eventData := r.event.Subscribe(ctx, core.FileAdded)
-
-	for {
-		select {
-		case <-ctx.Done():
-			log.Printf("file-watcher: stream canceled")
-			return
-		case e := <-eventData:
-			// log.Debugf("StartFileAddedWatcher(): %#v\n", e.Data)
-			err := r.processFileAddedEvent(e)
-			if err != nil {
-				log.WithError(err).Error("can't send the file to the target storage")
-			}
-		}
-	}
-}
-
-func (r *Register) processFileAddedEvent(e *core.EventData) error {
-	file, ok := e.Data.(core.File)
-	if !ok {
-		return fmt.Errorf("invalid event data: %v", e)
-	}
-	for _, target := range file.Targets {
-		if ts := r.getTarget(target); ts != nil {
-			err := ts.Save(r.ctx, &file)
-			if err != nil {
-				log.WithError(err).WithFields(log.Fields{
-					"target": target,
-					"file":   file.Path,
-				}).Error("can't save the file to the target storage")
-			}
-		}
-	}
-	return nil
+func (r *Register) setTargetStatus(name string, status core.TargetStorageStatus) {
+	r.Lock()
+	defer r.Unlock()
+	r.registerStatus[name] = status
 }
 
 func (r *Register) addTarget(name string, ts core.TargetStorage) {
 	r.Lock()
 	defer r.Unlock()
 	r.register[name] = ts
+	r.registerStatus[name] = core.TargetStorageOK
 }
 
 func (r *Register) getTarget(name string) core.TargetStorage {
 	r.Lock()
 	defer r.Unlock()
 	return r.register[name]
+}
+
+func (r *Register) getTargetStatus(name string) core.TargetStorageStatus {
+	r.Lock()
+	defer r.Unlock()
+	return r.registerStatus[name]
 }

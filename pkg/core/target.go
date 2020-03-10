@@ -6,6 +6,14 @@ type Target interface {
 	// InitTargets(ctx)
 }
 
+type TargetStorageStatus int
+
+const (
+	TargetStorageOK TargetStorageStatus = iota
+	TargetStoragePaused
+	TargetStorageError
+)
+
 type TargetStorage interface {
 	List(context.Context) ([]*File, error)
 

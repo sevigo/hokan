@@ -20,13 +20,13 @@ func (w *Watch) StartFileWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("file-watcher: stream canceled")
+			log.Printf("StartFileWatcher(): event stream canceled")
 			return
 		case ev := <-w.notifier.Event():
 			log.WithFields(log.Fields{
 				"event": watcher.ActionToString(ev.Action),
 				"file":  ev.Path,
-			}).Debug("event fired")
+			}).Info("FileWatcher() event fired")
 			// TODO: adapt ev.Action to core action
 			err := w.publishFileChange(ev.Path)
 			if err != nil {
