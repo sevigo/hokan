@@ -55,6 +55,9 @@ func (s *voidStorage) Find(ctx context.Context, q string) (*core.File, error) {
 
 func (s *voidStorage) Delete(ctx context.Context, file *core.File) error {
 	log.Printf("[void] save %#v\n", file)
+	return nil
+}
 
+func (s *voidStorage) Ping(ctx context.Context) error {
 	return nil
 }

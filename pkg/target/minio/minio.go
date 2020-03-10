@@ -108,3 +108,8 @@ func (s *minioStore) Delete(ctx context.Context, file *core.File) error {
 	log.Printf("[minio] save %#v\n", file)
 	return errors.New("not implemented")
 }
+
+func (s *minioStore) Ping(ctx context.Context) error {
+	_, err := s.client.BucketExists(s.bucketName)
+	return err
+}

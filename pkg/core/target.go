@@ -16,12 +16,10 @@ const (
 
 type TargetStorage interface {
 	List(context.Context) ([]*File, error)
-
 	Find(context.Context, string) (*File, error)
-
 	Save(context.Context, *File) error
-
 	Delete(context.Context, *File) error
+	Ping(context.Context) error
 }
 
 // TargetFactory is a function that returns a TargetStorage.
