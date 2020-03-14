@@ -27,3 +27,6 @@ lint: install-golangci-lint
 
 test:
 	go test -timeout 10s -v -cover ./...
+
+# git fetch --all
+# git checkout --track origin/local-stroage 

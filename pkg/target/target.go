@@ -8,14 +8,16 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/target/local"
 	"github.com/sevigo/hokan/pkg/target/minio"
 	"github.com/sevigo/hokan/pkg/target/void"
 )
 
 // All known targets
 var targets = map[string]core.TargetFactory{
-	void.TargetName:  void.New,
+	local.TargetName: local.New,
 	minio.TargetName: minio.New,
+	void.TargetName:  void.New,
 }
 
 type Register struct {
