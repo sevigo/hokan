@@ -6,10 +6,11 @@ import (
 	"path"
 
 	"github.com/minio/minio-go"
-	"github.com/sevigo/hokan/pkg/core"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/sevigo/hokan/pkg/core"
 	filestore "github.com/sevigo/hokan/pkg/store/file"
+	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
 const TargetName = "minio"
@@ -55,25 +56,14 @@ func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
 	}, nil
 }
 
-func fileHasChanged(newFile, storedFile *core.File) bool {
-	if storedFile == nil {
-		return true
-	}
-	if newFile.Checksum != storedFile.Checksum {
-		return true
-	}
-	return false
-}
-
 func (s *minioStore) Save(ctx context.Context, file *core.File) error {
-	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
-
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
 	})
 
-	if errors.Is(err, filestore.ErrFileEntryNotFound) || fileHasChanged(file, storedFile) {
+	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		objectName := path.Clean(file.Path)
 		options := minio.PutObjectOptions{
