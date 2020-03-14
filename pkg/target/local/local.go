@@ -86,8 +86,8 @@ func (s *localStorage) save(fromPath, toPath string) error {
 	readBuffer := bufio.NewReader(from)
 
 	fileStoragePath := filepath.Dir(toPath)
-	if err := os.MkdirAll(fileStoragePath, 0744); err != nil {
-		return fmt.Errorf("mkdirAll for path: [%s] err: %v", fileStoragePath, err)
+	if errDir := os.MkdirAll(fileStoragePath, 0744); errDir != nil {
+		return fmt.Errorf("mkdirAll for path: [%s] err: %v", fileStoragePath, errDir)
 	}
 
 	to, err := os.OpenFile(toPath, os.O_RDWR|os.O_CREATE, 0644)
@@ -101,8 +101,8 @@ func (s *localStorage) save(fromPath, toPath string) error {
 	buf := make([]byte, bufferSize)
 	for {
 		// read a chunk
-		n, err := readBuffer.Read(buf)
-		if err != nil && err != io.EOF {
+		n, errRead := readBuffer.Read(buf)
+		if errRead != nil && errRead != io.EOF {
 			return err
 		}
 		if n == 0 {
@@ -110,11 +110,11 @@ func (s *localStorage) save(fromPath, toPath string) error {
 		}
 
 		// write a chunk
-		var written int
-		if written, err = writeBuffer.Write(buf[:n]); err != nil {
-			return err
+		written, errWrite := writeBuffer.Write(buf[:n])
+		if errWrite != nil {
+			return errWrite
 		}
-		totalWritten = totalWritten + written
+		totalWritten += written
 	}
 	if err = writeBuffer.Flush(); err != nil {
 		return fmt.Errorf("cannot write buffer: %v", err)
