@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -24,8 +25,8 @@ type localStorage struct {
 const bufferSize = 1024 * 1024
 
 func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
-	path := "/home/igor/backup"
-	bucket := ""
+	path := `C:\backup`
+	bucket := "osaka" //TODO: must be from the config
 	return &localStorage{
 		bucketName:        bucket,
 		targetStoragePath: path,
@@ -33,13 +34,18 @@ func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
 }
 
 func (s *localStorage) Save(ctx context.Context, file *core.File) error {
-	base := "/"
+	volume := filepath.VolumeName(file.Path)
+	base := volume + string(os.PathSeparator)
 	relFilePath, err := filepath.Rel(base, file.Path)
 	if err != nil {
 		return err
 	}
-
-	to := filepath.Join(s.targetStoragePath, s.bucketName, relFilePath)
+	// on windows volume will be 'C:', so we just remove :
+	// on all other systems it will be empty
+	if volume != "" {
+		volume = strings.TrimSuffix(volume, ":")
+	}
+	to := filepath.Join(s.targetStoragePath, s.bucketName, volume, relFilePath)
 	return s.save(file.Path, to)
 }
 
