@@ -3,6 +3,7 @@ package local
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -12,12 +13,15 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
+	filestore "github.com/sevigo/hokan/pkg/store/file"
+	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
 const TargetName = "local"
 
 // Storage local
 type localStorage struct {
+	fs                core.FileStore
 	bucketName        string
 	targetStoragePath string
 }
@@ -25,28 +29,44 @@ type localStorage struct {
 const bufferSize = 1024 * 1024
 
 func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
-	path := `C:\backup`
-	bucket := "osaka" //TODO: must be from the config
+	path := `C:\backup` //TODO: must be from the config
+	bucket := "osaka"   //TODO: must be from the config
 	return &localStorage{
+		fs:                fs,
 		bucketName:        bucket,
 		targetStoragePath: path,
 	}, nil
 }
 
 func (s *localStorage) Save(ctx context.Context, file *core.File) error {
-	volume := filepath.VolumeName(file.Path)
-	base := volume + string(os.PathSeparator)
-	relFilePath, err := filepath.Rel(base, file.Path)
-	if err != nil {
-		return err
+	logger := log.WithFields(log.Fields{
+		"target": TargetName,
+		"file":   file.Path,
+	})
+
+	// TODO: this is all the same, move me
+	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
+		logger.Debug("saving file")
+		volume := filepath.VolumeName(file.Path)
+		base := volume + string(os.PathSeparator)
+		relFilePath, err := filepath.Rel(base, file.Path)
+		if err != nil {
+			return err
+		}
+		// on windows volume will be 'C:', so we just remove :
+		// on all other systems it will be empty
+		if volume != "" {
+			volume = strings.TrimSuffix(volume, ":")
+		}
+		to := filepath.Join(s.targetStoragePath, s.bucketName, volume, relFilePath)
+		errSave := s.save(file.Path, to)
+		if err != nil {
+			return errSave
+		}
+		return s.fs.Save(ctx, TargetName, file)
 	}
-	// on windows volume will be 'C:', so we just remove :
-	// on all other systems it will be empty
-	if volume != "" {
-		volume = strings.TrimSuffix(volume, ":")
-	}
-	to := filepath.Join(s.targetStoragePath, s.bucketName, volume, relFilePath)
-	return s.save(file.Path, to)
+	return nil
 }
 
 func (s *localStorage) List(context.Context) ([]*core.File, error) {
