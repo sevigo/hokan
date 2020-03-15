@@ -21,32 +21,22 @@ const secretAccessKeyDefault = "miniostorage"
 const useSSL = false
 
 type minioStore struct {
-	client     *minio.Client
+	client     core.MinioWrapper
 	fs         core.FileStore
 	bucketName string
 }
 
 func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
-	// Initialize minio client object.
-	minioClient, err := minio.New(endpointDefault, accessKeyIDDefault, secretAccessKeyDefault, useSSL)
-	if err != nil {
-		log.WithError(err).Error("Can't create new minio client")
-		return nil, err
-	}
-
-	// Make a new bucket with mchine name (must be from the config)
 	bucketName := "osaka"
-	err = minioClient.MakeBucket(bucketName, "")
+	minioClient, err := NewMinioWrapper(&core.MinioConfig{
+		Endpoint:        endpointDefault,
+		AccessKeyID:     accessKeyIDDefault,
+		SecretAccessKey: secretAccessKeyDefault,
+		Bucket:          bucketName,
+		UseSSL:          useSSL,
+	})
 	if err != nil {
-		// Check to see if we already own this bucket (which happens if you run this twice)
-		exists, errBucketExists := minioClient.BucketExists(bucketName)
-		if errBucketExists == nil && exists {
-			log.Printf("We already own %s\n", bucketName)
-		} else {
-			return nil, err
-		}
-	} else {
-		log.Printf("Successfully created %s\n", bucketName)
+		return nil, err
 	}
 
 	return &minioStore{

@@ -6,11 +6,12 @@ require (
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-chi/render v1.0.1
 	github.com/go-ini/ini v1.52.0 // indirect
-	github.com/golang/mock v1.4.1
+	github.com/golang/mock v1.4.2
 	github.com/google/wire v0.4.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/ncw/swift v1.0.50 // indirect
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sevigo/notify v0.4.0
 	github.com/sirupsen/logrus v1.4.3-0.20200306102446-7ea96a3284ed
