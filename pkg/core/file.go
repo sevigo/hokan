@@ -11,10 +11,7 @@ type File struct {
 
 type FileStore interface {
 	List(context.Context, string) ([]*File, error)
-
 	Find(context.Context, string, string) (*File, error)
-
 	Save(context.Context, string, *File) error
-
 	Delete(context.Context, string, *File) error
 }

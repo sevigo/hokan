@@ -94,6 +94,10 @@ issues:
       - path: _test\.go
         linters:
           - gomnd
+          - lll
+      - path: wrapper
+        linters:
+          - lll
       - path: inject_
         linters:
           - lll
@@ -104,10 +108,7 @@ issues:
   
 run:
     skip-dirs:
-      - test/testdata_etc
-      - internal/cache
-      - internal/renameio
-      - internal/robustio
+      - mocks/
   
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration

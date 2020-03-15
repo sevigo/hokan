@@ -17,7 +17,7 @@ install-mockgen:
 	GOPATH=${TMP} go install github.com/golang/mock/mockgen
 
 mockgen: install-mockgen
-	${LOCAL_BIN}/mockgen -destination=mocks/mock_gen.go -package=mocks github.com/sevigo/hokan/pkg/core DirectoryStore,EventCreator,Watcher
+	${LOCAL_BIN}/mockgen -destination=mocks/mock_gen.go -package=mocks github.com/sevigo/hokan/pkg/core DirectoryStore,EventCreator,FileStore,MinioWrapper,Notifier,TargetStorage,UserStore,Watcher
 
 install-golangci-lint:
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b ${LOCAL_BIN}
