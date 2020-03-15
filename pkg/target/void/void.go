@@ -2,10 +2,13 @@ package void
 
 import (
 	"context"
+	"errors"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
+	filestore "github.com/sevigo/hokan/pkg/store/file"
+	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
 const TargetName = "void"
@@ -26,17 +29,10 @@ func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
 		"file":   file.Path,
 	})
 
-	f, err := s.fs.Find(ctx, TargetName, file.Path)
-	if err != nil {
-		logger.Debug("saving new file")
-		return s.fs.Save(ctx, TargetName, file)
-	}
-	if f != nil && f.Checksum == file.Checksum {
-		logger.Debug("ignore, file already stored")
-		return nil
-	}
-	if f != nil && f.Checksum != file.Checksum {
-		logger.Debug("save changed file")
+	// TODO: this is all the same, move me
+	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
+		logger.Debug("saving the file")
 		return s.fs.Save(ctx, TargetName, file)
 	}
 
