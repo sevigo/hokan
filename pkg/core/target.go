@@ -2,10 +2,6 @@ package core
 
 import "context"
 
-type Target interface {
-	// InitTargets(ctx)
-}
-
 type TargetStorageStatus int
 
 const (
@@ -20,6 +16,11 @@ type TargetStorage interface {
 	Save(context.Context, *File) error
 	Delete(context.Context, *File) error
 	Ping(context.Context) error
+}
+
+type TargetRegister interface {
+	AllTargets() map[string]TargetFactory
+	GetTarget(name string) TargetStorage
 }
 
 // TargetFactory is a function that returns a TargetStorage.

@@ -29,7 +29,7 @@ type Register struct {
 	registerStatus map[string]core.TargetStorageStatus
 }
 
-func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*Register, error) {
+func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (core.TargetRegister, error) {
 	log.Debug("target.New(): start")
 
 	r := &Register{
@@ -39,12 +39,22 @@ func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator)
 		register:       make(map[string]core.TargetStorage),
 		registerStatus: make(map[string]core.TargetStorageStatus),
 	}
-	r.InitTargets(ctx)
+	r.initTargets(ctx)
 	go r.StartFileAddedWatcher()
 	return r, nil
 }
 
-func (r *Register) InitTargets(ctx context.Context) {
+func (r *Register) AllTargets() map[string]core.TargetFactory {
+	return targets
+}
+
+func (r *Register) GetTarget(name string) core.TargetStorage {
+	r.Lock()
+	defer r.Unlock()
+	return r.register[name]
+}
+
+func (r *Register) initTargets(ctx context.Context) {
 	for name, target := range targets {
 		go r.initWithRetry(ctx, name, target)
 	}
@@ -102,12 +112,6 @@ func (r *Register) addTarget(name string, ts core.TargetStorage) {
 	defer r.Unlock()
 	r.register[name] = ts
 	r.registerStatus[name] = core.TargetStorageOK
-}
-
-func (r *Register) getTarget(name string) core.TargetStorage {
-	r.Lock()
-	defer r.Unlock()
-	return r.register[name]
 }
 
 func (r *Register) getTargetStatus(name string) core.TargetStorageStatus {

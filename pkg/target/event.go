@@ -32,7 +32,7 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 		return fmt.Errorf("invalid event data: %v", e)
 	}
 	for _, target := range file.Targets {
-		if ts := r.getTarget(target); ts != nil {
+		if ts := r.GetTarget(target); ts != nil {
 			err := ts.Save(r.ctx, &file)
 			if err != nil {
 				log.WithError(err).WithFields(log.Fields{

@@ -10,7 +10,7 @@ wire:
 	go get github.com/google/wire/cmd/wire
 
 generate: wire
-	cd cmd/hokan && go generate	
+	go generate	./...
 
 install-mockgen:
 	GOPATH=${TMP} go get github.com/golang/mock/gomock
