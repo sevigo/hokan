@@ -3,6 +3,7 @@ package target
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -58,33 +59,44 @@ func (r *Register) GetTarget(name string) core.TargetStorage {
 }
 
 func (r *Register) initTargets(ctx context.Context) {
-	for name, target := range targets {
-		go r.initWithRetry(ctx, name, target)
+	for name := range targets {
+		err := r.initTarget(ctx, name)
+		if errors.Is(err, core.ErrTargetNotActive) {
+			log.WithError(err).Error("initTargets(): ignore the target for now")
+			continue
+		}
+		if err != nil {
+			log.WithError(err).Error("initTargets()")
+			go r.initWithRetry(ctx, name)
+		}
 	}
 }
 
-func (r *Register) initWithRetry(ctx context.Context, name string, target core.TargetFactory) {
-	// first run
-	conf, err := r.GetConfig(ctx, name)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"target": name,
-		}).WithError(err).Fatal("can't get configuration for the target storage")
-		return
-	}
-	ts, err := target(ctx, r.fileStore, *conf)
-	if err == nil {
-		r.addTarget(name, ts)
-		return
-	}
-	if errors.Is(err, core.ErrTargetNotActive) {
-		log.WithFields(log.Fields{
-			"target": name,
-		}).WithError(err).Error("stop retry")
-		return
+func (r *Register) initTarget(ctx context.Context, name string) error {
+	logger := log.WithFields(log.Fields{
+		"target": name,
+	})
+
+	target, ok := targets[name]
+	if !ok {
+		return fmt.Errorf("initTarget(): target %q not found", name)
 	}
 
-	// retry
+	conf, err := r.GetConfig(ctx, name)
+	if err != nil {
+		logger.WithError(err).Fatal("can't get configuration for the target storage")
+		return err
+	}
+	ts, err := target(ctx, r.fileStore, *conf)
+	if err != nil {
+		return err
+	}
+
+	r.addTarget(name, ts)
+	return nil
+}
+
+func (r *Register) initWithRetry(ctx context.Context, name string) {
 	counter := 1
 	mod := 10
 	ticker := time.NewTicker(time.Duration(mod) * time.Second)
@@ -93,7 +105,7 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 	for {
 		select {
 		case <-ctx.Done():
-			log.Info("stream canceled")
+			log.Info("initWithRetry(): stream canceled")
 			return
 		case <-ticker.C:
 			log.WithFields(log.Fields{
@@ -101,9 +113,8 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 				"retry-counter":  counter,
 				"offset-seconds": mod,
 			}).Error("retry target setup")
-			ts, err := target(ctx, r.fileStore, *conf)
+			err := r.initTarget(ctx, name)
 			if err == nil {
-				r.addTarget(name, ts)
 				r.rescanAllWatchedDirs()
 				return
 			}
@@ -117,6 +128,7 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 	}
 }
 
+// TODO: check if status set correctly in the code!
 func (r *Register) setTargetStatus(name string, status core.TargetStorageStatus) {
 	r.Lock()
 	defer r.Unlock()
@@ -124,6 +136,10 @@ func (r *Register) setTargetStatus(name string, status core.TargetStorageStatus)
 }
 
 func (r *Register) addTarget(name string, ts core.TargetStorage) {
+	log.WithFields(log.Fields{
+		"target": name,
+	}).Info("target successfully added to the register")
+
 	r.Lock()
 	defer r.Unlock()
 	r.register[name] = ts

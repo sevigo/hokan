@@ -39,7 +39,7 @@ func HandleUpdate(targets core.TargetRegister) http.HandlerFunc {
 			return
 		}
 
-		logger.FromRequest(r).WithField("target", targetName).Infof("target config updated: %#v", conf)
+		logger.FromRequest(r).WithField("target", targetName).Info("targets.HandleUpdate(): target storage config updated successfully")
 		render.Status(r, http.StatusCreated)
 	}
 }

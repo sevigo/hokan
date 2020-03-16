@@ -60,6 +60,10 @@ github.com/segmentio/ksuid v1.0.2 h1:9yBfKyw4ECGTdALaF09Snw3sLJmYIX6AbPJrAy6MrDc
 github.com/segmentio/ksuid v1.0.2/go.mod h1:BXuJDr2byAiHuQaQtSKoXh1J0YmUDurywOXgB2w+OSU=
 github.com/sevigo/notify v0.4.0 h1:YhO+pUST/hPlCv6o9DjH5xYTxH07fgL9rJkBpKnM0c4=
 github.com/sevigo/notify v0.4.0/go.mod h1:Mvx0xz4GtRVyTczYxFSf96JGfqOFZPapi3Qh9xWK4Ws=
+github.com/sevigo/notify v0.4.1 h1:/pAyPc0xtjofxIyvpSB47cuIZanPxaGgaDLs7t54ZEw=
+github.com/sevigo/notify v0.4.1/go.mod h1:Mvx0xz4GtRVyTczYxFSf96JGfqOFZPapi3Qh9xWK4Ws=
+github.com/sevigo/notify v0.5.1 h1:jEnW4vMOnuUqFymYr5kFSftu2IBSdnv0uF6BOjbGOkA=
+github.com/sevigo/notify v0.5.1/go.mod h1:Mvx0xz4GtRVyTczYxFSf96JGfqOFZPapi3Qh9xWK4Ws=
 github.com/sirupsen/logrus v0.0.0-20180523074243-ea8897e79973/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
 github.com/sirupsen/logrus v1.4.3-0.20200306102446-7ea96a3284ed h1:jSvHUjNf0+P98jm6UQWPo4U7a3GnPH7OA3KwiVp8A+A=
 github.com/sirupsen/logrus v1.4.3-0.20200306102446-7ea96a3284ed/go.mod h1:+F7Ogzej0PZc/94MaYx/nvG9jOFMD2osvC3s+Squfpo=

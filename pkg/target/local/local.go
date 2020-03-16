@@ -21,7 +21,6 @@ const TargetName = "local"
 
 // Storage local
 type localStorage struct {
-	configStore       core.ConfigStore
 	fileStore         core.FileStore
 	bucketName        string
 	targetStoragePath string
@@ -32,7 +31,7 @@ const bufferSize = 1024 * 1024
 func DefaultConfig() *core.TargetConfig {
 	return &core.TargetConfig{
 		Active:      false,
-		Name:        "local",
+		Name:        TargetName,
 		Description: "store the files on the local disk",
 		Settings: map[string]string{
 			"LOCAL_STORAGE_PATH": "",
@@ -45,6 +44,11 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 	if !conf.Active {
 		return nil, core.ErrTargetNotActive
 	}
+
+	log.WithFields(log.Fields{
+		"target": TargetName,
+	}).Info("Starting new target storage")
+
 	// TODO: validate config
 	path := filepath.Clean(conf.Settings["LOCAL_STORAGE_PATH"])
 	bucket := conf.Settings["LOCAL_BUCKET_NAME"]
@@ -83,7 +87,7 @@ func (s *localStorage) Save(ctx context.Context, file *core.File) error {
 		}
 		return s.fileStore.Save(ctx, TargetName, file)
 	}
-	logger.Info("the file has not changedб шптщку")
+	logger.Info("the file has not changed")
 	return nil
 }
 

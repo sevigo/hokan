@@ -22,10 +22,9 @@ const secretAccessKeyDefault = "miniostorage"
 const useSSL = false
 
 type minioStore struct {
-	client      core.MinioWrapper
-	configStore core.ConfigStore
-	fileStore   core.FileStore
-	bucketName  string
+	client     core.MinioWrapper
+	fileStore  core.FileStore
+	bucketName string
 }
 
 func DefaultConfig() *core.TargetConfig {
@@ -57,6 +56,10 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		logger.WithError(err).Errorf("can't convert the value of MINIO_USE_SSL=%q to bool", conf.Settings["MINIO_USE_SSL"])
 		useSSL = false
 	}
+
+	log.WithFields(log.Fields{
+		"target": TargetName,
+	}).Info("Starting new target storage")
 
 	minioClient, err := NewMinioWrapper(&core.MinioConfig{
 		Endpoint:        conf.Settings["MINIO_HOST"],
@@ -101,7 +104,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		logger.Infof("Successfully uploaded %s of size %d\n", objectName, n)
 		return s.fileStore.Save(ctx, TargetName, file)
 	}
-	logger.Info("the file has not changedб шптщку")
+	logger.Info("the file has not changed")
 	return nil
 }
 

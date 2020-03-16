@@ -23,11 +23,14 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		return nil, core.ErrTargetNotActive
 	}
 
-	s := &voidStorage{
+	log.WithFields(log.Fields{
+		"target": TargetName,
+	}).Info("Starting new target storage")
+
+	return &voidStorage{
 		fileStore: fs,
-	}
-	s.prefix = conf.Settings["VOID_PREFIX"]
-	return s, nil
+		prefix:    conf.Settings["VOID_PREFIX"],
+	}, nil
 }
 
 func DefaultConfig() *core.TargetConfig {
@@ -52,7 +55,7 @@ func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
 		logger.Debugf("saving the file %s", s.prefix)
 		return s.fileStore.Save(ctx, TargetName, file)
 	}
-	logger.Info("the file has not changedб шптщку")
+	logger.Info("the file has not changed")
 	return nil
 }
 

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/sevigo/hokan/pkg/core"
 	configstore "github.com/sevigo/hokan/pkg/store/config"
 	"github.com/sevigo/hokan/pkg/target/local"
@@ -37,5 +39,16 @@ func (r *Register) GetConfig(ctx context.Context, targetName string) (*core.Targ
 }
 
 func (r *Register) SetConfig(ctx context.Context, config *core.TargetConfig) error {
-	return r.configStore.Save(ctx, config)
+	err := r.configStore.Save(ctx, config)
+	if err != nil {
+		return err
+	}
+	log.WithField("target", config.Name).Info("target.SetConfig(): new config stored successfully")
+	err = r.initTarget(ctx, config.Name)
+	if err != nil {
+		go r.initWithRetry(ctx, config.Name)
+	} else {
+		r.rescanAllWatchedDirs()
+	}
+	return nil
 }

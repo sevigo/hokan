@@ -1,8 +1,6 @@
 package watcher
 
 import (
-	"fmt"
-
 	notify "github.com/sevigo/notify/core"
 	log "github.com/sirupsen/logrus"
 
@@ -18,12 +16,13 @@ func (w *Watch) StartDirWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Debug("stream canceled")
+			log.Info("watcher.StartDirWatcher(): stream canceled")
 			return
 		case e := <-eventData:
 			data, ok := e.Data.(*core.Directory)
 			if !ok {
-				log.Error("Can't add directory to the watch list")
+				log.Error("watcher.StartDirWatcher(): Can't add directory to the watch list")
+				continue
 			}
 			w.notifier.StartWatching(data.Path, &notify.WatchingOptions{Rescan: true})
 		}
@@ -41,7 +40,6 @@ func (w *Watch) StartRescanWatcher() {
 		case <-ctx.Done():
 			return
 		case <-eventData:
-			fmt.Println(">>> received event WatchDirRescan")
 			w.notifier.RescanAll()
 		}
 	}
