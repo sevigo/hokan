@@ -2,6 +2,7 @@ package target
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -24,17 +25,19 @@ type Register struct {
 	ctx context.Context
 	sync.Mutex
 	fileStore      core.FileStore
+	configStore    core.ConfigStore
 	event          core.EventCreator
 	register       map[string]core.TargetStorage
 	registerStatus map[string]core.TargetStorageStatus
 }
 
-func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (core.TargetRegister, error) {
+func New(ctx context.Context, fileStore core.FileStore, configStore core.ConfigStore, event core.EventCreator) (core.TargetRegister, error) {
 	log.Debug("target.New(): start")
 
 	r := &Register{
 		ctx:            ctx,
 		fileStore:      fileStore,
+		configStore:    configStore,
 		event:          event,
 		register:       make(map[string]core.TargetStorage),
 		registerStatus: make(map[string]core.TargetStorageStatus),
@@ -62,9 +65,22 @@ func (r *Register) initTargets(ctx context.Context) {
 
 func (r *Register) initWithRetry(ctx context.Context, name string, target core.TargetFactory) {
 	// first run
-	ts, err := target(ctx, r.fileStore)
+	conf, err := r.GetConfig(ctx, name)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"target": name,
+		}).WithError(err).Fatal("can't get configuration for the target storage")
+		return
+	}
+	ts, err := target(ctx, r.fileStore, *conf)
 	if err == nil {
 		r.addTarget(name, ts)
+		return
+	}
+	if errors.Is(err, core.ErrTargetNotActive) {
+		log.WithFields(log.Fields{
+			"target": name,
+		}).WithError(err).Error("stop retry")
 		return
 	}
 
@@ -85,7 +101,7 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 				"retry-counter":  counter,
 				"offset-seconds": mod,
 			}).Error("retry target setup")
-			ts, err := target(ctx, r.fileStore)
+			ts, err := target(ctx, r.fileStore, *conf)
 			if err == nil {
 				r.addTarget(name, ts)
 				r.rescanAllWatchedDirs()

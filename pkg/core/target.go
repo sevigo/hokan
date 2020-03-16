@@ -1,8 +1,13 @@
 package core
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type TargetStorageStatus int
+
+var ErrTargetNotActive = errors.New("target is not active")
 
 const (
 	TargetStorageOK TargetStorageStatus = iota
@@ -19,9 +24,19 @@ type TargetStorage interface {
 }
 
 type TargetRegister interface {
+	AllConfigs() map[string]*TargetConfig
 	AllTargets() map[string]TargetFactory
 	GetTarget(name string) TargetStorage
+	GetConfig(context.Context, string) (*TargetConfig, error)
+	SetConfig(context.Context, *TargetConfig) error
+}
+
+type TargetConfig struct {
+	Active      bool
+	Name        string
+	Description string
+	Settings    map[string]string
 }
 
 // TargetFactory is a function that returns a TargetStorage.
-type TargetFactory func(context.Context, FileStore) (TargetStorage, error)
+type TargetFactory func(context.Context, FileStore, TargetConfig) (TargetStorage, error)

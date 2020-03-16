@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -32,7 +34,7 @@ func (db *DB) Read(bucketName, key string) ([]byte, error) {
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
-			return &ErrBucketNotFound{"bucket was not found"}
+			return &ErrBucketNotFound{fmt.Sprintf("Read: bucket %q was not found", bucketName)}
 		}
 		result = b.Get([]byte(key))
 		return nil
@@ -45,7 +47,7 @@ func (db *DB) ReadBucket(bucketName string) (map[string]string, error) {
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
-			return &ErrBucketNotFound{"bucket was not found"}
+			return &ErrBucketNotFound{fmt.Sprintf("ReadBucket: bucket %q was not found", bucketName)}
 		}
 		return b.ForEach(func(k, v []byte) error {
 			result[string(k)] = string(v)

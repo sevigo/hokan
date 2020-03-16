@@ -14,13 +14,31 @@ import (
 const TargetName = "void"
 
 type voidStorage struct {
-	fs core.FileStore
+	fileStore core.FileStore
+	prefix    string
 }
 
-func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
-	return &voidStorage{
-		fs: fs,
-	}, nil
+func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.TargetStorage, error) {
+	if !conf.Active {
+		return nil, core.ErrTargetNotActive
+	}
+
+	s := &voidStorage{
+		fileStore: fs,
+	}
+	s.prefix = conf.Settings["VOID_PREFIX"]
+	return s, nil
+}
+
+func DefaultConfig() *core.TargetConfig {
+	return &core.TargetConfig{
+		Active:      false,
+		Name:        TargetName,
+		Description: "fake target storage for testing, will print the name of the file",
+		Settings: map[string]string{
+			"VOID_PREFIX": "",
+		},
+	}
 }
 
 func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
@@ -28,14 +46,13 @@ func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
 		"target": TargetName,
 		"file":   file.Path,
 	})
-
 	// TODO: this is all the same, move me
-	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	storedFile, err := s.fileStore.Find(ctx, TargetName, file.Path)
 	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
-		logger.Debug("saving the file")
-		return s.fs.Save(ctx, TargetName, file)
+		logger.Debugf("saving the file %s", s.prefix)
+		return s.fileStore.Save(ctx, TargetName, file)
 	}
-
+	logger.Info("the file has not changedб шптщку")
 	return nil
 }
 

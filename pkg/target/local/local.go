@@ -21,20 +21,37 @@ const TargetName = "local"
 
 // Storage local
 type localStorage struct {
-	fs                core.FileStore
+	configStore       core.ConfigStore
+	fileStore         core.FileStore
 	bucketName        string
 	targetStoragePath string
 }
 
 const bufferSize = 1024 * 1024
 
-func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
-	path := `C:\backup` //TODO: must be from the config
-	bucket := "osaka"   //TODO: must be from the config
+func DefaultConfig() *core.TargetConfig {
+	return &core.TargetConfig{
+		Active:      false,
+		Name:        "local",
+		Description: "store the files on the local disk",
+		Settings: map[string]string{
+			"LOCAL_STORAGE_PATH": "",
+			"LOCAL_BUCKET_NAME":  "",
+		},
+	}
+}
+
+func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.TargetStorage, error) {
+	if !conf.Active {
+		return nil, core.ErrTargetNotActive
+	}
+	// TODO: validate config
+	path := filepath.Clean(conf.Settings["LOCAL_STORAGE_PATH"])
+	bucket := conf.Settings["LOCAL_BUCKET_NAME"]
 	return &localStorage{
-		fs:                fs,
 		bucketName:        bucket,
 		targetStoragePath: path,
+		fileStore:         fs,
 	}, nil
 }
 
@@ -45,7 +62,7 @@ func (s *localStorage) Save(ctx context.Context, file *core.File) error {
 	})
 
 	// TODO: this is all the same, move me
-	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	storedFile, err := s.fileStore.Find(ctx, TargetName, file.Path)
 	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		volume := filepath.VolumeName(file.Path)
@@ -64,8 +81,9 @@ func (s *localStorage) Save(ctx context.Context, file *core.File) error {
 		if err != nil {
 			return errSave
 		}
-		return s.fs.Save(ctx, TargetName, file)
+		return s.fileStore.Save(ctx, TargetName, file)
 	}
+	logger.Info("the file has not changedб шптщку")
 	return nil
 }
 

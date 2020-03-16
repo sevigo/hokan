@@ -20,7 +20,8 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	directoryStore := provideDirectoryStore(db)
 	eventCreator := provideEventCreator()
 	fileStore := provideFileStore(db)
-	targetRegister, err := provideTarget(ctx, fileStore, eventCreator)
+	configStore := provideConfigStore(db)
+	targetRegister, err := provideTarget(ctx, fileStore, configStore, eventCreator)
 	if err != nil {
 		return application{}, err
 	}

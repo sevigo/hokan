@@ -43,6 +43,8 @@ func (s *Server) Handler() http.Handler {
 	})
 
 	r.Route("/targets", func(r chi.Router) {
+		r.Get("/{targetName}", targetstorage.HandleGet(s.Targets))
+		r.Put("/{targetName}", targetstorage.HandleUpdate(s.Targets))
 		r.Get("/", targetstorage.HandleList(s.Targets))
 	})
 

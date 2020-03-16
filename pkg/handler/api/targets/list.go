@@ -10,13 +10,9 @@ import (
 
 func HandleList(targets core.TargetRegister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		targets := targets.AllTargets()
+		targets := targets.AllConfigs()
 
-		var targetList []string
-		for name := range targets {
-			targetList = append(targetList, name)
-		}
 		render.Status(r, 200)
-		render.JSON(w, r, targetList)
+		render.JSON(w, r, targets)
 	}
 }

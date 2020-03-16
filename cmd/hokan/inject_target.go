@@ -13,6 +13,6 @@ var targetSet = wire.NewSet(
 	provideTarget,
 )
 
-func provideTarget(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (core.TargetRegister, error) {
-	return target.New(ctx, fileStore, event)
+func provideTarget(ctx context.Context, fileStore core.FileStore, configStore core.ConfigStore, event core.EventCreator) (core.TargetRegister, error) {
+	return target.New(ctx, fileStore, configStore, event)
 }
