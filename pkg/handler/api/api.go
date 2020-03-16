@@ -9,20 +9,24 @@ import (
 
 	"github.com/sevigo/hokan/pkg/core"
 	dirs "github.com/sevigo/hokan/pkg/handler/api/directories"
+	targetstorage "github.com/sevigo/hokan/pkg/handler/api/targets"
+
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
 type Server struct {
-	Logger *logrus.Logger
-	Dirs   core.DirectoryStore
-	Events core.EventCreator
+	Logger  *logrus.Logger
+	Dirs    core.DirectoryStore
+	Events  core.EventCreator
+	Targets core.TargetRegister
 }
 
-func New(dirStore core.DirectoryStore, events core.EventCreator, logger *logrus.Logger) *Server {
+func New(dirStore core.DirectoryStore, events core.EventCreator, targets core.TargetRegister, logger *logrus.Logger) *Server {
 	return &Server{
-		Logger: logger,
-		Dirs:   dirStore,
-		Events: events,
+		Logger:  logger,
+		Dirs:    dirStore,
+		Events:  events,
+		Targets: targets,
 	}
 }
 
@@ -36,6 +40,12 @@ func (s *Server) Handler() http.Handler {
 		r.Post("/", dirs.HandleCreate(s.Dirs, s.Events))
 		r.Get("/", dirs.HandleList(s.Dirs))
 		r.Get("/{path}", dirs.HandleFind(s.Dirs))
+	})
+
+	r.Route("/targets", func(r chi.Router) {
+		r.Get("/{targetName}", targetstorage.HandleGet(s.Targets))
+		r.Put("/{targetName}", targetstorage.HandleUpdate(s.Targets))
+		r.Get("/", targetstorage.HandleList(s.Targets))
 	})
 
 	return r

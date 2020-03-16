@@ -13,14 +13,9 @@ type Directory struct {
 
 type DirectoryStore interface {
 	List(context.Context) ([]*Directory, error)
-
 	Find(context.Context, int64) (*Directory, error)
-
 	FindName(context.Context, string) (*Directory, error)
-
 	Create(context.Context, *Directory) error
-
 	Update(context.Context, *Directory) error
-
 	Delete(context.Context, *Directory) error
 }

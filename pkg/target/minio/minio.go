@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path"
+	"strconv"
 
 	"github.com/minio/minio-go"
 	log "github.com/sirupsen/logrus"
@@ -15,25 +16,52 @@ import (
 
 const TargetName = "minio"
 
-const endpointDefault = "192.168.0.141:9000"
-const accessKeyIDDefault = "minio"
-const secretAccessKeyDefault = "miniostorage"
-const useSSL = false
-
 type minioStore struct {
 	client     core.MinioWrapper
-	fs         core.FileStore
+	fileStore  core.FileStore
 	bucketName string
 }
 
-func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
-	bucketName := "osaka"
+func DefaultConfig() *core.TargetConfig {
+	return &core.TargetConfig{
+		Active:      false,
+		Name:        "minio",
+		Description: "open source cloud object storage server compatible with Amazon S3",
+		Settings: map[string]string{
+			"MINIO_HOST":        "",
+			"MINIO_ACCESS_KEY":  "",
+			"MINIO_SECRET_KEY":  "",
+			"MINIO_USE_SSL":     "",
+			"MINIO_BUCKET_NAME": "",
+		},
+	}
+}
+
+func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.TargetStorage, error) {
+	logger := log.WithFields(log.Fields{
+		"target": TargetName,
+	})
+	if !conf.Active {
+		return nil, core.ErrTargetNotActive
+	}
+
+	bucketName := conf.Settings["MINIO_BUCKET_NAME"]
+	useSSL, err := strconv.ParseBool(conf.Settings["MINIO_USE_SSL"])
+	if err != nil {
+		logger.WithError(err).Errorf("can't convert the value of MINIO_USE_SSL=%q to bool", conf.Settings["MINIO_USE_SSL"])
+		useSSL = false
+	}
+
+	log.WithFields(log.Fields{
+		"target": TargetName,
+	}).Info("Starting new target storage")
+
 	minioClient, err := NewMinioWrapper(&core.MinioConfig{
-		Endpoint:        endpointDefault,
-		AccessKeyID:     accessKeyIDDefault,
-		SecretAccessKey: secretAccessKeyDefault,
-		Bucket:          bucketName,
+		Endpoint:        conf.Settings["MINIO_HOST"],
+		AccessKeyID:     conf.Settings["MINIO_ACCESS_KEY"],
+		SecretAccessKey: conf.Settings["MINIO_SECRET_KEY"],
 		UseSSL:          useSSL,
+		Bucket:          bucketName,
 	})
 	if err != nil {
 		return nil, err
@@ -42,7 +70,7 @@ func New(ctx context.Context, fs core.FileStore) (core.TargetStorage, error) {
 	return &minioStore{
 		bucketName: bucketName,
 		client:     minioClient,
-		fs:         fs,
+		fileStore:  fs,
 	}, nil
 }
 
@@ -52,7 +80,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		"file":   file.Path,
 	})
 
-	storedFile, err := s.fs.Find(ctx, TargetName, file.Path)
+	storedFile, err := s.fileStore.Find(ctx, TargetName, file.Path)
 	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		objectName := path.Clean(file.Path)
@@ -69,8 +97,9 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 			return err
 		}
 		logger.Infof("Successfully uploaded %s of size %d\n", objectName, n)
-		return s.fs.Save(ctx, TargetName, file)
+		return s.fileStore.Save(ctx, TargetName, file)
 	}
+	logger.Info("the file has not changed")
 	return nil
 }
 

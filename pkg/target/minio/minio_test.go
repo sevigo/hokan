@@ -34,7 +34,7 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 
 	store := &minioStore{
 		bucketName: testBucket,
-		fs:         fileStore,
+		fileStore:  fileStore,
 		client:     minioClient,
 	}
 
@@ -66,7 +66,7 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 
 	store := &minioStore{
 		bucketName: testBucket,
-		fs:         fileStore,
+		fileStore:  fileStore,
 		client:     minioClient,
 	}
 
@@ -90,7 +90,7 @@ func Test_minioStore_NoSave(t *testing.T) {
 
 	store := &minioStore{
 		bucketName: testBucket,
-		fs:         fileStore,
+		fileStore:  fileStore,
 		client:     minioClient,
 	}
 
@@ -115,7 +115,7 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 
 	store := &minioStore{
 		bucketName: testBucket,
-		fs:         fileStore,
+		fileStore:  fileStore,
 		client:     minioClient,
 	}
 
@@ -132,7 +132,7 @@ func TestPing(t *testing.T) {
 	minioClient.EXPECT().BucketExists(testBucket).Return(true, nil)
 	store := &minioStore{
 		bucketName: testBucket,
-		fs:         fileStore,
+		fileStore:  fileStore,
 		client:     minioClient,
 	}
 

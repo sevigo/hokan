@@ -15,7 +15,7 @@ func (r *Register) StartFileAddedWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("StartFileAddedWatcher: event stream canceled")
+			log.Info("StartFileAddedWatcher(): event stream canceled")
 			return
 		case e := <-eventData:
 			err := r.processFileAddedEvent(e)
@@ -32,7 +32,7 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 		return fmt.Errorf("invalid event data: %v", e)
 	}
 	for _, target := range file.Targets {
-		if ts := r.getTarget(target); ts != nil {
+		if ts := r.GetTarget(target); ts != nil {
 			err := ts.Save(r.ctx, &file)
 			if err != nil {
 				log.WithError(err).WithFields(log.Fields{
@@ -53,7 +53,7 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 }
 
 func (r *Register) rescanAllWatchedDirs() {
-	log.Info("rescan all watched directories")
+	log.Info("event.rescanAllWatchedDirs(): publish [WatchDirRescan] event")
 	err := r.event.Publish(r.ctx, &core.EventData{Type: core.WatchDirRescan})
 	if err != nil {
 		log.WithError(err).Error("Can't publish [WatchDirRescan] event")

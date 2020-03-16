@@ -2,6 +2,8 @@ package target
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -24,41 +26,81 @@ type Register struct {
 	ctx context.Context
 	sync.Mutex
 	fileStore      core.FileStore
+	configStore    core.ConfigStore
 	event          core.EventCreator
 	register       map[string]core.TargetStorage
 	registerStatus map[string]core.TargetStorageStatus
 }
 
-func New(ctx context.Context, fileStore core.FileStore, event core.EventCreator) (*Register, error) {
+func New(
+	ctx context.Context,
+	fileStore core.FileStore,
+	configStore core.ConfigStore,
+	event core.EventCreator) (core.TargetRegister, error) {
 	log.Debug("target.New(): start")
 
 	r := &Register{
 		ctx:            ctx,
 		fileStore:      fileStore,
+		configStore:    configStore,
 		event:          event,
 		register:       make(map[string]core.TargetStorage),
 		registerStatus: make(map[string]core.TargetStorageStatus),
 	}
-	r.InitTargets(ctx)
+	r.initTargets(ctx)
 	go r.StartFileAddedWatcher()
 	return r, nil
 }
 
-func (r *Register) InitTargets(ctx context.Context) {
-	for name, target := range targets {
-		go r.initWithRetry(ctx, name, target)
+func (r *Register) AllTargets() map[string]core.TargetFactory {
+	return targets
+}
+
+func (r *Register) GetTarget(name string) core.TargetStorage {
+	r.Lock()
+	defer r.Unlock()
+	return r.register[name]
+}
+
+func (r *Register) initTargets(ctx context.Context) {
+	for name := range targets {
+		err := r.initTarget(ctx, name)
+		if errors.Is(err, core.ErrTargetNotActive) {
+			log.WithError(err).Error("initTargets(): ignore the target for now")
+			continue
+		}
+		if err != nil {
+			log.WithError(err).Error("initTargets()")
+			go r.initWithRetry(ctx, name)
+		}
 	}
 }
 
-func (r *Register) initWithRetry(ctx context.Context, name string, target core.TargetFactory) {
-	// first run
-	ts, err := target(ctx, r.fileStore)
-	if err == nil {
-		r.addTarget(name, ts)
-		return
+func (r *Register) initTarget(ctx context.Context, name string) error {
+	logger := log.WithFields(log.Fields{
+		"target": name,
+	})
+
+	target, ok := targets[name]
+	if !ok {
+		return fmt.Errorf("initTarget(): target %q not found", name)
 	}
 
-	// retry
+	conf, err := r.GetConfig(ctx, name)
+	if err != nil {
+		logger.WithError(err).Fatal("can't get configuration for the target storage")
+		return err
+	}
+	ts, err := target(ctx, r.fileStore, *conf)
+	if err != nil {
+		return err
+	}
+
+	r.addTarget(name, ts)
+	return nil
+}
+
+func (r *Register) initWithRetry(ctx context.Context, name string) {
 	counter := 1
 	mod := 10
 	ticker := time.NewTicker(time.Duration(mod) * time.Second)
@@ -67,7 +109,7 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 	for {
 		select {
 		case <-ctx.Done():
-			log.Info("stream canceled")
+			log.Info("initWithRetry(): stream canceled")
 			return
 		case <-ticker.C:
 			log.WithFields(log.Fields{
@@ -75,9 +117,8 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 				"retry-counter":  counter,
 				"offset-seconds": mod,
 			}).Error("retry target setup")
-			ts, err := target(ctx, r.fileStore)
+			err := r.initTarget(ctx, name)
 			if err == nil {
-				r.addTarget(name, ts)
 				r.rescanAllWatchedDirs()
 				return
 			}
@@ -91,6 +132,7 @@ func (r *Register) initWithRetry(ctx context.Context, name string, target core.T
 	}
 }
 
+// TODO: check if status set correctly in the code!
 func (r *Register) setTargetStatus(name string, status core.TargetStorageStatus) {
 	r.Lock()
 	defer r.Unlock()
@@ -98,16 +140,14 @@ func (r *Register) setTargetStatus(name string, status core.TargetStorageStatus)
 }
 
 func (r *Register) addTarget(name string, ts core.TargetStorage) {
+	log.WithFields(log.Fields{
+		"target": name,
+	}).Info("target successfully added to the register")
+
 	r.Lock()
 	defer r.Unlock()
 	r.register[name] = ts
 	r.registerStatus[name] = core.TargetStorageOK
-}
-
-func (r *Register) getTarget(name string) core.TargetStorage {
-	r.Lock()
-	defer r.Unlock()
-	return r.register[name]
 }
 
 func (r *Register) getTargetStatus(name string) core.TargetStorageStatus {

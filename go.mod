@@ -11,9 +11,8 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/ncw/swift v1.0.50 // indirect
 	github.com/segmentio/ksuid v1.0.2
-	github.com/sevigo/notify v0.4.0
+	github.com/sevigo/notify v0.5.1
 	github.com/sirupsen/logrus v1.4.3-0.20200306102446-7ea96a3284ed
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
 	github.com/stretchr/testify v1.5.1

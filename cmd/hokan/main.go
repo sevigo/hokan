@@ -38,28 +38,19 @@ func main() {
 	}
 }
 
-// func initLogging() {
-// 	log.SetFormatter(&log.TextFormatter{
-// 		ForceColors: true,
-// 	})
-// 	log.SetReportCaller(false)
-// 	log.SetLevel(log.DebugLevel)
-// 	log.SetOutput(os.Stdout)
-// }
-
 // application is the main struct.
 type application struct {
 	dirs    core.DirectoryStore
 	watcher core.Watcher
-	target  core.Target
+	targets core.TargetRegister
 	server  *server.Server
 }
 
-func newApplication(srv *server.Server, dirs core.DirectoryStore, watcher core.Watcher, target core.Target) application {
+func newApplication(srv *server.Server, dirs core.DirectoryStore, watcher core.Watcher, targets core.TargetRegister) application {
 	return application{
 		dirs:    dirs,
 		server:  srv,
 		watcher: watcher,
-		target:  target,
+		targets: targets,
 	}
 }

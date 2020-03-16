@@ -28,7 +28,7 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	store := &voidStorage{
-		fs: fileStore,
+		fileStore: fileStore,
 	}
 
 	err := store.Save(context.TODO(), file)
@@ -53,7 +53,7 @@ func Test_voidStorageSaveChanged(t *testing.T) {
 	fileStore.EXPECT().Save(context.TODO(), TargetName, fileB).Return(nil)
 
 	store := &voidStorage{
-		fs: fileStore,
+		fileStore: fileStore,
 	}
 
 	err := store.Save(context.TODO(), fileB)
@@ -73,7 +73,7 @@ func Test_minioStore_NoSave(t *testing.T) {
 	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(fileA, nil)
 
 	store := &voidStorage{
-		fs: fileStore,
+		fileStore: fileStore,
 	}
 
 	err := store.Save(context.TODO(), fileA)

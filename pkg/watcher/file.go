@@ -33,9 +33,7 @@ func (w *Watch) StartFileWatcher() {
 				log.Error("Can't publish [FileAdded] event")
 			}
 		case err := <-w.notifier.Error():
-			if err.Level == "ERROR" {
-				log.Errorf("[%s] %s", err.Level, err.Message)
-			}
+			log.WithField("level", err.Level).Errorf("[notifier] %q", err.Message)
 		}
 	}
 }

@@ -41,7 +41,7 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	store := &localStorage{
 		bucketName:        bucketName,
 		targetStoragePath: tmpDir,
-		fs:                fileStore,
+		fileStore:         fileStore,
 	}
 
 	err = store.Save(context.TODO(), file)
