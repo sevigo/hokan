@@ -16,11 +16,6 @@ import (
 
 const TargetName = "minio"
 
-const endpointDefault = "192.168.0.141:9000"
-const accessKeyIDDefault = "minio"
-const secretAccessKeyDefault = "miniostorage"
-const useSSL = false
-
 type minioStore struct {
 	client     core.MinioWrapper
 	fileStore  core.FileStore

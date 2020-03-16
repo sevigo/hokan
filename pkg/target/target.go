@@ -32,7 +32,11 @@ type Register struct {
 	registerStatus map[string]core.TargetStorageStatus
 }
 
-func New(ctx context.Context, fileStore core.FileStore, configStore core.ConfigStore, event core.EventCreator) (core.TargetRegister, error) {
+func New(
+	ctx context.Context,
+	fileStore core.FileStore,
+	configStore core.ConfigStore,
+	event core.EventCreator) (core.TargetRegister, error) {
 	log.Debug("target.New(): start")
 
 	r := &Register{
