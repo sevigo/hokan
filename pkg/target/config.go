@@ -44,11 +44,20 @@ func (r *Register) SetConfig(ctx context.Context, config *core.TargetConfig) err
 		return err
 	}
 	log.WithField("target", config.Name).Info("target.SetConfig(): new config stored successfully")
-	err = r.initTarget(ctx, config.Name)
-	if err != nil {
-		go r.initWithRetry(ctx, config.Name)
+	// we changed from passiv to active, so we init the storage and rescan
+	if config.Active {
+		err = r.initTarget(ctx, config.Name)
+		if err != nil {
+			// initWithRetry will call rescanAllWatchedDirs
+			go r.initWithRetry(ctx, config.Name)
+		} else {
+			log.WithField("target", config.Name).Info("target.SetConfig(): target is activated now")
+			r.rescanAllWatchedDirs()
+			r.setTargetStatus(config.Name, core.TargetStorageOK)
+		}
 	} else {
-		r.rescanAllWatchedDirs()
+		log.WithField("target", config.Name).Info("target.SetConfig(): target is deactivated now")
+		r.setTargetStatus(config.Name, core.TargetStoragePaused)
 	}
 	return nil
 }

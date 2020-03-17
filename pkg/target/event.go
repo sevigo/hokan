@@ -20,7 +20,7 @@ func (r *Register) StartFileAddedWatcher() {
 		case e := <-eventData:
 			err := r.processFileAddedEvent(e)
 			if err != nil {
-				log.WithError(err).Error("can't send the file to the target storage")
+				log.WithError(err).Error("StartFileAddedWatcher(): can't send the file to the target storage")
 			}
 		}
 	}
@@ -33,6 +33,9 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 	}
 	for _, target := range file.Targets {
 		if ts := r.GetTarget(target); ts != nil {
+			if r.getTargetStatus(target) == core.TargetStoragePaused {
+				continue
+			}
 			err := ts.Save(r.ctx, &file)
 			if err != nil {
 				log.WithError(err).WithFields(log.Fields{

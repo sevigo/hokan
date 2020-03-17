@@ -30,7 +30,7 @@ func (w *Watch) StartFileWatcher() {
 			// TODO: adapt ev.Action to core action
 			err := w.publishFileChange(ev.Path)
 			if err != nil {
-				log.Error("Can't publish [FileAdded] event")
+				log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileAdded] event")
 			}
 		case err := <-w.notifier.Error():
 			log.WithField("level", err.Level).Errorf("[notifier] %q", err.Message)
