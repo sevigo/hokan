@@ -14,7 +14,7 @@ func HandleList(dirStore core.DirectoryStore) http.HandlerFunc {
 		dirs, err := dirStore.List(r.Context())
 		if err != nil {
 			render.Status(r, 500)
-			logger.FromRequest(r).WithError(err).Error("api: cannot list users")
+			logger.FromRequest(r).WithError(err).Error("api: cannot list directories")
 			return
 		}
 

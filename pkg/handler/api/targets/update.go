@@ -14,22 +14,27 @@ import (
 func HandleUpdate(targets core.TargetRegister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		targetName := chi.URLParam(r, "targetName")
+		l := logger.FromRequest(r).WithField("target", targetName)
 
-		_, err := targets.GetConfig(r.Context(), targetName)
+		oldConf, err := targets.GetConfig(r.Context(), targetName)
 		if err != nil {
 			render.Status(r, 400)
-			logger.FromRequest(r).WithField("target", targetName).WithError(err).Error("api: can't get config")
+			l.WithError(err).Error("api: can't get config")
 			return
 		}
 
 		conf := new(core.TargetConfig)
 		err = json.NewDecoder(r.Body).Decode(conf)
 		if err != nil {
-			logger.FromRequest(r).WithError(err).Error("api: cannot unmarshal request body")
+			l.WithError(err).Error("api: cannot unmarshal request body")
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: "invalid request body"})
 			return
 		}
+
+		// Description and Name are read-only, so we just overwrite these fields
+		conf.Description = oldConf.Description
+		conf.Name = oldConf.Name
 
 		err = targets.SetConfig(r.Context(), conf)
 		if err != nil {
@@ -39,7 +44,7 @@ func HandleUpdate(targets core.TargetRegister) http.HandlerFunc {
 			return
 		}
 
-		logger.FromRequest(r).WithField("target", targetName).Info("targets.HandleUpdate(): target storage config updated successfully")
+		l.Info("targets.HandleUpdate(): target storage config updated successfully")
 		render.Status(r, http.StatusCreated)
 	}
 }
