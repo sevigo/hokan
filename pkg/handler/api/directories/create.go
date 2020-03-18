@@ -1,6 +1,7 @@
 package directories
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 
@@ -29,6 +30,7 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 			return
 		}
 
+		dir.ID = base64.StdEncoding.EncodeToString([]byte(dir.Path))
 		err = event.Publish(r.Context(), &core.EventData{
 			Type: core.WatchDirStart,
 			Data: dir,

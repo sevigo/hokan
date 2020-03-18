@@ -3,6 +3,7 @@ package directories
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
@@ -16,23 +17,30 @@ import (
 	"github.com/sevigo/hokan/pkg/core"
 )
 
+var testFotosPath string = "C:\\Documents\\Fotos"
+
 func TestCreate(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
 	dirStore := mocks.NewMockDirectoryStore(controller)
 	dirStore.EXPECT().Create(gomock.Any(), gomock.Any()).Do(func(_ context.Context, dir *core.Directory) error {
-		assert.Equal(t, "C:\\Documents\\Fotos", dir.Path)
+		assert.Equal(t, testFotosPath, dir.Path)
 		return nil
 	})
 	eventCreator := mocks.NewMockEventCreator(controller)
 	eventCreator.EXPECT().Publish(gomock.Any(), &core.EventData{
 		Type: core.WatchDirStart,
-		Data: &core.Directory{Path: "C:\\Documents\\Fotos"},
+		Data: &core.Directory{
+			ID:      base64.StdEncoding.EncodeToString([]byte(testFotosPath)),
+			Path:    testFotosPath,
+			Active:  true,
+			Machine: "test",
+		},
 	})
 
 	in := new(bytes.Buffer)
-	err := json.NewEncoder(in).Encode(&core.Directory{Path: "C:\\Documents\\Fotos"})
+	err := json.NewEncoder(in).Encode(&core.Directory{Path: testFotosPath, Active: true, Machine: "test"})
 	assert.NoError(t, err)
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/", in)
@@ -41,7 +49,7 @@ func TestCreate(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	assert.Equal(t, 201, w.Code)
-	assert.Equal(t, `{"Active":false,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"","IgnoreFiles":null,"Targets":null}`, body)
+	assert.Equal(t, `{"ID":"QzpcRG9jdW1lbnRzXEZvdG9z","Active":true,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
 }
 
 func TestCreateBadRequest(t *testing.T) {

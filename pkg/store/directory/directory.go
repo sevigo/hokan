@@ -80,7 +80,7 @@ func (s *directoryStore) Delete(ctx context.Context, dir *core.Directory) error 
 
 func (s *directoryStore) Create(ctx context.Context, dir *core.Directory) error {
 	log.Printf("directory.Create(): %#v\n", dir)
-	key := path.Clean(dir.Path)
+	key := dir.ID
 	var value bytes.Buffer
 	if err := json.NewEncoder(&value).Encode(dir); err != nil {
 		return err
