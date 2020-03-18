@@ -1,11 +1,11 @@
 package directories
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/nicksnyder/basen"
 
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/logger"
@@ -22,6 +22,8 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 			return
 		}
 
+		// create new ID with base62 value of the path, don't allow ID for the request
+		dir.ID = basen.Base62Encoding.EncodeToString([]byte(dir.Path))
 		err = dirStore.Create(r.Context(), dir)
 		if err != nil {
 			render.Status(r, http.StatusInternalServerError)
@@ -30,7 +32,6 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 			return
 		}
 
-		dir.ID = base64.StdEncoding.EncodeToString([]byte(dir.Path))
 		err = event.Publish(r.Context(), &core.EventData{
 			Type: core.WatchDirStart,
 			Data: dir,
@@ -46,3 +47,8 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 		render.JSON(w, r, dir)
 	}
 }
+
+// func createIDFromPath(path string) string {
+// 	IDbase64 := base64.StdEncoding.EncodeToString([]byte(path))
+// 	return strings.TrimSuffix(IDbase64, "=")
+// }
