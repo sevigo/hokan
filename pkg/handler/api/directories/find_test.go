@@ -1,4 +1,4 @@
-package directories
+package directories_test
 
 import (
 	"encoding/base64"
@@ -10,6 +10,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/handler/api"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,40 +22,25 @@ func TestFindByPath(t *testing.T) {
 	defer controller.Finish()
 
 	dirStore := mocks.NewMockDirectoryStore(controller)
-	dirStore.EXPECT().FindName(gomock.Any(), testPath).Return(&core.Directory{
+	pathID := base64.StdEncoding.EncodeToString([]byte(testPath))
+	dirStore.EXPECT().FindName(gomock.Any(), pathID).Return(&core.Directory{
+		ID:        pathID,
 		Path:      testPath,
 		Recursive: true,
 		Machine:   "test",
 	}, nil)
 
-	pathEnc := base64.StdEncoding.EncodeToString([]byte(testPath))
-	url := fmt.Sprintf("/?path=%s", pathEnc)
-
+	url := fmt.Sprintf("/directories/%s", pathID)
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", url, nil)
 
-	HandleFind(dirStore)(w, r)
-
+	s := api.Server{
+		Dirs:   dirStore,
+		Logger: logrus.StandardLogger(),
+	}
+	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 200, w.Code)
 
 	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"Active":false,"Path":"C:\\Documents\\Fotos","Recursive":true,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
-}
-
-func TestErrorPath(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	dirStore := mocks.NewMockDirectoryStore(controller)
-	url := fmt.Sprintf("/?path=%s", testPath)
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", url, nil)
-
-	HandleFind(dirStore)(w, r)
-
-	assert.Equal(t, 400, w.Code)
-
-	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"code":400,"message":"invalid path"}`, body)
+	assert.Equal(t, `{"ID":"QzpcRG9jdW1lbnRzXEZvdG9z","Active":false,"Path":"C:\\Documents\\Fotos","Recursive":true,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
 }

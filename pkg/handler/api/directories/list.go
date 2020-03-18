@@ -1,7 +1,6 @@
 package directories
 
 import (
-	"encoding/base64"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -17,10 +16,6 @@ func HandleList(dirStore core.DirectoryStore) http.HandlerFunc {
 			render.Status(r, 500)
 			logger.FromRequest(r).WithError(err).Error("api: cannot list directories")
 			return
-		}
-
-		for _, dir := range dirs {
-			dir.ID = base64.StdEncoding.EncodeToString([]byte(dir.Path))
 		}
 
 		render.Status(r, 200)

@@ -17,7 +17,6 @@ func main() {
 		log.Fatal("main: invalid configuration")
 	}
 
-	// initLogging()
 	ctx := context.Background()
 
 	app, err := InitializeApplication(ctx, conf)

@@ -6,7 +6,7 @@ require (
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-chi/render v1.0.1
 	github.com/go-ini/ini v1.52.0 // indirect
-	github.com/golang/mock v1.4.2
+	github.com/golang/mock v1.4.3
 	github.com/google/wire v0.4.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible

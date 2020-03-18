@@ -31,7 +31,6 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 		}
 
 		dir.ID = base64.StdEncoding.EncodeToString([]byte(dir.Path))
-
 		err = event.Publish(r.Context(), &core.EventData{
 			Type: core.WatchDirStart,
 			Data: dir,

@@ -39,7 +39,7 @@ func (s *Server) Handler() http.Handler {
 	r.Route("/directories", func(r chi.Router) {
 		r.Post("/", dirs.HandleCreate(s.Dirs, s.Events))
 		r.Get("/", dirs.HandleList(s.Dirs))
-		r.Get("/{path}", dirs.HandleFind(s.Dirs))
+		r.Get("/{pathID}", dirs.HandleFind(s.Dirs))
 	})
 
 	r.Route("/targets", func(r chi.Router) {
