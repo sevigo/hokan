@@ -3,7 +3,6 @@ package directories
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
@@ -11,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/nicksnyder/basen"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/sevigo/hokan/mocks"
@@ -32,7 +32,7 @@ func TestCreate(t *testing.T) {
 	eventCreator.EXPECT().Publish(gomock.Any(), &core.EventData{
 		Type: core.WatchDirStart,
 		Data: &core.Directory{
-			ID:      base64.StdEncoding.EncodeToString([]byte(testFotosPath)),
+			ID:      basen.Base62Encoding.EncodeToString([]byte(testFotosPath)),
 			Path:    testFotosPath,
 			Active:  true,
 			Machine: "test",
@@ -49,7 +49,7 @@ func TestCreate(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	assert.Equal(t, 201, w.Code)
-	assert.Equal(t, `{"ID":"QzpcRG9jdW1lbnRzXEZvdG9z","Active":true,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
+	assert.Equal(t, `{"ID":"YsmKL73TlYdFBq4g6vBYaZKl","Active":true,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
 }
 
 func TestCreateBadRequest(t *testing.T) {
