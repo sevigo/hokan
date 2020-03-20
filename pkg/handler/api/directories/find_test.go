@@ -45,3 +45,23 @@ func TestFindByPath(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 	assert.Equal(t, `{"ID":"YsmKL73TlYdFBq4g6vBYaZKl","Active":false,"Path":"C:\\Documents\\Fotos","Recursive":true,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
 }
+
+func TestFindByPathNotFound(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	dirStore := mocks.NewMockDirectoryStore(controller)
+	pathID := basen.Base62Encoding.EncodeToString([]byte(testPath))
+	dirStore.EXPECT().FindName(gomock.Any(), pathID).Return(nil, core.ErrDirectoryNotFound)
+
+	url := fmt.Sprintf("/directories/%s", pathID)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", url, nil)
+
+	s := api.Server{
+		Dirs:   dirStore,
+		Logger: logrus.StandardLogger(),
+	}
+	s.Handler().ServeHTTP(w, r)
+	assert.Equal(t, 404, w.Code)
+}

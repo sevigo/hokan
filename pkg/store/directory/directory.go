@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"path"
 	"strings"
 
@@ -63,7 +62,7 @@ func (s *directoryStore) FindName(ctx context.Context, name string) (*core.Direc
 		return nil, err
 	}
 	if value == nil {
-		return nil, errors.New("entry was not found")
+		return nil, core.ErrDirectoryNotFound
 	}
 
 	err = json.NewDecoder(bytes.NewReader(value)).Decode(dir)

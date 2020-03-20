@@ -1,6 +1,11 @@
 package core
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var ErrDirectoryNotFound = errors.New("directory not found")
 
 type Directory struct {
 	ID          string

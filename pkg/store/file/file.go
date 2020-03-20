@@ -13,8 +13,6 @@ import (
 	"github.com/sevigo/hokan/pkg/store/db"
 )
 
-var ErrFileEntryNotFound = errors.New("file entry not found")
-
 type fileStore struct {
 	db *db.DB
 }
@@ -39,7 +37,7 @@ func (s *fileStore) Find(ctx context.Context, bucketName, filePath string) (*cor
 		return nil, err
 	}
 	if value == nil {
-		return nil, ErrFileEntryNotFound
+		return nil, core.ErrFileNotFound
 	}
 
 	errJ := json.NewDecoder(bytes.NewReader(value)).Decode(file)

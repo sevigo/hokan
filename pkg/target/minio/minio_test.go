@@ -8,7 +8,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
-	filestore "github.com/sevigo/hokan/pkg/store/file"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,7 +25,7 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, filestore.ErrFileEntryNotFound)
+	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
@@ -109,7 +108,7 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, filestore.ErrFileEntryNotFound)
+	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, core.ErrFileNotFound)
 	minioClient := mocks.NewMockMinioWrapper(controller)
 	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, gomock.Any()).Return(int64(0), fmt.Errorf("error"))
 

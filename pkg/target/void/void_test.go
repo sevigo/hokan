@@ -7,7 +7,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
-	filestore "github.com/sevigo/hokan/pkg/store/file"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +23,7 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, filestore.ErrFileEntryNotFound)
+	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	store := &voidStorage{

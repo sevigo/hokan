@@ -10,7 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
-	filestore "github.com/sevigo/hokan/pkg/store/file"
 	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
@@ -81,7 +80,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 	})
 
 	storedFile, err := s.fileStore.Find(ctx, TargetName, file.Path)
-	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
+	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		objectName := path.Clean(file.Path)
 		options := minio.PutObjectOptions{
@@ -96,7 +95,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		if err != nil {
 			return err
 		}
-		logger.Infof("Successfully uploaded %s of size %d\n", objectName, n)
+		logger.Infof("Successfully uploaded %s of size %d", objectName, n)
 		return s.fileStore.Save(ctx, TargetName, file)
 	}
 	logger.Info("the file has not changed")
@@ -104,12 +103,12 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 }
 
 func (s *minioStore) List(context.Context) ([]*core.File, error) {
-	log.Printf("[minio] list\n")
+	log.Printf("[minio] list")
 	return nil, errors.New("not implemented")
 }
 
 func (s *minioStore) Find(ctx context.Context, q string) (*core.File, error) {
-	log.Printf("[minio] find %q\n", q)
+	log.Printf("[minio] find %q", q)
 	return nil, errors.New("not implemented")
 }
 

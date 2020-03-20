@@ -9,6 +9,8 @@ type TargetStorageStatus int
 
 var ErrTargetNotActive = errors.New("target is not active")
 
+var ErrTargetConfigNotFound = errors.New("default config for target not found")
+
 const (
 	TargetStorageOK TargetStorageStatus = iota
 	TargetStoragePaused

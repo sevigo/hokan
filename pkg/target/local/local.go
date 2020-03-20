@@ -13,7 +13,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
-	filestore "github.com/sevigo/hokan/pkg/store/file"
 	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
@@ -67,7 +66,7 @@ func (s *localStorage) Save(ctx context.Context, file *core.File) error {
 
 	// TODO: this is all the same, move me
 	storedFile, err := s.fileStore.Find(ctx, TargetName, file.Path)
-	if errors.Is(err, filestore.ErrFileEntryNotFound) || utils.FileHasChanged(file, storedFile) {
+	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		volume := filepath.VolumeName(file.Path)
 		base := volume + string(os.PathSeparator)
