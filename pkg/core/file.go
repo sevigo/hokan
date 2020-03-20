@@ -1,8 +1,14 @@
 package core
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var ErrFileNotFound = errors.New("file not found")
 
 type File struct {
+	ID       string
 	Path     string
 	Checksum string
 	Info     string

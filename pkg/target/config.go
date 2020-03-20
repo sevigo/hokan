@@ -3,7 +3,6 @@ package target
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -28,7 +27,8 @@ func (r *Register) GetConfig(ctx context.Context, targetName string) (*core.Targ
 	var err error
 	defaultConf, ok := defaultConfigs[targetName]
 	if !ok {
-		return nil, fmt.Errorf("default config for target storage %q not found", targetName)
+		log.Errorf("default config for target storage %q not found", targetName)
+		return nil, core.ErrTargetConfigNotFound
 	}
 	conf, err := r.configStore.Find(ctx, targetName)
 	if errors.Is(err, configstore.ErrConfigNotFound) {

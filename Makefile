@@ -17,7 +17,8 @@ install-mockgen:
 	GOPATH=${TMP} go install github.com/golang/mock/mockgen
 
 mockgen: install-mockgen
-	${LOCAL_BIN}/mockgen -destination=mocks/mock_gen.go -package=mocks github.com/sevigo/hokan/pkg/core DirectoryStore,EventCreator,FileStore,MinioWrapper,Notifier,TargetStorage,UserStore,Watcher
+	# grep "interface {" pkg/core/* | awk '{print $2}' | paste -sd "," - 
+	${LOCAL_BIN}/mockgen -destination=mocks/mock_gen.go -package=mocks github.com/sevigo/hokan/pkg/core ConfigStore,DirectoryStore,EventCreator,FileStore,MinioWrapper,Notifier,TargetStorage,TargetRegister,UserStore,Watcher
 
 install-golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${LOCAL_BIN} v1.24.0
@@ -28,5 +29,7 @@ lint: install-golangci-lint
 test:
 	go test -timeout 10s -v -cover ./...
 
+# sudo snap install scc
+# scc .
 # git fetch --all
 # git checkout --track origin/local-stroage 
