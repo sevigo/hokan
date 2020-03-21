@@ -48,6 +48,11 @@ func HandleGet(targets core.TargetRegister) http.HandlerFunc {
 					Href:   r.URL.EscapedPath() + "/files",
 					Method: "GET",
 				},
+				{
+					Rel:    "edit",
+					Href:   r.URL.EscapedPath(),
+					Method: "PUT",
+				},
 			},
 		}
 		render.Status(r, 200)
