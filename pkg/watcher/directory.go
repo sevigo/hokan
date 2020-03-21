@@ -12,7 +12,6 @@ func (w *Watch) StartDirWatcher() {
 	ctx := w.ctx
 	eventData := w.event.Subscribe(ctx, core.WatchDirStart)
 	wg.Done()
-
 	for {
 		select {
 		case <-ctx.Done():

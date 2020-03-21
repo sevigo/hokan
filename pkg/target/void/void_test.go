@@ -12,6 +12,25 @@ import (
 
 var testFilePath = "/test/file.txt"
 
+func TestConfig(t *testing.T) {
+	conf := DefaultConfig()
+	assert.Equal(t, "void", conf.Name)
+	assert.Equal(t, false, conf.Active)
+}
+
+func TestNewNotActive(t *testing.T) {
+	conf := DefaultConfig()
+	_, err := New(context.Background(), nil, *conf)
+	assert.EqualError(t, err, "target is not active")
+}
+
+func TestNewActive(t *testing.T) {
+	conf := DefaultConfig()
+	conf.Active = true
+	_, err := New(context.Background(), nil, *conf)
+	assert.NoError(t, err)
+}
+
 func Test_voidStorageSaveNew(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()

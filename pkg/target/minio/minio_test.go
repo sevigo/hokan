@@ -14,6 +14,25 @@ import (
 var testFilePath = "/test/file.txt"
 var testBucket = "test"
 
+func TestConfig(t *testing.T) {
+	conf := DefaultConfig()
+	assert.Equal(t, "minio", conf.Name)
+	assert.Equal(t, false, conf.Active)
+}
+
+func TestNewNotActive(t *testing.T) {
+	conf := DefaultConfig()
+	_, err := New(context.Background(), nil, *conf)
+	assert.EqualError(t, err, "target is not active")
+}
+
+func TestNewActiveErr(t *testing.T) {
+	conf := DefaultConfig()
+	conf.Active = true
+	_, err := New(context.Background(), nil, *conf)
+	assert.Error(t, err)
+}
+
 func Test_minioStore_SaveNewFile(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()

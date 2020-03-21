@@ -100,6 +100,5 @@ func fileChecksumInfo(path string) (string, string, error) {
 	}
 
 	sum := fmt.Sprintf("%x", h.Sum(nil))
-
 	return sum, string(infoJSON), nil
 }
