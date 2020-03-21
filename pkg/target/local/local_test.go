@@ -49,7 +49,10 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, localPath).Return(nil, core.ErrFileNotFound)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   localPath,
+	}).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	tmpDir, err := ioutil.TempDir(os.TempDir(), "")
@@ -80,7 +83,10 @@ func Test_voidStorageSaveNoChanges(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, localPath).Return(file, nil)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   localPath,
+	}).Return(file, nil)
 
 	store := &localStorage{
 		bucketName: bucketName,

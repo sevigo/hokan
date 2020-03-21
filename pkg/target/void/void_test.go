@@ -42,7 +42,10 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, core.ErrFileNotFound)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   testFilePath,
+	}).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	store := &voidStorage{
@@ -67,7 +70,10 @@ func Test_voidStorageSaveChanged(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(fileA, nil)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   testFilePath,
+	}).Return(fileA, nil)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, fileB).Return(nil)
 
 	store := &voidStorage{
@@ -88,7 +94,10 @@ func Test_minioStore_NoSave(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(fileA, nil)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   testFilePath,
+	}).Return(fileA, nil)
 
 	store := &voidStorage{
 		fileStore: fileStore,

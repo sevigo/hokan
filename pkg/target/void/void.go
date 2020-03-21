@@ -49,7 +49,10 @@ func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
 		"file":   file.Path,
 	})
 	// TODO: this is all the same, move me
-	storedFile, err := s.fileStore.Find(ctx, TargetName, file.Path)
+	storedFile, err := s.fileStore.Find(ctx, &core.FileSearchOptions{
+		FilePath:   file.Path,
+		TargetName: TargetName,
+	})
 	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debugf("saving the file %s", s.prefix)
 		return s.fileStore.Save(ctx, TargetName, file)

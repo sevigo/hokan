@@ -12,11 +12,11 @@ type DB struct {
 	path string
 }
 
-type ErrBucketNotFound struct {
-	msg string
+type ReadBucketOptions struct {
+	Query  string
+	Offset int64
+	Limit  int64
 }
-
-func (e *ErrBucketNotFound) Error() string { return e.msg }
 
 // Add basic funtcions here
 func (db *DB) Write(bucketName, key, value string) error {
@@ -42,17 +42,23 @@ func (db *DB) Read(bucketName, key string) ([]byte, error) {
 	return result, err
 }
 
-func (db *DB) ReadBucket(bucketName string) (map[string]string, error) {
+func (db *DB) ReadBucket(bucketName string, opt *ReadBucketOptions) (map[string]string, error) {
 	result := make(map[string]string)
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
 			return &ErrBucketNotFound{fmt.Sprintf("ReadBucket: bucket %q was not found", bucketName)}
 		}
+		fmt.Printf(">>> total keys/value pairs: %d in %q\n", b.Stats().KeyN, bucketName)
 		return b.ForEach(func(k, v []byte) error {
 			result[string(k)] = string(v)
 			return nil
 		})
+		// TODO: use Cursor
+		// c := b.Cursor()
+		// for k, v := c.First(); k != nil; k, v = c.Next() {
+		// 	fmt.Printf("key=%s, value=%s\n", k, v)
+		// }
 	})
 	return result, err
 }

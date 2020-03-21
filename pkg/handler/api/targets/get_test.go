@@ -39,8 +39,8 @@ func TestGetTargetByNameOK(t *testing.T) {
 	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 200, w.Code)
 
-	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"Active":true,"Name":"test","Description":"this is test","Settings":null}`, body)
+	assert.NotEmpty(t, w.Body.String())
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
 }
 
 func TestGetTargetByNameNotFound(t *testing.T) {
@@ -59,7 +59,9 @@ func TestGetTargetByNameNotFound(t *testing.T) {
 		Logger:  logrus.StandardLogger(),
 	}
 	s.Handler().ServeHTTP(w, r)
+
 	assert.Equal(t, 404, w.Code)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
 
 	body := strings.TrimSpace(w.Body.String())
 	assert.Equal(t, `{"code":404,"message":"default config for target not found"}`, body)
@@ -81,8 +83,10 @@ func TestGetTargetByNameError(t *testing.T) {
 		Logger:  logrus.StandardLogger(),
 	}
 	s.Handler().ServeHTTP(w, r)
-	assert.Equal(t, 500, w.Code)
+
+	assert.Equal(t, 400, w.Code)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
 
 	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"code":500,"message":"Some error"}`, body)
+	assert.Equal(t, `{"code":400,"message":"Some error"}`, body)
 }

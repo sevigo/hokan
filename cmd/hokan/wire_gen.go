@@ -17,16 +17,16 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	if err != nil {
 		return application{}, err
 	}
+	fileStore := provideFileStore(db)
 	directoryStore := provideDirectoryStore(db)
 	eventCreator := provideEventCreator()
-	fileStore := provideFileStore(db)
 	configStore := provideConfigStore(db)
 	targetRegister, err := provideTarget(ctx, fileStore, configStore, eventCreator)
 	if err != nil {
 		return application{}, err
 	}
 	logger := provideLogger(config2)
-	server := apiServerProvider(directoryStore, eventCreator, targetRegister, logger)
+	server := apiServerProvider(fileStore, directoryStore, eventCreator, targetRegister, logger)
 	mainHealthzHandler := provideHealthz()
 	handler := provideRouter(server, mainHealthzHandler)
 	serverServer := provideServer(handler, config2)

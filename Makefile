@@ -27,7 +27,7 @@ lint: install-golangci-lint
 	${LOCAL_BIN}/golangci-lint run
 
 test:
-	go test -timeout 10s -v -cover ./...
+	go test -timeout 10s -cover ./...
 
 # sudo snap install scc
 # scc .

@@ -265,22 +265,22 @@ func (mr *MockFileStoreMockRecorder) Delete(arg0, arg1, arg2 interface{}) *gomoc
 }
 
 // Find mocks base method
-func (m *MockFileStore) Find(arg0 context.Context, arg1, arg2 string) (*core.File, error) {
+func (m *MockFileStore) Find(arg0 context.Context, arg1 *core.FileSearchOptions) (*core.File, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Find", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Find", arg0, arg1)
 	ret0, _ := ret[0].(*core.File)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Find indicates an expected call of Find
-func (mr *MockFileStoreMockRecorder) Find(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockFileStoreMockRecorder) Find(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockFileStore)(nil).Find), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockFileStore)(nil).Find), arg0, arg1)
 }
 
 // List mocks base method
-func (m *MockFileStore) List(arg0 context.Context, arg1 string) ([]*core.File, error) {
+func (m *MockFileStore) List(arg0 context.Context, arg1 *core.FileListOptions) ([]*core.File, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", arg0, arg1)
 	ret0, _ := ret[0].([]*core.File)

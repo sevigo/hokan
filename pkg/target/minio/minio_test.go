@@ -44,7 +44,10 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, core.ErrFileNotFound)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		FilePath:   testFilePath,
+		TargetName: TargetName,
+	}).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
@@ -76,7 +79,10 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(fileA, nil)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   testFilePath,
+	}).Return(fileA, nil)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, fileB).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
@@ -103,7 +109,10 @@ func Test_minioStore_NoSave(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(fileA, nil)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   testFilePath,
+	}).Return(fileA, nil)
 	minioClient := mocks.NewMockMinioWrapper(controller)
 
 	store := &minioStore{
@@ -127,7 +136,10 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, testFilePath).Return(nil, core.ErrFileNotFound)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   testFilePath,
+	}).Return(nil, core.ErrFileNotFound)
 	minioClient := mocks.NewMockMinioWrapper(controller)
 	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, gomock.Any()).Return(int64(0), fmt.Errorf("error"))
 
