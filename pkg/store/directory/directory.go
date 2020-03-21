@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/nicksnyder/basen"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
@@ -26,7 +27,7 @@ type directoryStore struct {
 func (s *directoryStore) List(ctx context.Context) ([]*core.Directory, error) {
 	var dirs []*core.Directory
 
-	data, err := s.db.ReadBucket(bucketName)
+	data, err := s.db.ReadBucket(bucketName, &db.ReadBucketOptions{})
 	if err != nil {
 		if _, ok := err.(*db.ErrBucketNotFound); ok {
 			return dirs, nil
@@ -79,6 +80,9 @@ func (s *directoryStore) Delete(ctx context.Context, dir *core.Directory) error 
 
 func (s *directoryStore) Create(ctx context.Context, dir *core.Directory) error {
 	log.Printf("directory.Create(): %#v\n", dir)
+	if dir.ID == "" {
+		dir.ID = basen.Base62Encoding.EncodeToString([]byte(dir.Path))
+	}
 	key := dir.ID
 	var value bytes.Buffer
 	if err := json.NewEncoder(&value).Encode(dir); err != nil {

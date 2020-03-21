@@ -10,6 +10,7 @@ import (
 	"github.com/sevigo/hokan/pkg/core"
 	dirs "github.com/sevigo/hokan/pkg/handler/api/directories"
 	targetstorage "github.com/sevigo/hokan/pkg/handler/api/targets"
+	targetsfiles "github.com/sevigo/hokan/pkg/handler/api/targets/files"
 
 	"github.com/sevigo/hokan/pkg/logger"
 )
@@ -17,14 +18,16 @@ import (
 type Server struct {
 	Logger  *logrus.Logger
 	Dirs    core.DirectoryStore
+	Files   core.FileStore
 	Events  core.EventCreator
 	Targets core.TargetRegister
 }
 
-func New(dirStore core.DirectoryStore, events core.EventCreator, targets core.TargetRegister, logger *logrus.Logger) *Server {
+func New(fileStore core.FileStore, dirStore core.DirectoryStore, events core.EventCreator, targets core.TargetRegister, logger *logrus.Logger) *Server {
 	return &Server{
 		Logger:  logger,
 		Dirs:    dirStore,
+		Files:   fileStore,
 		Events:  events,
 		Targets: targets,
 	}
@@ -43,9 +46,14 @@ func (s *Server) Handler() http.Handler {
 	})
 
 	r.Route("/targets", func(r chi.Router) {
-		r.Get("/{targetName}", targetstorage.HandleGet(s.Targets))
 		r.Put("/{targetName}", targetstorage.HandleUpdate(s.Targets))
 		r.Get("/", targetstorage.HandleList(s.Targets))
+		r.Get("/{targetName}", targetstorage.HandleGet(s.Targets))
+
+		r.Route("/{targetName}/files", func(r chi.Router) {
+			r.Get("/", targetsfiles.HandleList(s.Files))
+			r.Get("/{fileID}", targetsfiles.HandleGet(s.Files))
+		})
 	})
 
 	return r

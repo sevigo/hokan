@@ -28,8 +28,8 @@ var serverSet = wire.NewSet(
 	provideLogger,
 )
 
-func apiServerProvider(dirStore core.DirectoryStore, events core.EventCreator, targets core.TargetRegister, logger *logrus.Logger) *api.Server {
-	return api.New(dirStore, events, targets, logger)
+func apiServerProvider(fileStore core.FileStore, dirStore core.DirectoryStore, events core.EventCreator, targets core.TargetRegister, logger *logrus.Logger) *api.Server {
+	return api.New(fileStore, dirStore, events, targets, logger)
 }
 
 func provideLogger(config config.Config) *logrus.Logger {

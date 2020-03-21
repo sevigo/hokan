@@ -16,6 +16,25 @@ import (
 var testFilePath = "local.go"
 var bucketName = "test"
 
+func TestConfig(t *testing.T) {
+	conf := DefaultConfig()
+	assert.Equal(t, "local", conf.Name)
+	assert.Equal(t, false, conf.Active)
+}
+
+func TestNewNotActive(t *testing.T) {
+	conf := DefaultConfig()
+	_, err := New(context.Background(), nil, *conf)
+	assert.EqualError(t, err, "target is not active")
+}
+
+func TestNewActive(t *testing.T) {
+	conf := DefaultConfig()
+	conf.Active = true
+	_, err := New(context.Background(), nil, *conf)
+	assert.NoError(t, err)
+}
+
 func Test_voidStorageSaveNew(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
@@ -30,7 +49,10 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), TargetName, localPath).Return(nil, core.ErrFileNotFound)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   localPath,
+	}).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	tmpDir, err := ioutil.TempDir(os.TempDir(), "")
@@ -45,10 +67,32 @@ func Test_voidStorageSaveNew(t *testing.T) {
 
 	err = store.Save(context.TODO(), file)
 	assert.NoError(t, err)
+}
 
-	tmpFilename := filepath.Join(tmpDir, bucketName, localPath)
+func Test_voidStorageSaveNoChanges(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
 
-	info, err := os.Stat(tmpFilename)
+	pwd, err := os.Getwd()
 	assert.NoError(t, err)
-	assert.Equal(t, testFilePath, info.Name())
+	localPath := filepath.Join(pwd, testFilePath)
+
+	file := &core.File{
+		Path:     localPath,
+		Checksum: "abc",
+	}
+
+	fileStore := mocks.NewMockFileStore(controller)
+	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
+		TargetName: TargetName,
+		FilePath:   localPath,
+	}).Return(file, nil)
+
+	store := &localStorage{
+		bucketName: bucketName,
+		fileStore:  fileStore,
+	}
+
+	err = store.Save(context.TODO(), file)
+	assert.NoError(t, err)
 }

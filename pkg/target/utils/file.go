@@ -9,5 +9,8 @@ func FileHasChanged(newFile, storedFile *core.File) bool {
 	if newFile.Checksum != storedFile.Checksum {
 		return true
 	}
+	if newFile.Info != storedFile.Info {
+		return true
+	}
 	return false
 }

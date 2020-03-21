@@ -79,7 +79,10 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		"file":   file.Path,
 	})
 
-	storedFile, err := s.fileStore.Find(ctx, TargetName, file.Path)
+	storedFile, err := s.fileStore.Find(ctx, &core.FileSearchOptions{
+		FilePath:   file.Path,
+		TargetName: TargetName,
+	})
 	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		objectName := path.Clean(file.Path)
@@ -98,7 +101,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		logger.Infof("Successfully uploaded %s of size %d", objectName, n)
 		return s.fileStore.Save(ctx, TargetName, file)
 	}
-	logger.Info("the file has not changed")
+	logger.Info("file hasn't change")
 	return nil
 }
 

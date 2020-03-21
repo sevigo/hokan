@@ -20,7 +20,18 @@ var defaultConfigs = map[string]*core.TargetConfig{
 }
 
 func (r *Register) AllConfigs() map[string]*core.TargetConfig {
-	return defaultConfigs
+	configs := map[string]*core.TargetConfig{}
+
+	for name := range defaultConfigs {
+		conf, err := r.GetConfig(r.ctx, name)
+		if err != nil {
+			log.WithError(err).Errorf("can't get config for %q", name)
+			continue
+		}
+		configs[name] = conf
+	}
+
+	return configs
 }
 
 func (r *Register) GetConfig(ctx context.Context, targetName string) (*core.TargetConfig, error) {
