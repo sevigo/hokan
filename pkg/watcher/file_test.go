@@ -33,8 +33,8 @@ func TestWatch_StartFileWatcher(t *testing.T) {
 		assert.Equal(t, localPath, data.Path)
 		return nil
 	})
-	ctx := context.Background()
 
+	ctx := context.Background()
 	w := &Watch{
 		ctx:      ctx,
 		event:    event,
