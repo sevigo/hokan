@@ -1,23 +1,20 @@
 package sse
 
 import (
-	"context"
-
 	serverevents "github.com/r3labs/sse"
 
 	"github.com/sevigo/hokan/pkg/core"
 )
 
 type serverEvents struct {
-	ctx    context.Context
 	server *serverevents.Server
 }
 
-func New(ctx context.Context) core.ServerSideEventCreater {
+func New() core.ServerSideEventCreator {
 	server := serverevents.New()
+	server.CreateStream("messages")
 
 	return &serverEvents{
-		ctx:    ctx,
 		server: server,
 	}
 }

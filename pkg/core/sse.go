@@ -1,5 +1,8 @@
 package core
 
-type ServerSideEventCreater interface {
+import "net/http"
+
+type ServerSideEventCreator interface {
+	Handler(w http.ResponseWriter, r *http.Request)
 	PublishMessage(string)
 }

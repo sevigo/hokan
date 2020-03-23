@@ -12,8 +12,11 @@ import (
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/event"
 	"github.com/sevigo/hokan/pkg/handler/api"
+	"github.com/sevigo/hokan/pkg/handler/events"
 	"github.com/sevigo/hokan/pkg/handler/health"
+	"github.com/sevigo/hokan/pkg/handler/web"
 	"github.com/sevigo/hokan/pkg/server"
+	"github.com/sevigo/hokan/pkg/sse"
 )
 
 type healthzHandler http.Handler
@@ -21,15 +24,31 @@ type healthzHandler http.Handler
 // wire set for loading the server.
 var serverSet = wire.NewSet(
 	apiServerProvider,
+	eventsServerProvider,
 	provideHealthz,
+	provideWeb,
 	provideRouter,
 	provideServer,
 	provideEventCreator,
+	provideServerSideEventCreator,
 	provideLogger,
 )
 
-func apiServerProvider(fileStore core.FileStore, dirStore core.DirectoryStore, events core.EventCreator, targets core.TargetRegister, logger *logrus.Logger) *api.Server {
+func provideWeb() *web.Server {
+	return web.New()
+}
+
+func apiServerProvider(
+	fileStore core.FileStore,
+	dirStore core.DirectoryStore,
+	events core.EventCreator,
+	targets core.TargetRegister,
+	logger *logrus.Logger) *api.Server {
 	return api.New(fileStore, dirStore, events, targets, logger)
+}
+
+func eventsServerProvider(sseCreator core.ServerSideEventCreator) *events.Server {
+	return events.New(sseCreator)
 }
 
 func provideLogger(config config.Config) *logrus.Logger {
@@ -45,10 +64,12 @@ func provideLogger(config config.Config) *logrus.Logger {
 	return l
 }
 
-func provideRouter(apiHandler *api.Server, healthz healthzHandler) http.Handler {
+func provideRouter(apiHandler *api.Server, webHandler *web.Server, serverEventsHandler *events.Server, healthz healthzHandler) http.Handler {
 	r := chi.NewRouter()
 	r.Mount("/healthz", healthz)
 	r.Mount("/api", apiHandler.Handler())
+	r.Mount("/sse", serverEventsHandler.Handler())
+	r.Mount("/", webHandler.Handler())
 	return r
 }
 
@@ -67,4 +88,8 @@ func provideServer(handler http.Handler, config config.Config) *server.Server {
 
 func provideEventCreator() core.EventCreator {
 	return event.New(event.Config{})
+}
+
+func provideServerSideEventCreator() core.ServerSideEventCreator {
+	return sse.New()
 }
