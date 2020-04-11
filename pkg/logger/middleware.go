@@ -43,6 +43,7 @@ func Middleware(logger *logrus.Logger) func(next http.Handler) http.Handler {
 			// log end request
 			end := time.Now()
 			log.WithFields(logrus.Fields{
+				"headers":    r.Header,
 				"remote_ip":  r.RemoteAddr,
 				"url":        r.URL.Path,
 				"proto":      r.Proto,
