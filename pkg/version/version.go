@@ -7,7 +7,7 @@ var (
 	GitCommit     string
 	VersionMajor  int64 = 0
 	VersionMinor  int64 = 2
-	VersionPatch  int64 = 0
+	VersionPatch  int64 = 3
 	VersionPre          = ""
 	VersionDev    string
 )

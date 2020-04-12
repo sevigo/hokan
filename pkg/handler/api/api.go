@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
@@ -14,6 +15,15 @@ import (
 
 	"github.com/sevigo/hokan/pkg/logger"
 )
+
+var corsOpts = cors.Options{
+	AllowedOrigins:   []string{"*"},
+	AllowedMethods:   []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
+	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	ExposedHeaders:   []string{"Link"},
+	AllowCredentials: true,
+	MaxAge:           300,
+}
 
 type Server struct {
 	Logger  *logrus.Logger
@@ -38,6 +48,9 @@ func (s *Server) Handler() http.Handler {
 	r.Use(middleware.Recoverer)
 
 	r.Use(logger.Middleware(s.Logger))
+
+	cors := cors.New(corsOpts)
+	r.Use(cors.Handler)
 
 	r.Route("/directories", func(r chi.Router) {
 		r.Post("/", dirs.HandleCreate(s.Dirs, s.Events))

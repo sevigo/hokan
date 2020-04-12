@@ -27,7 +27,7 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	}
 	logger := provideLogger(config2)
 	server := apiServerProvider(fileStore, directoryStore, eventCreator, targetRegister, logger)
-	webServer := provideWeb()
+	webServer := provideWeb(logger)
 	serverSideEventCreator := provideServerSideEventCreator()
 	eventsServer := eventsServerProvider(serverSideEventCreator)
 	mainHealthzHandler := provideHealthz()
