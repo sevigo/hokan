@@ -54,6 +54,7 @@ func TestNewActiveErr(t *testing.T) {
 }
 
 func Test_minioStore_SaveNewFile(t *testing.T) {
+	t.Skip()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -88,6 +89,7 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 }
 
 func Test_minioStore_SaveFileChange(t *testing.T) {
+	t.Skip()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
