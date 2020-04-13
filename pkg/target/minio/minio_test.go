@@ -24,7 +24,6 @@ var expectedOpts = minio.PutObjectOptions{
 		"size":      "11",
 		"name":      "test.txt",
 		"mode-time": "2020-04-13 22:07:56.013644 +0200 CEST",
-		"mode":      "-rw-rw-rw-",
 		"checksum":  "5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269",
 	},
 }

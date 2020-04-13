@@ -93,7 +93,6 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 				"size":      fmt.Sprintf("%d", file.Info.Size()),
 				"name":      file.Info.Name(),
 				"mode-time": file.Info.ModTime().String(),
-				"mode":      file.Info.Mode().String(),
 				"checksum":  file.Checksum,
 			},
 			// TODO: we can use Progress for the reporting the progress back to the client

@@ -17,7 +17,6 @@ func (f FileInfo) MarshalJSON() ([]byte, error) {
 	data, err := json.Marshal(map[string]interface{}{
 		"Name":    f.Name(),
 		"Size":    f.Size(),
-		"Mode":    f.Mode(),
 		"ModTime": f.ModTime(),
 	})
 	// don't care about error here, just return empty json object

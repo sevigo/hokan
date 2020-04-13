@@ -16,7 +16,7 @@ import (
 
 var testFilePath = "testdata/test.txt"
 var testBucket = "test"
-var expectedValue = `"Checksum":"5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269","Info":{"ModTime":"2020-04-13T23:36:02.6754743+02:00","Mode":438,"Name":"test.txt","Size":11},"Targets":["test"]}`
+var expectedValue = `"Checksum":"5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269","Info":{"ModTime":"2020-04-13T23:36:02.6754743+02:00","Name":"test.txt","Size":11},"Targets":["test"]}`
 
 func getTestingFile(t *testing.T) string {
 	pwd, err := os.Getwd()
