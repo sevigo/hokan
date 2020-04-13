@@ -88,6 +88,22 @@ func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File
 	if file.ID == "" {
 		file.ID = basen.Base62Encoding.EncodeToString([]byte(key))
 	}
+
+	err := s.updateStats(ctx, bucketName, file)
+	if err != nil {
+		// log
+	}
+
+	return s.save(ctx, bucketName, file)
+}
+
+func (s *fileStore) Update(ctx context.Context, bucketName string, file *core.File) error {
+	log.Printf("file.Update() %#v\n", file)
+	return s.save(ctx, bucketName, file)
+}
+
+func (s *fileStore) save(ctx context.Context, bucketName string, file *core.File) error {
+	key := path.Clean(file.Path)
 	var value bytes.Buffer
 	if err := json.NewEncoder(&value).Encode(file); err != nil {
 		return err
@@ -99,4 +115,33 @@ func (s *fileStore) Delete(ctx context.Context, bucketName string, file *core.Fi
 	log.Printf("file.Delete() %#v\n", file)
 
 	return errors.New("not implemented")
+}
+
+func (s *fileStore) updateStats(ctx context.Context, bucketName string, file *core.File) error {
+	stats, err := s.getStats(ctx, bucketName)
+	if err != nil {
+		// log
+	}
+	stats.TotalSize += uint64(file.Info.Size())
+	stats.TotalFiles++
+
+	var value bytes.Buffer
+	if err := json.NewEncoder(&value).Encode(stats); err != nil {
+		return err
+	}
+	return s.db.Write(bucketName, "stats", value.String())
+}
+
+func (s *fileStore) getStats(ctx context.Context, bucketName string) (*core.TargetStats, error) {
+	stats := &core.TargetStats{}
+	value, err := s.db.Read(bucketName, "stats")
+	if err != nil {
+		return nil, err
+	}
+	if value == nil {
+		return stats, nil
+	}
+
+	errJ := json.NewDecoder(bytes.NewReader(value)).Decode(stats)
+	return stats, errJ
 }

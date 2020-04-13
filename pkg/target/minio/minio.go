@@ -83,13 +83,15 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		FilePath:   file.Path,
 		TargetName: TargetName,
 	})
-	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
+	notFound := errors.Is(err, core.ErrFileNotFound)
+
+	if notFound || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		objectName := path.Clean(file.Path)
 		options := minio.PutObjectOptions{
 			UserMetadata: map[string]string{
 				"path":     file.Path,
-				"info":     file.Info,
+				"info":     file.Info.JSON(),
 				"checksum": file.Checksum,
 			},
 			// TODO: we can use Progress for the reporting the progress back to the client
@@ -99,7 +101,10 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 			return err
 		}
 		logger.Infof("Successfully uploaded %s of size %d", objectName, n)
-		return s.fileStore.Save(ctx, TargetName, file)
+		if notFound {
+			return s.fileStore.Save(ctx, TargetName, file)
+		}
+		return s.fileStore.Update(ctx, TargetName, file)		
 	}
 	logger.Info("file hasn't change")
 	return nil

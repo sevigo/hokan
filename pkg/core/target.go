@@ -38,6 +38,12 @@ type TargetConfig struct {
 	Name        string
 	Description string
 	Settings    map[string]string
+	Stats       TargetStats
+}
+
+type TargetStats struct {
+	TotalFiles uint64
+	TotalSize  uint64
 }
 
 // TargetFactory is a function that returns a TargetStorage.

@@ -69,7 +69,8 @@ func (s *localStorage) Save(ctx context.Context, file *core.File) error {
 		FilePath:   file.Path,
 		TargetName: TargetName,
 	})
-	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
+	fileNotFound := errors.Is(err, core.ErrFileNotFound)
+	if fileNotFound || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		volume := filepath.VolumeName(file.Path)
 		base := volume + string(os.PathSeparator)
@@ -83,11 +84,16 @@ func (s *localStorage) Save(ctx context.Context, file *core.File) error {
 			volume = strings.TrimSuffix(volume, ":")
 		}
 		to := filepath.Join(s.targetStoragePath, s.bucketName, volume, relFilePath)
+
 		errSave := s.save(file.Path, to)
 		if err != nil {
 			return errSave
 		}
-		return s.fileStore.Save(ctx, TargetName, file)
+
+		if fileNotFound {
+			return s.fileStore.Save(ctx, TargetName, file)
+		}
+		return s.fileStore.Update(ctx, TargetName, file)
 	}
 	logger.Info("file hasn't changed")
 	return nil

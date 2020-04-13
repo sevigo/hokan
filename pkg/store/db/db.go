@@ -49,7 +49,6 @@ func (db *DB) ReadBucket(bucketName string, opt *ReadBucketOptions) (map[string]
 		if b == nil {
 			return &ErrBucketNotFound{fmt.Sprintf("ReadBucket: bucket %q was not found", bucketName)}
 		}
-		fmt.Printf(">>> total keys/value pairs: %d in %q\n", b.Stats().KeyN, bucketName)
 		return b.ForEach(func(k, v []byte) error {
 			result[string(k)] = string(v)
 			return nil
