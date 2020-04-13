@@ -18,15 +18,6 @@ import (
 
 var testFilePath = "testdata/test.txt"
 var testBucket = "test"
-var expectedOpts = minio.PutObjectOptions{
-	UserMetadata: map[string]string{
-		"path":      "testdata/test.txt",
-		"size":      "11",
-		"name":      "test.txt",
-		"mode-time": "2020-04-13 22:07:56.013644 +0200 CEST",
-		"checksum":  "5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269",
-	},
-}
 
 func getTestingFile(t *testing.T) string {
 	pwd, err := os.Getwd()
@@ -54,7 +45,6 @@ func TestNewActiveErr(t *testing.T) {
 }
 
 func Test_minioStore_SaveNewFile(t *testing.T) {
-	t.Skip()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -76,7 +66,13 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
-	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, expectedOpts).Return(int64(64), nil)
+	minioClient.EXPECT().FPutObjectWithContext(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(_ context.Context, bucketName, objectName, filePath string, opts minio.PutObjectOptions) (int64, error) {
+			assert.Equal(t, testBucket, bucketName)
+			assert.Equal(t, "5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269", opts.UserMetadata["checksum"])
+
+			return int64(11), nil
+		})
 
 	store := &minioStore{
 		bucketName: testBucket,
@@ -89,7 +85,6 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 }
 
 func Test_minioStore_SaveFileChange(t *testing.T) {
-	t.Skip()
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -117,7 +112,13 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 	fileStore.EXPECT().Save(context.TODO(), TargetName, fileB).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
-	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, gomock.Any()).Return(int64(64), nil)
+	minioClient.EXPECT().FPutObjectWithContext(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(_ context.Context, bucketName, objectName, filePath string, opts minio.PutObjectOptions) (int64, error) {
+			assert.Equal(t, testBucket, bucketName)
+			assert.Equal(t, "abX", opts.UserMetadata["checksum"])
+
+			return int64(11), nil
+		})
 
 	store := &minioStore{
 		bucketName: testBucket,
