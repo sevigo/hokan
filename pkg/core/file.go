@@ -2,16 +2,36 @@ package core
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
 )
 
 var ErrFileNotFound = errors.New("file not found")
+
+type FileInfo struct {
+	os.FileInfo
+}
+
+func (f FileInfo) JSON() string {
+	data, err := json.Marshal(map[string]interface{}{
+		"Name":    f.Name(),
+		"Size":    f.Size(),
+		"Mode":    f.Mode(),
+		"ModTime": f.ModTime(),
+	})
+	// don't care about error here, just return empty json object
+	if err != nil {
+		return "{}"
+	}
+	return string(data)
+}
 
 type File struct {
 	ID       string
 	Path     string
 	Checksum string
-	Info     string
+	Info     *FileInfo
 	Targets  []string
 }
 
