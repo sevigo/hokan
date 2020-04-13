@@ -6,6 +6,7 @@ type ReadBucketOptions struct {
 	Limit  int64
 }
 
+// DB interface for the bold storage
 type DB interface {
 	Write(bucketName, key, value string) error
 	Read(bucketName, key string) ([]byte, error)
