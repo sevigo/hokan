@@ -16,18 +16,18 @@ import (
 
 var bucketName = "watch:directories"
 
-func New(database *db.DB) core.DirectoryStore {
+func New(database core.DB) core.DirectoryStore {
 	return &directoryStore{database}
 }
 
 type directoryStore struct {
-	db *db.DB
+	db core.DB
 }
 
 func (s *directoryStore) List(ctx context.Context) ([]*core.Directory, error) {
 	var dirs []*core.Directory
 
-	data, err := s.db.ReadBucket(bucketName, &db.ReadBucketOptions{})
+	data, err := s.db.ReadBucket(bucketName, &core.ReadBucketOptions{})
 	if err != nil {
 		if _, ok := err.(*db.ErrBucketNotFound); ok {
 			return dirs, nil

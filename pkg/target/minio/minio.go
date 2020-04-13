@@ -3,6 +3,7 @@ package minio
 import (
 	"context"
 	"errors"
+	"fmt"
 	"path"
 	"strconv"
 
@@ -88,9 +89,11 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 		objectName := path.Clean(file.Path)
 		options := minio.PutObjectOptions{
 			UserMetadata: map[string]string{
-				"path":     file.Path,
-				"info":     file.Info,
-				"checksum": file.Checksum,
+				"path":      file.Path,
+				"size":      fmt.Sprintf("%d", file.Info.Size()),
+				"name":      file.Info.Name(),
+				"mode-time": file.Info.ModTime().String(),
+				"checksum":  file.Checksum,
 			},
 			// TODO: we can use Progress for the reporting the progress back to the client
 		}

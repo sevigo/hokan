@@ -19,21 +19,21 @@ var storeSet = wire.NewSet(
 	provideConfigStore,
 )
 
-func provideDatabase(config config.Config) (*db.DB, error) {
+func provideDatabase(config config.Config) (core.DB, error) {
 	return db.Connect(config.Database.Path)
 }
 
-func provideDirectoryStore(db *db.DB) core.DirectoryStore {
+func provideDirectoryStore(db core.DB) core.DirectoryStore {
 	dirs := directory.New(db)
 	return dirs
 }
 
-func provideFileStore(db *db.DB) core.FileStore {
+func provideFileStore(db core.DB) core.FileStore {
 	files := file.New(db)
 	return files
 }
 
-func provideConfigStore(db *db.DB) core.ConfigStore {
+func provideConfigStore(db core.DB) core.ConfigStore {
 	files := configstore.New(db)
 	return files
 }

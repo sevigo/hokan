@@ -3,16 +3,27 @@ package minio
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/minio/minio-go"
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/watcher/utils"
+
 	"github.com/stretchr/testify/assert"
 )
 
-var testFilePath = "/test/file.txt"
+var testFilePath = "testdata/test.txt"
 var testBucket = "test"
+
+func getTestingFile(t *testing.T) string {
+	pwd, err := os.Getwd()
+	assert.NoError(t, err)
+	return filepath.Join(pwd, testFilePath)
+}
 
 func TestConfig(t *testing.T) {
 	conf := DefaultConfig()
@@ -37,10 +48,14 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
+	checksum, info, err := utils.FileChecksumInfo(getTestingFile(t))
+	assert.NoError(t, err)
+
 	file := &core.File{
 		Path:     testFilePath,
-		Checksum: "abc",
+		Checksum: checksum,
 		Targets:  []string{"minio"},
+		Info:     info,
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
@@ -51,7 +66,13 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
-	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, gomock.Any()).Return(int64(64), nil)
+	minioClient.EXPECT().FPutObjectWithContext(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(_ context.Context, bucketName, objectName, filePath string, opts minio.PutObjectOptions) (int64, error) {
+			assert.Equal(t, testBucket, bucketName)
+			assert.Equal(t, "5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269", opts.UserMetadata["checksum"])
+
+			return int64(11), nil
+		})
 
 	store := &minioStore{
 		bucketName: testBucket,
@@ -59,7 +80,7 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err := store.Save(context.TODO(), file)
+	err = store.Save(context.TODO(), file)
 	assert.NoError(t, err)
 }
 
@@ -67,15 +88,20 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
+	checksum, info, err := utils.FileChecksumInfo(getTestingFile(t))
+	assert.NoError(t, err)
+
 	fileA := &core.File{
 		Path:     testFilePath,
-		Checksum: "abc",
+		Checksum: checksum,
 		Targets:  []string{"minio"},
+		Info:     info,
 	}
 	fileB := &core.File{
 		Path:     testFilePath,
 		Checksum: "abX",
 		Targets:  []string{"minio"},
+		Info:     info,
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
@@ -86,7 +112,13 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 	fileStore.EXPECT().Save(context.TODO(), TargetName, fileB).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
-	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, gomock.Any()).Return(int64(64), nil)
+	minioClient.EXPECT().FPutObjectWithContext(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(_ context.Context, bucketName, objectName, filePath string, opts minio.PutObjectOptions) (int64, error) {
+			assert.Equal(t, testBucket, bucketName)
+			assert.Equal(t, "abX", opts.UserMetadata["checksum"])
+
+			return int64(11), nil
+		})
 
 	store := &minioStore{
 		bucketName: testBucket,
@@ -94,7 +126,7 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err := store.Save(context.TODO(), fileB)
+	err = store.Save(context.TODO(), fileB)
 	assert.NoError(t, err)
 }
 
@@ -102,10 +134,14 @@ func Test_minioStore_NoSave(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
+	checksum, info, err := utils.FileChecksumInfo("minio_test.go")
+	assert.NoError(t, err)
+
 	fileA := &core.File{
 		Path:     testFilePath,
-		Checksum: "abc",
+		Checksum: checksum,
 		Targets:  []string{"minio"},
+		Info:     info,
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
@@ -121,7 +157,7 @@ func Test_minioStore_NoSave(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err := store.Save(context.TODO(), fileA)
+	err = store.Save(context.TODO(), fileA)
 	assert.NoError(t, err)
 }
 
@@ -129,9 +165,13 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
+	checksum, info, err := utils.FileChecksumInfo("minio_test.go")
+	assert.NoError(t, err)
+
 	file := &core.File{
 		Path:     testFilePath,
-		Checksum: "abc",
+		Checksum: checksum,
+		Info:     info,
 		Targets:  []string{"minio"},
 	}
 
@@ -140,6 +180,7 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 		TargetName: TargetName,
 		FilePath:   testFilePath,
 	}).Return(nil, core.ErrFileNotFound)
+
 	minioClient := mocks.NewMockMinioWrapper(controller)
 	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, gomock.Any()).Return(int64(0), fmt.Errorf("error"))
 
@@ -149,7 +190,7 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err := store.Save(context.TODO(), file)
+	err = store.Save(context.TODO(), file)
 	assert.Error(t, err)
 }
 
