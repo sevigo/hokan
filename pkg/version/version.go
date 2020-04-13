@@ -6,8 +6,8 @@ var (
 	GitRepository string
 	GitCommit     string
 	VersionMajor  int64 = 0
-	VersionMinor  int64 = 2
-	VersionPatch  int64 = 3
+	VersionMinor  int64 = 3
+	VersionPatch  int64 = 0
 	VersionPre          = ""
 	VersionDev    string
 )
