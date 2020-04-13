@@ -3,23 +3,18 @@ package db
 import (
 	"fmt"
 
+	"github.com/sevigo/hokan/pkg/core"
 	bolt "go.etcd.io/bbolt"
 )
 
-// DB holds the database connection
-type DB struct {
+// Bolt holds the database connection
+type Bolt struct {
 	conn *bolt.DB
 	path string
 }
 
-type ReadBucketOptions struct {
-	Query  string
-	Offset int64
-	Limit  int64
-}
-
 // Add basic funtcions here
-func (db *DB) Write(bucketName, key, value string) error {
+func (db *Bolt) Write(bucketName, key, value string) error {
 	return db.conn.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(bucketName))
 		if err != nil {
@@ -29,7 +24,7 @@ func (db *DB) Write(bucketName, key, value string) error {
 	})
 }
 
-func (db *DB) Read(bucketName, key string) ([]byte, error) {
+func (db *Bolt) Read(bucketName, key string) ([]byte, error) {
 	var result []byte
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
@@ -42,14 +37,13 @@ func (db *DB) Read(bucketName, key string) ([]byte, error) {
 	return result, err
 }
 
-func (db *DB) ReadBucket(bucketName string, opt *ReadBucketOptions) (map[string]string, error) {
+func (db *Bolt) ReadBucket(bucketName string, opt *core.ReadBucketOptions) (map[string]string, error) {
 	result := make(map[string]string)
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
 			return &ErrBucketNotFound{fmt.Sprintf("ReadBucket: bucket %q was not found", bucketName)}
 		}
-		fmt.Printf(">>> total keys/value pairs: %d in %q\n", b.Stats().KeyN, bucketName)
 		return b.ForEach(func(k, v []byte) error {
 			result[string(k)] = string(v)
 			return nil

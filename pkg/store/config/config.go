@@ -11,7 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
-	"github.com/sevigo/hokan/pkg/store/db"
 )
 
 var ErrConfigNotFound = errors.New("config not found")
@@ -20,10 +19,10 @@ const bucketName = "config"
 const targetPrefix = "taget"
 
 type configStore struct {
-	db *db.DB
+	db core.DB
 }
 
-func New(database *db.DB) core.ConfigStore {
+func New(database core.DB) core.ConfigStore {
 	err := database.Write(bucketName, "ts", time.Now().String())
 	if err != nil {
 		// TODO: return error here!

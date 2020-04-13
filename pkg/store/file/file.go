@@ -17,11 +17,13 @@ import (
 )
 
 type fileStore struct {
-	db *db.DB
+	db core.DB
 }
 
-func New(database *db.DB) core.FileStore {
-	return &fileStore{database}
+func New(database core.DB) core.FileStore {
+	return &fileStore{
+		db: database,
+	}
 }
 
 func (s *fileStore) List(ctx context.Context, opt *core.FileListOptions) ([]*core.File, error) {
@@ -31,7 +33,7 @@ func (s *fileStore) List(ctx context.Context, opt *core.FileListOptions) ([]*cor
 	}
 	var files []*core.File
 
-	data, err := s.db.ReadBucket(opt.TargetName, &db.ReadBucketOptions{})
+	data, err := s.db.ReadBucket(opt.TargetName, &core.ReadBucketOptions{})
 	if errors.Is(err, &db.ErrBucketNotFound{}) {
 		return nil, core.ErrTargetNotActive
 	}
