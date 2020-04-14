@@ -11,14 +11,12 @@ import (
 
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/testing/tools"
 	"github.com/sevigo/hokan/pkg/watcher/utils"
 )
 
 var testFilePath = "testdata/test.txt"
 var testBucket = "test"
-var expectedChecksum = `"Checksum":"5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269"`
-var expectedInfo = `"Name":"test.txt","Size":11}`
-var expectedTargets = `"Targets":["test"]}`
 
 func getTestingFile(t *testing.T) string {
 	pwd, err := os.Getwd()
@@ -34,10 +32,10 @@ func Test_fileStore_Save(t *testing.T) {
 
 	db.EXPECT().Write(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(bucketName, key, value string) error {
 		assert.Equal(t, testBucket, bucketName)
-		assert.Contains(t, value, expectedChecksum)
-		assert.Contains(t, value, expectedInfo)
-		assert.Contains(t, value, expectedTargets)
-		assert.Contains(t, key, "test.txt")
+		tools.TestJSONPath(t, "5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269", "checksum", value)
+		tools.TestJSONPath(t, "test.txt", "info.name", value)
+		tools.TestJSONPath(t, "11", "info.size", value)
+		tools.TestJSONPath(t, "test", "targets.0", value)
 		return nil
 	})
 

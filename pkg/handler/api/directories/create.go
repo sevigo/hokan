@@ -47,8 +47,3 @@ func HandleCreate(dirStore core.DirectoryStore, event core.EventCreator) http.Ha
 		render.JSON(w, r, dir)
 	}
 }
-
-// func createIDFromPath(path string) string {
-// 	IDbase64 := base64.StdEncoding.EncodeToString([]byte(path))
-// 	return strings.TrimSuffix(IDbase64, "=")
-// }

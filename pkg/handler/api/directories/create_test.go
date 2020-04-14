@@ -15,6 +15,7 @@ import (
 
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/testing/tools"
 )
 
 var testFotosPath string = "C:\\Documents\\Fotos"
@@ -32,15 +33,16 @@ func TestCreate(t *testing.T) {
 	eventCreator.EXPECT().Publish(gomock.Any(), &core.EventData{
 		Type: core.WatchDirStart,
 		Data: &core.Directory{
-			ID:      basen.Base62Encoding.EncodeToString([]byte(testFotosPath)),
-			Path:    testFotosPath,
-			Active:  true,
-			Machine: "test",
+			ID:        basen.Base62Encoding.EncodeToString([]byte(testFotosPath)),
+			Path:      testFotosPath,
+			Active:    true,
+			Machine:   "test",
+			Recursive: true,
 		},
 	})
 
 	in := new(bytes.Buffer)
-	err := json.NewEncoder(in).Encode(&core.Directory{Path: testFotosPath, Active: true, Machine: "test"})
+	err := json.NewEncoder(in).Encode(&core.Directory{Path: testFotosPath, Active: true, Machine: "test", Recursive: true})
 	assert.NoError(t, err)
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/", in)
@@ -49,7 +51,11 @@ func TestCreate(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	assert.Equal(t, 201, w.Code)
-	assert.Equal(t, `{"ID":"YsmKL73TlYdFBq4g6vBYaZKl","Active":true,"Path":"C:\\Documents\\Fotos","Recursive":false,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
+	tools.TestJSONPath(t, "YsmKL73TlYdFBq4g6vBYaZKl", "id", body)
+	tools.TestJSONPath(t, "true", "active", body)
+	tools.TestJSONPath(t, "C:\\Documents\\Fotos", "path", body)
+	tools.TestJSONPath(t, "test", "machine", body)
+	tools.TestJSONPath(t, "true", "recursive", body)
 }
 
 func TestCreateBadRequest(t *testing.T) {

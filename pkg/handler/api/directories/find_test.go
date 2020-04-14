@@ -14,6 +14,7 @@ import (
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/handler/api"
+	"github.com/sevigo/hokan/pkg/testing/tools"
 )
 
 const testPath = "C:\\Documents\\Fotos"
@@ -43,7 +44,9 @@ func TestFindByPath(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"ID":"YsmKL73TlYdFBq4g6vBYaZKl","Active":false,"Path":"C:\\Documents\\Fotos","Recursive":true,"Machine":"test","IgnoreFiles":null,"Targets":null}`, body)
+	tools.TestJSONPath(t, "YsmKL73TlYdFBq4g6vBYaZKl", "id", body)
+	tools.TestJSONPath(t, "false", "active", body)
+	tools.TestJSONPath(t, "C:\\Documents\\Fotos", "path", body)
 }
 
 func TestFindByPathNotFound(t *testing.T) {
