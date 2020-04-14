@@ -22,7 +22,7 @@ func HandleList(fileStore core.FileStore) http.HandlerFunc {
 		})
 		if errors.Is(err, core.ErrTargetNotActive) {
 			l.WithError(err).Error("api: can't get target")
-			handler.JSON_404(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: err.Error()})
+			handler.JSON_404(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: "target not found"})
 			return
 		}
 		if err != nil {

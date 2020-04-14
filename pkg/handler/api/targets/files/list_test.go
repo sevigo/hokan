@@ -61,3 +61,31 @@ func TestHandleList(t *testing.T) {
 	tools.TestJSONPath(t, "GET", "links.0.method", jsonStr)
 	tools.TestJSONPath(t, "0", "meta.total_items", jsonStr)
 }
+
+func TestHandleListNotFound(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	fileStore := mocks.NewMockFileStore(controller)
+	fileStore.EXPECT().List(gomock.Any(), &core.FileListOptions{
+		TargetName: "wrongName",
+	}).Return(nil, core.ErrTargetNotActive)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/targets/wrongName/files", nil)
+
+	s := api.Server{
+		Files:  fileStore,
+		Logger: logrus.StandardLogger(),
+	}
+	s.Handler().ServeHTTP(w, r)
+	assert.Equal(t, 404, w.Code)
+
+	jsonStr := strings.TrimSpace(w.Body.String())
+	assert.NotEmpty(t, jsonStr)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+
+	tools.TestJSONPath(t, "404", "code", jsonStr)
+	tools.TestJSONPath(t, "target not found", "message", jsonStr)
+	fmt.Printf(jsonStr)
+}
