@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/handler"
 	dirs "github.com/sevigo/hokan/pkg/handler/api/directories"
 	targetstorage "github.com/sevigo/hokan/pkg/handler/api/targets"
 	targetsfiles "github.com/sevigo/hokan/pkg/handler/api/targets/files"
@@ -69,5 +70,44 @@ func (s *Server) Handler() http.Handler {
 		})
 	})
 
+	// List all avaible endpoints
+	r.Get("/", HandleAPIList())
+
 	return r
+}
+
+func HandleAPIList() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		links := []core.LinksResp{
+			{
+				Rel:    "self",
+				Href:   r.URL.EscapedPath(),
+				Method: "GET",
+			},
+			{
+				Rel:    "localDirs",
+				Href:   "/api/directories",
+				Method: "GET",
+			},
+			{
+				Rel:    "remoteStorage",
+				Href:   "/api/targets",
+				Method: "GET",
+			},
+			{
+				Rel:    "version",
+				Href:   "/version",
+				Method: "GET",
+			},
+			{
+				Rel:    "health",
+				Href:   "/healthz",
+				Method: "GET",
+			},
+		}
+		renderData := &core.APIListResp{
+			Links: links,
+		}
+		handler.JSON_200(w, r, renderData)
+	}
 }

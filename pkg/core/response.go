@@ -20,3 +20,7 @@ type FilesListResp struct {
 	Links []LinksResp  `json:"links"`
 	Meta  MetaDataResp `json:"meta"`
 }
+
+type APIListResp struct {
+	Links []LinksResp `json:"links"`
+}
