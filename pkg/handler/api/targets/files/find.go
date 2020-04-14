@@ -43,20 +43,3 @@ func HandleGet(fileStore core.FileStore) http.HandlerFunc {
 		render.JSON(w, r, data)
 	}
 }
-
-/*
-{
-	"ID": "1F8u2r1zHGKDjCSJ7myaswS5C97iDDhv7evEa74xj3xsuMCLg3OXItkgS6PiB",
-	"Path":	"/home/igor/MyLocalFiles/pixiv/66093971_p0.jpg",
-	"Checksum": "e50b49643d0ee2d19bf9adc9f02cd803a4ebe6ff333bb3ae2457a9f53820194f",
-	"Info": "{\"ModTime\":\"2020-03-21T20:37:23.908618193+01:00\",\"Mode\":436,\"Name\":\"66093971_p0.jpg\",\"Size\":935942}",
-	"Targets": ["void"],
-	"links": [
-		{
-			"href":"/api/targets/void/files/1F8u2r1zHGKDjCSJ7myaswS5C97iDDhv7evEa74xj3xsuMCLg3OXItkgS6PiB",
-			"rel":"self",
-			"method":"GET",
-		},
-	]
-}
-*/

@@ -15,9 +15,9 @@ type FileInfo struct {
 
 func (f FileInfo) MarshalJSON() ([]byte, error) {
 	data, err := json.Marshal(map[string]interface{}{
-		"Name":    f.Name(),
-		"Size":    f.Size(),
-		"ModTime": f.ModTime(),
+		"name":     f.Name(),
+		"size":     f.Size(),
+		"mod-time": f.ModTime(),
 	})
 	// don't care about error here, just return empty json object
 	if err != nil {
@@ -27,11 +27,11 @@ func (f FileInfo) MarshalJSON() ([]byte, error) {
 }
 
 type File struct {
-	ID       string
-	Path     string
-	Checksum string
-	Info     *FileInfo
-	Targets  []string
+	ID       string    `json:"id"`
+	Path     string    `json:"path"`
+	Checksum string    `json:"checksum"`
+	Info     *FileInfo `json:"info"`
+	Targets  []string  `json:"targets"`
 }
 
 type FileListOptions struct {

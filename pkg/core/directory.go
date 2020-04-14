@@ -8,13 +8,13 @@ import (
 var ErrDirectoryNotFound = errors.New("directory not found")
 
 type Directory struct {
-	ID          string
-	Active      bool
-	Path        string
-	Recursive   bool
-	Machine     string
-	IgnoreFiles []string
-	Targets     []string
+	ID          string   `json:"id"`
+	Active      bool     `json:"active"`
+	Path        string   `json:"path"`
+	Recursive   bool     `json:"recursive"`
+	Machine     string   `json:"machine"`
+	IgnoreFiles []string `json:"ignore"`
+	Targets     []string `json:"targets"`
 }
 
 type DirectoryStore interface {
