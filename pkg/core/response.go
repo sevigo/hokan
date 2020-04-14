@@ -21,6 +21,12 @@ type FilesListResp struct {
 	Meta  MetaDataResp `json:"meta"`
 }
 
+type DirectoriesListResp struct {
+	Directories []*Directory `json:"directories"`
+	Links       []LinksResp  `json:"links"`
+	Meta        MetaDataResp `json:"meta"`
+}
+
 type APIListResp struct {
 	Links []LinksResp `json:"links"`
 }

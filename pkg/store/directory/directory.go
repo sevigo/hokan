@@ -25,7 +25,7 @@ type directoryStore struct {
 }
 
 func (s *directoryStore) List(ctx context.Context) ([]*core.Directory, error) {
-	var dirs []*core.Directory
+	dirs := []*core.Directory{}
 
 	data, err := s.db.ReadBucket(bucketName, &core.ReadBucketOptions{})
 	if err != nil {
