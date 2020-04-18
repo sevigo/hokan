@@ -24,6 +24,5 @@ func TestHandleInfo(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 	tools.TestJSONPathNotEmpty(t, "machine", body)
 	tools.TestJSONPathNotEmpty(t, "os", body)
-	tools.TestJSONPathNotEmpty(t, "user", body)
 	tools.TestJSONPathNotEmpty(t, "version", body)
 }
