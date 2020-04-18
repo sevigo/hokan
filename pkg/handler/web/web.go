@@ -40,6 +40,7 @@ func (s *Server) Handler() http.Handler {
 	r.Use(cors.Handler)
 
 	r.Get("/version", HandleVersion)
+	r.Get("/info", HandleInfo)
 
 	return r
 }
