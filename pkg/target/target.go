@@ -52,8 +52,8 @@ func New(
 	return r, nil
 }
 
-func (r *Register) AllTargets() map[string]core.TargetFactory {
-	return targets
+func (r *Register) AllTargets() map[string]core.TargetStorage {
+	return r.register
 }
 
 func (r *Register) GetTarget(name string) core.TargetStorage {

@@ -19,8 +19,8 @@ var defaultConfigs = map[string]*core.TargetConfig{
 	void.TargetName:  void.DefaultConfig(),
 }
 
-func (r *Register) AllConfigs() map[string]*core.TargetConfig {
-	configs := map[string]*core.TargetConfig{}
+func (r *Register) AllConfigs() map[string]core.TargetConfig {
+	configs := map[string]core.TargetConfig{}
 
 	for name := range defaultConfigs {
 		conf, err := r.GetConfig(r.ctx, name)
@@ -28,7 +28,7 @@ func (r *Register) AllConfigs() map[string]*core.TargetConfig {
 			log.WithError(err).Errorf("can't get config for %q", name)
 			continue
 		}
-		configs[name] = conf
+		configs[name] = *conf
 	}
 
 	return configs

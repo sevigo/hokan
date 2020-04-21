@@ -21,6 +21,18 @@ type FilesListResp struct {
 	Meta  MetaDataResp `json:"meta"`
 }
 
+type TargetConfigsListResp struct {
+	Targets map[string]TargetConfig `json:"targets"`
+	Links   []LinksResp             `json:"links"`
+	Meta    MetaDataResp            `json:"meta"`
+}
+
+type TargetListResp struct {
+	Targets map[string]Target `json:"targets"`
+	Links   []LinksResp       `json:"links"`
+	Meta    MetaDataResp      `json:"meta"`
+}
+
 type DirectoriesListResp struct {
 	Directories []*Directory `json:"directories"`
 	Links       []LinksResp  `json:"links"`

@@ -79,3 +79,7 @@ func (s *voidStorage) Delete(ctx context.Context, file *core.File) error {
 func (s *voidStorage) Ping(ctx context.Context) error {
 	return nil
 }
+
+func (s *voidStorage) Info(ctx context.Context) core.TargetInfo {
+	return core.TargetInfo{}
+}

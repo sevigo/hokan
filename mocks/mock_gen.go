@@ -634,10 +634,10 @@ func (m *MockTargetRegister) EXPECT() *MockTargetRegisterMockRecorder {
 }
 
 // AllConfigs mocks base method
-func (m *MockTargetRegister) AllConfigs() map[string]*core.TargetConfig {
+func (m *MockTargetRegister) AllConfigs() map[string]core.TargetConfig {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AllConfigs")
-	ret0, _ := ret[0].(map[string]*core.TargetConfig)
+	ret0, _ := ret[0].(map[string]core.TargetConfig)
 	return ret0
 }
 
@@ -648,10 +648,10 @@ func (mr *MockTargetRegisterMockRecorder) AllConfigs() *gomock.Call {
 }
 
 // AllTargets mocks base method
-func (m *MockTargetRegister) AllTargets() map[string]core.TargetFactory {
+func (m *MockTargetRegister) AllTargets() map[string]core.TargetStorage {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AllTargets")
-	ret0, _ := ret[0].(map[string]core.TargetFactory)
+	ret0, _ := ret[0].(map[string]core.TargetStorage)
 	return ret0
 }
 

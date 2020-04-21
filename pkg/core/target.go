@@ -23,22 +23,31 @@ type TargetStorage interface {
 	Save(context.Context, *File) error
 	Delete(context.Context, *File) error
 	Ping(context.Context) error
+	Info(context.Context) TargetInfo
 }
 
 type TargetRegister interface {
-	AllConfigs() map[string]*TargetConfig
-	AllTargets() map[string]TargetFactory
+	AllConfigs() map[string]TargetConfig
+	AllTargets() map[string]TargetStorage
 	GetTarget(name string) TargetStorage
 	GetConfig(context.Context, string) (*TargetConfig, error)
 	SetConfig(context.Context, *TargetConfig) error
 }
 
 type TargetConfig struct {
-	Active      bool
-	Name        string
-	Description string
-	Settings    map[string]string
+	Active      bool              `json:"active"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Settings    map[string]string `json:"settings"`
 }
+
+type Target struct {
+	Name   string              `json:"name"`
+	Status TargetStorageStatus `json:"status"`
+	Info   TargetInfo          `json:"info"`
+}
+
+type TargetInfo map[string]string
 
 // TargetFactory is a function that returns a TargetStorage.
 type TargetFactory func(context.Context, FileStore, TargetConfig) (TargetStorage, error)
