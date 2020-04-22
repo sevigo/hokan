@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/coreos/go-semver v0.3.0
-	github.com/gentlemanautomaton/volmgmt v0.0.0-20190923220944-e5bcf7d8ae12
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-chi/cors v1.0.1
 	github.com/go-chi/render v1.0.1
@@ -15,7 +14,6 @@ require (
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nicksnyder/basen v1.0.0
-	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/r3labs/sse v0.0.0-20200310095403-ee05428e4d0e
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sevigo/notify v0.5.1

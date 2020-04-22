@@ -3,8 +3,6 @@ github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3Ee
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/gentlemanautomaton/volmgmt v0.0.0-20190923220944-e5bcf7d8ae12 h1:RO/FbGXBLa+Ocb7dwOSeB4Xcdpv/Pc8XHVys/E//0Ic=
-github.com/gentlemanautomaton/volmgmt v0.0.0-20190923220944-e5bcf7d8ae12/go.mod h1:h3jLV+oK5sw4Xsr+eE/M/DSrqGpRF0PjDCSV/x7NV5g=
 github.com/go-chi/chi v4.0.3+incompatible h1:gakN3pDJnzZN5jqFV2TEdF66rTfKeITyR8qu6ekICEY=
 github.com/go-chi/chi v4.0.3+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
 github.com/go-chi/cors v1.0.1 h1:56TT/uWGoLWZpnMI/AwAmCneikXr5eLsiIq27wrKecw=
@@ -39,8 +37,6 @@ github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/nicksnyder/basen v1.0.0 h1:hCs3I1Qth9tZv8taqst7iYyEpMsXf4f9cjZT0mTADUk=
 github.com/nicksnyder/basen v1.0.0/go.mod h1:IKOokMzzlenC6zabSIgjZHRp98CeBHUeVkOJLvofeJc=
-github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852 h1:Yl0tPBa8QPjGmesFh1D0rDy+q1Twx6FyU7VWHi8wZbI=
-github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852/go.mod h1:eqOVx5Vwu4gd2mmMZvVZsgIqNSaW3xxRThUJ0k/TPk4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/r3labs/sse v0.0.0-20200310095403-ee05428e4d0e h1:w3ZemLxSM2hb3bHk7wjNaAAluaDQ+9WnWZQV1wcA8f4=
