@@ -15,18 +15,18 @@ var testFilePath = "/test/file.txt"
 func TestConfig(t *testing.T) {
 	conf := DefaultConfig()
 	assert.Equal(t, "void", conf.Name)
-	assert.Equal(t, false, conf.Active)
+	assert.Equal(t, true, conf.Active)
 }
 
 func TestNewNotActive(t *testing.T) {
 	conf := DefaultConfig()
+	conf.Active = false
 	_, err := New(context.Background(), nil, *conf)
 	assert.EqualError(t, err, "target is not active")
 }
 
 func TestNewActive(t *testing.T) {
 	conf := DefaultConfig()
-	conf.Active = true
 	_, err := New(context.Background(), nil, *conf)
 	assert.NoError(t, err)
 }

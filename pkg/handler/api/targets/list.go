@@ -9,13 +9,13 @@ import (
 
 func HandleList(targets core.TargetRegister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// targets := targets.AllTargets()
+		targets := targets.AllTargets()
 
 		renderData := &core.TargetListResp{
-			Targets: map[string]core.Target{},
+			Targets: targets,
 			Links:   createLinks(r),
 			Meta: core.MetaDataResp{
-				TotalItems: 0,
+				TotalItems: len(targets),
 			},
 		}
 		handler.JSON_200(w, r, renderData)

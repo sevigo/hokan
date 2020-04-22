@@ -28,7 +28,7 @@ type TargetStorage interface {
 
 type TargetRegister interface {
 	AllConfigs() map[string]TargetConfig
-	AllTargets() map[string]TargetStorage
+	AllTargets() map[string]Target
 	GetTarget(name string) TargetStorage
 	GetConfig(context.Context, string) (*TargetConfig, error)
 	SetConfig(context.Context, *TargetConfig) error

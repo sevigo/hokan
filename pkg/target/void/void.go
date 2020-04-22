@@ -34,7 +34,8 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 
 func DefaultConfig() *core.TargetConfig {
 	return &core.TargetConfig{
-		Active:      false,
+		// always active target for the testing
+		Active:      true,
 		Name:        TargetName,
 		Description: "fake target storage for testing, will print the name of the file",
 		Settings: map[string]string{

@@ -662,10 +662,10 @@ func (mr *MockTargetRegisterMockRecorder) AllConfigs() *gomock.Call {
 }
 
 // AllTargets mocks base method
-func (m *MockTargetRegister) AllTargets() map[string]core.TargetStorage {
+func (m *MockTargetRegister) AllTargets() map[string]core.Target {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AllTargets")
-	ret0, _ := ret[0].(map[string]core.TargetStorage)
+	ret0, _ := ret[0].(map[string]core.Target)
 	return ret0
 }
 

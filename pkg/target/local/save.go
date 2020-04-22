@@ -1,5 +1,15 @@
 package local
 
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+
+	log "github.com/sirupsen/logrus"
+)
+
 func (s *localStorage) save(fromPath, toPath string) error {
 	fmt.Printf("storage.local.store(): Copy file from [%s] to [%s]\n", fromPath, toPath)
 
