@@ -127,3 +127,7 @@ func (s *minioStore) Ping(ctx context.Context) error {
 	_, err := s.client.BucketExists(s.bucketName)
 	return err
 }
+
+func (s *minioStore) Info(ctx context.Context) core.TargetInfo {
+	return core.TargetInfo{}
+}

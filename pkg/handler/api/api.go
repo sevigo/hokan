@@ -14,6 +14,8 @@ import (
 	targetstorage "github.com/sevigo/hokan/pkg/handler/api/targets"
 	targetsfiles "github.com/sevigo/hokan/pkg/handler/api/targets/files"
 
+	configtargets "github.com/sevigo/hokan/pkg/handler/api/config/targets"
+
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
@@ -68,6 +70,10 @@ func (s *Server) Handler() http.Handler {
 			r.Get("/", targetsfiles.HandleList(s.Files))
 			r.Get("/{fileID}", targetsfiles.HandleGet(s.Files))
 		})
+	})
+
+	r.Route("/config", func(r chi.Router) {
+		r.Get("/targets", configtargets.HandleList(s.Targets))
 	})
 
 	// List all avaible endpoints

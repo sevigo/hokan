@@ -19,18 +19,19 @@ func TestHandleList(t *testing.T) {
 	defer controller.Finish()
 
 	targets := mocks.NewMockTargetRegister(controller)
-	targets.EXPECT().AllTargets().Return(map[string]core.Target{
+	targets.EXPECT().AllConfigs().Return(map[string]core.TargetConfig{
 		"test": {
-			Status: core.TargetStorageOK,
-			Name:   "test",
-			Info: core.TargetInfo{
-				"Foo": "bar",
+			Active:      true,
+			Name:        "test",
+			Description: "this is test",
+			Settings: map[string]string{
+				"FOO": "bar",
 			},
 		},
 	})
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/targets", nil)
+	r := httptest.NewRequest("GET", "/config/targets", nil)
 
 	s := api.Server{
 		Targets: targets,
@@ -42,9 +43,8 @@ func TestHandleList(t *testing.T) {
 	assert.NotEmpty(t, body)
 	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
 
+	tools.TestJSONPath(t, "true", "targets.test.active", body)
 	tools.TestJSONPath(t, "test", "targets.test.name", body)
-	tools.TestJSONPath(t, "0", "targets.test.status", body)
-	tools.TestJSONPath(t, "bar", "targets.test.info.Foo", body)
-	tools.TestJSONPath(t, "1", "meta.total_items", body)
-	tools.TestJSONPath(t, "self", "links.0.rel", body)
+	tools.TestJSONPath(t, "this is test", "targets.test.description", body)
+	tools.TestJSONPath(t, "bar", "targets.test.settings.FOO", body)
 }

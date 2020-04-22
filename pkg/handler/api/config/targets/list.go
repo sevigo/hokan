@@ -9,9 +9,9 @@ import (
 
 func HandleList(targets core.TargetRegister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		targets := targets.AllTargets()
+		targets := targets.AllConfigs()
 
-		renderData := &core.TargetListResp{
+		renderData := &core.TargetConfigsListResp{
 			Targets: targets,
 			Links:   createLinks(r),
 			Meta: core.MetaDataResp{
@@ -29,10 +29,6 @@ func createLinks(r *http.Request) []core.LinksResp {
 			Href:   r.URL.EscapedPath(),
 			Method: r.Method,
 		},
-		{
-			Rel:    "files",
-			Href:   r.URL.EscapedPath() + "/{targetName}/files",
-			Method: r.Method,
-		},
+		// TODO:
 	}
 }

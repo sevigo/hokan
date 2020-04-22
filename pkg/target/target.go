@@ -52,8 +52,20 @@ func New(
 	return r, nil
 }
 
-func (r *Register) AllTargets() map[string]core.TargetFactory {
-	return targets
+func (r *Register) AllTargets() map[string]core.Target {
+	result := map[string]core.Target{}
+	for name, status := range r.registerStatus {
+		t := r.GetTarget(name)
+		if t == nil {
+			continue
+		}
+		result[name] = core.Target{
+			Name:   name,
+			Status: status,
+			Info:   t.Info(r.ctx),
+		}
+	}
+	return result
 }
 
 func (r *Register) GetTarget(name string) core.TargetStorage {

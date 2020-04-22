@@ -567,6 +567,20 @@ func (mr *MockTargetStorageMockRecorder) Find(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockTargetStorage)(nil).Find), arg0, arg1)
 }
 
+// Info mocks base method
+func (m *MockTargetStorage) Info(arg0 context.Context) core.TargetInfo {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Info", arg0)
+	ret0, _ := ret[0].(core.TargetInfo)
+	return ret0
+}
+
+// Info indicates an expected call of Info
+func (mr *MockTargetStorageMockRecorder) Info(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockTargetStorage)(nil).Info), arg0)
+}
+
 // List mocks base method
 func (m *MockTargetStorage) List(arg0 context.Context) ([]*core.File, error) {
 	m.ctrl.T.Helper()
@@ -634,10 +648,10 @@ func (m *MockTargetRegister) EXPECT() *MockTargetRegisterMockRecorder {
 }
 
 // AllConfigs mocks base method
-func (m *MockTargetRegister) AllConfigs() map[string]*core.TargetConfig {
+func (m *MockTargetRegister) AllConfigs() map[string]core.TargetConfig {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AllConfigs")
-	ret0, _ := ret[0].(map[string]*core.TargetConfig)
+	ret0, _ := ret[0].(map[string]core.TargetConfig)
 	return ret0
 }
 
@@ -648,10 +662,10 @@ func (mr *MockTargetRegisterMockRecorder) AllConfigs() *gomock.Call {
 }
 
 // AllTargets mocks base method
-func (m *MockTargetRegister) AllTargets() map[string]core.TargetFactory {
+func (m *MockTargetRegister) AllTargets() map[string]core.Target {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AllTargets")
-	ret0, _ := ret[0].(map[string]core.TargetFactory)
+	ret0, _ := ret[0].(map[string]core.Target)
 	return ret0
 }
 
