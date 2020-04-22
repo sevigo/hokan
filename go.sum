@@ -3,6 +3,8 @@ github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3Ee
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/gentlemanautomaton/volmgmt v0.0.0-20190923220944-e5bcf7d8ae12 h1:RO/FbGXBLa+Ocb7dwOSeB4Xcdpv/Pc8XHVys/E//0Ic=
+github.com/gentlemanautomaton/volmgmt v0.0.0-20190923220944-e5bcf7d8ae12/go.mod h1:h3jLV+oK5sw4Xsr+eE/M/DSrqGpRF0PjDCSV/x7NV5g=
 github.com/go-chi/chi v4.0.3+incompatible h1:gakN3pDJnzZN5jqFV2TEdF66rTfKeITyR8qu6ekICEY=
 github.com/go-chi/chi v4.0.3+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
 github.com/go-chi/cors v1.0.1 h1:56TT/uWGoLWZpnMI/AwAmCneikXr5eLsiIq27wrKecw=
