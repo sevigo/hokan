@@ -112,10 +112,11 @@ func (s *localStorage) Ping(ctx context.Context) error {
 }
 
 func (s *localStorage) Info(ctx context.Context) core.TargetInfo {
-	// TODO: fix C:, read this from LOCAL_STORAGE_PATH
-	f, t := volume.GetVolumeInformation(ctx, "C:\\")
+	vol := filepath.VolumeName(s.targetStoragePath)
+	f, t := volume.GetVolumeInformation(ctx, vol)
 	return core.TargetInfo{
-		"free":  fmt.Sprintf("%d", f),
-		"total": fmt.Sprintf("%d", t),
+		"free":   fmt.Sprintf("%d", f),
+		"total":  fmt.Sprintf("%d", t),
+		"volume": vol,
 	}
 }

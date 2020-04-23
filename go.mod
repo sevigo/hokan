@@ -15,6 +15,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nicksnyder/basen v1.0.0
 	github.com/r3labs/sse v0.0.0-20200310095403-ee05428e4d0e
+	github.com/rs/zerolog v1.18.0
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sevigo/notify v0.5.1
 	github.com/sirupsen/logrus v1.4.3-0.20200306102446-7ea96a3284ed

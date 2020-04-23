@@ -100,11 +100,12 @@ func Test_voidStorageSaveNoChanges(t *testing.T) {
 func TestInfo(t *testing.T) {
 	conf := DefaultConfig()
 	conf.Active = true
-	conf.Settings["LOCAL_STORAGE_PATH"] = "C:\\"
+	conf.Settings["LOCAL_STORAGE_PATH"] = "C:\\test"
 	target, err := New(context.Background(), nil, *conf)
 	assert.NoError(t, err)
 	info := target.Info(context.TODO())
 	assert.NotEmpty(t, info)
 	assert.NotEmpty(t, info["total"])
 	assert.NotEmpty(t, info["free"])
+	t.Fail()
 }
