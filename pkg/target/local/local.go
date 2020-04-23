@@ -3,6 +3,7 @@ package local
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/target/utils"
+	"github.com/sevigo/hokan/pkg/target/utils/volume"
 )
 
 const TargetName = "local"
@@ -110,5 +112,11 @@ func (s *localStorage) Ping(ctx context.Context) error {
 }
 
 func (s *localStorage) Info(ctx context.Context) core.TargetInfo {
-	return core.TargetInfo{}
+	vol := filepath.VolumeName(s.targetStoragePath)
+	f, t := volume.GetVolumeInformation(ctx, vol)
+	return core.TargetInfo{
+		"free":   fmt.Sprintf("%d", f),
+		"total":  fmt.Sprintf("%d", t),
+		"volume": vol,
+	}
 }
