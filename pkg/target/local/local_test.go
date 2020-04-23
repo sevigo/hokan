@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -100,11 +101,20 @@ func Test_voidStorageSaveNoChanges(t *testing.T) {
 func TestInfo(t *testing.T) {
 	conf := DefaultConfig()
 	conf.Active = true
-	conf.Settings["LOCAL_STORAGE_PATH"] = "C:\\test"
+
+	if runtime.GOOS == "windows" {
+		conf.Settings["LOCAL_STORAGE_PATH"] = "C:\\test"
+	} else {
+		pwd, err := os.Getwd()
+		assert.NoError(t, err)
+		conf.Settings["LOCAL_STORAGE_PATH"] = pwd
+	}
+
 	target, err := New(context.Background(), nil, *conf)
 	assert.NoError(t, err)
 	info := target.Info(context.TODO())
 	assert.NotEmpty(t, info)
 	assert.NotEmpty(t, info["total"])
 	assert.NotEmpty(t, info["free"])
+	assert.NotEmpty(t, info["volume"])
 }
