@@ -1,9 +1,11 @@
 // +build windows
+
 package volume
 
 // #include "info_windows.h"
 import "C"
 import (
+	"context"
 	"unsafe"
 )
 
@@ -18,7 +20,7 @@ func init() {
 	resChan = make(chan res, 1)
 }
 
-func GetVolumeInformation(path string) (uint64, uint64) {
+func GetVolumeInformation(ctx context.Context, path string) (uint64, uint64) {
 	cpath := C.CString(path)
 	defer func() {
 		C.free(unsafe.Pointer(cpath))
