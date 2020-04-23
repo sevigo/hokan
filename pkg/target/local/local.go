@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -112,7 +113,10 @@ func (s *localStorage) Ping(ctx context.Context) error {
 }
 
 func (s *localStorage) Info(ctx context.Context) core.TargetInfo {
-	vol := filepath.VolumeName(s.targetStoragePath)
+	vol := s.targetStoragePath
+	if runtime.GOOS == "windows" {
+		vol = filepath.VolumeName(s.targetStoragePath)
+	}
 	f, t := volume.GetVolumeInformation(ctx, vol)
 	return core.TargetInfo{
 		"free":   fmt.Sprintf("%d", f),
