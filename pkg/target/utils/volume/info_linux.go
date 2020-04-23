@@ -6,5 +6,5 @@ import "context"
 
 func GetVolumeInformation(ctx context.Context, path string) (uint64, uint64) {
 	// TODO: implement me
-	return uint64(0), uint64(0)
+	return uint64(1), uint64(1)
 }

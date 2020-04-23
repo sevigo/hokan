@@ -107,5 +107,4 @@ func TestInfo(t *testing.T) {
 	assert.NotEmpty(t, info)
 	assert.NotEmpty(t, info["total"])
 	assert.NotEmpty(t, info["free"])
-	t.Fail()
 }

@@ -6,7 +6,6 @@ package volume
 import "C"
 import (
 	"context"
-	"fmt"
 	"time"
 	"unsafe"
 
@@ -26,8 +25,6 @@ func init() {
 
 func GetVolumeInformation(ctx context.Context, value string) (uint64, uint64) {
 	cvalue := C.CString(value)
-	fmt.Printf(">>> value=%s\n", value)
-
 	defer func() {
 		C.free(unsafe.Pointer(cvalue))
 	}()
