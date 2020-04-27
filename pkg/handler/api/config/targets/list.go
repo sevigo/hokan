@@ -29,6 +29,10 @@ func createLinks(r *http.Request) []core.LinksResp {
 			Href:   r.URL.EscapedPath(),
 			Method: r.Method,
 		},
-		// TODO:
+		{
+			Rel:    "settings",
+			Href:   r.URL.EscapedPath() + "/{target}/settings",
+			Method: "POST",
+		},
 	}
 }

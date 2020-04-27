@@ -118,3 +118,72 @@ func TestInfo(t *testing.T) {
 	assert.NotEmpty(t, info["free"])
 	assert.NotEmpty(t, info["volume"])
 }
+
+func Test_localStorage_ValidateSettings(t *testing.T) {
+	store := &localStorage{}
+	pwd, err := os.Getwd()
+	assert.NoError(t, err)
+
+	tests := []struct {
+		name     string
+		settings core.TargetSettings
+		wantErr  bool
+	}{
+		{
+			name: "case 1",
+			settings: core.TargetSettings{
+				"LOCAL_STORAGE_PATH": pwd,
+				"LOCAL_BUCKET_NAME":  "test",
+			},
+			wantErr: false,
+		},
+		{
+			name: "case 2",
+			settings: core.TargetSettings{
+				"LOCAL_STORAGE_PATH": pwd,
+			},
+			wantErr: true,
+		},
+		{
+			name: "case 3",
+			settings: core.TargetSettings{
+				"LOCAL_BUCKET_NAME": "test",
+			},
+			wantErr: true,
+		},
+		{
+			name: "case 4",
+			settings: core.TargetSettings{
+				"LOCAL_STORAGE_PATH": "/not_valid_path",
+				"LOCAL_BUCKET_NAME":  "test.me",
+			},
+			wantErr: true,
+		},
+		{
+			name: "case 5",
+			settings: core.TargetSettings{
+				"LOCAL_STORAGE_PATH": pwd,
+				"LOCAL_BUCKET_NAME":  ");DROP",
+			},
+			wantErr: true,
+		},
+		{
+			name: "case 6",
+			settings: core.TargetSettings{
+				"LOCAL_STORAGE_PATH": pwd,
+				"LOCAL_BUCKET_NAME":  "",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := store.ValidateSettings(tt.settings)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
