@@ -100,16 +100,18 @@ func Test_voidStorageSaveNoChanges(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestInfo(t *testing.T) {
+func TestLocalInfo(t *testing.T) {
 	conf := DefaultConfig()
 	conf.Active = true
 
 	if runtime.GOOS == "windows" {
-		conf.Settings["LOCAL_STORAGE_PATH"] = "C:\\test"
+		conf.Settings["LOCAL_STORAGE_PATH"] = "C:\\"
+		conf.Settings["LOCAL_BUCKET_NAME"] = "test"
 	} else {
 		pwd, err := os.Getwd()
 		assert.NoError(t, err)
 		conf.Settings["LOCAL_STORAGE_PATH"] = pwd
+		conf.Settings["LOCAL_BUCKET_NAME"] = "test"
 	}
 
 	target, err := New(context.Background(), nil, *conf)
@@ -119,6 +121,15 @@ func TestInfo(t *testing.T) {
 	assert.NotEmpty(t, info["total"])
 	assert.NotEmpty(t, info["free"])
 	assert.NotEmpty(t, info["volume"])
+}
+func TestNewError(t *testing.T) {
+	conf := DefaultConfig()
+	conf.Active = true
+	conf.Settings["LOCAL_STORAGE_PATH"] = ""
+	conf.Settings["LOCAL_BUCKET_NAME"] = ""
+
+	_, err := New(context.Background(), nil, *conf)
+	assert.Error(t, err)
 }
 
 func Test_localStorage_ValidateSettings(t *testing.T) {
