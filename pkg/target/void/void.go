@@ -84,3 +84,7 @@ func (s *voidStorage) Ping(ctx context.Context) error {
 func (s *voidStorage) Info(ctx context.Context) core.TargetInfo {
 	return core.TargetInfo{}
 }
+
+func (s *voidStorage) ValidateSettings(settings core.TargetSettings) (bool, error) {
+	return true, nil
+}

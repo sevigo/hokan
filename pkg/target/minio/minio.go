@@ -27,7 +27,7 @@ func DefaultConfig() *core.TargetConfig {
 		Active:      false,
 		Name:        "minio",
 		Description: "open source cloud object storage server compatible with Amazon S3",
-		Settings: map[string]string{
+		Settings: core.TargetSettings{
 			"MINIO_HOST":        "",
 			"MINIO_ACCESS_KEY":  "",
 			"MINIO_SECRET_KEY":  "",
@@ -130,4 +130,8 @@ func (s *minioStore) Ping(ctx context.Context) error {
 
 func (s *minioStore) Info(ctx context.Context) core.TargetInfo {
 	return core.TargetInfo{}
+}
+
+func (s *minioStore) ValidateSettings(settings core.TargetSettings) (bool, error) {
+	return true, nil
 }

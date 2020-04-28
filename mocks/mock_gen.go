@@ -624,6 +624,21 @@ func (mr *MockTargetStorageMockRecorder) Save(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockTargetStorage)(nil).Save), arg0, arg1)
 }
 
+// ValidateSettings mocks base method
+func (m *MockTargetStorage) ValidateSettings(arg0 core.TargetSettings) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateSettings", arg0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateSettings indicates an expected call of ValidateSettings
+func (mr *MockTargetStorageMockRecorder) ValidateSettings(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateSettings", reflect.TypeOf((*MockTargetStorage)(nil).ValidateSettings), arg0)
+}
+
 // MockTargetRegister is a mock of TargetRegister interface
 type MockTargetRegister struct {
 	ctrl     *gomock.Controller

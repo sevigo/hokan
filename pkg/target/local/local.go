@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 
@@ -32,7 +33,7 @@ func DefaultConfig() *core.TargetConfig {
 		Active:      false,
 		Name:        TargetName,
 		Description: "store the files on the local disk",
-		Settings: map[string]string{
+		Settings: core.TargetSettings{
 			"LOCAL_STORAGE_PATH": "",
 			"LOCAL_BUCKET_NAME":  "",
 		},
@@ -48,14 +49,16 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		"target": TargetName,
 	}).Info("Starting new target storage")
 
-	// TODO: validate config
-	path := filepath.Clean(conf.Settings["LOCAL_STORAGE_PATH"])
-	bucket := conf.Settings["LOCAL_BUCKET_NAME"]
-	return &localStorage{
-		bucketName:        bucket,
-		targetStoragePath: path,
-		fileStore:         fs,
-	}, nil
+	s := &localStorage{}
+	if ok, err := s.ValidateSettings(conf.Settings); !ok {
+		return nil, err
+	}
+
+	s.targetStoragePath = filepath.Clean(conf.Settings["LOCAL_STORAGE_PATH"])
+	s.bucketName = conf.Settings["LOCAL_BUCKET_NAME"]
+	s.fileStore = fs
+
+	return s, nil
 }
 
 func (s *localStorage) Save(ctx context.Context, file *core.File) error {
@@ -123,4 +126,31 @@ func (s *localStorage) Info(ctx context.Context) core.TargetInfo {
 		"total":  fmt.Sprintf("%d", t),
 		"volume": vol,
 	}
+}
+
+var re = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
+
+func (s *localStorage) ValidateSettings(settings core.TargetSettings) (bool, error) {
+	path, ok := settings["LOCAL_STORAGE_PATH"]
+	if !ok {
+		return false, fmt.Errorf("LOCAL_STORAGE_PATH is empty")
+	}
+	if _, err := os.Stat(filepath.Clean(path)); os.IsNotExist(err) {
+		return false, fmt.Errorf("%q does not exist", filepath.Clean(path))
+	}
+
+	bucket, ok := settings["LOCAL_BUCKET_NAME"]
+	if !ok {
+		return false, fmt.Errorf("LOCAL_BUCKET_NAME is empty")
+	}
+	if bucket == "" {
+		return false, fmt.Errorf("LOCAL_BUCKET_NAME is empty")
+	}
+
+	match := re.MatchString(bucket)
+	if !match {
+		return false, fmt.Errorf("bucket name contains illegal characters")
+	}
+
+	return true, nil
 }

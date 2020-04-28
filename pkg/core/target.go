@@ -24,6 +24,7 @@ type TargetStorage interface {
 	Delete(context.Context, *File) error
 	Ping(context.Context) error
 	Info(context.Context) TargetInfo
+	ValidateSettings(settings TargetSettings) (bool, error)
 }
 
 type TargetRegister interface {
@@ -48,6 +49,8 @@ type Target struct {
 }
 
 type TargetInfo map[string]string
+
+type TargetSettings map[string]string
 
 // TargetFactory is a function that returns a TargetStorage.
 type TargetFactory func(context.Context, FileStore, TargetConfig) (TargetStorage, error)
