@@ -143,6 +143,9 @@ func (s *localStorage) ValidateSettings(settings core.TargetSettings) (bool, err
 	if !ok {
 		return false, fmt.Errorf("LOCAL_BUCKET_NAME is empty")
 	}
+	if bucket == "" {
+		return false, fmt.Errorf("LOCAL_BUCKET_NAME is empty")
+	}
 
 	match := re.MatchString(bucket)
 	if !match {

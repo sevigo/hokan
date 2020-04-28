@@ -32,6 +32,8 @@ func TestNewNotActive(t *testing.T) {
 func TestNewActive(t *testing.T) {
 	conf := DefaultConfig()
 	conf.Active = true
+	conf.Settings["LOCAL_BUCKET_NAME"] = "test"
+	conf.Settings["LOCAL_STORAGE_PATH"] = "."
 	_, err := New(context.Background(), nil, *conf)
 	assert.NoError(t, err)
 }
