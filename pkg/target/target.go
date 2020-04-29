@@ -78,7 +78,9 @@ func (r *Register) initTargets(ctx context.Context) {
 	for name := range targets {
 		err := r.initTarget(ctx, name)
 		if errors.Is(err, core.ErrTargetNotActive) {
-			log.WithError(err).Error("initTargets(): ignore the target for now")
+			log.WithError(err).
+				WithField("target", name).
+				Error("initTargets(): ignore the target for now")
 			continue
 		}
 		if err != nil {

@@ -76,6 +76,8 @@ func (s *Server) Handler() http.Handler {
 	r.Route("/config", func(r chi.Router) {
 		r.Get("/targets", configtargets.HandleList(s.Targets))
 		r.Post("/targets/{target}/settings", targetssettings.HandleCleate(s.Targets))
+		r.Post("/targets/{target}/deactivate", configtargets.HandleDeactivate(s.Targets))
+		r.Post("/targets/{target}/activate", configtargets.HandleActivate(s.Targets))
 	})
 
 	// List all avaible endpoints

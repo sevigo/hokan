@@ -51,6 +51,7 @@ func defaultAddress(c *Config) {
 	if c.Server.Host != "" && c.Server.Proto != "" && c.Server.Port != "" {
 		c.Server.Addr = c.Server.Proto + "://" + c.Server.Host + ":" + c.Server.Port
 	} else {
-		c.Server.Addr = ":8081"
+		c.Server.Port = "8081"
+		c.Server.Addr = ":" + c.Server.Port
 	}
 }

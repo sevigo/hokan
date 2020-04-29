@@ -10,6 +10,7 @@ import (
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
+// POST /api/config/targets/{target}/settings
 func HandleCleate(targets core.TargetRegister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		targetName := chi.URLParam(r, "target")
@@ -41,6 +42,7 @@ func HandleCleate(targets core.TargetRegister) http.HandlerFunc {
 		}
 
 		config.Settings = settings
+		config.Active = true
 		saveErr := targets.SetConfig(r.Context(), config)
 		if saveErr != nil {
 			l.WithError(err).Error("api: cannot store a new config")
