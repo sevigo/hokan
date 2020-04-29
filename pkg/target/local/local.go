@@ -128,9 +128,12 @@ func (s *localStorage) Info(ctx context.Context) core.TargetInfo {
 	}
 }
 
-var re = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
+var bucketNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
 
 func (s *localStorage) ValidateSettings(settings core.TargetSettings) (bool, error) {
+	logger := log.WithField("target", TargetName)
+	logger.Infof("ValidateSettings(): %+v", settings)
+
 	path, ok := settings["LOCAL_STORAGE_PATH"]
 	if !ok {
 		return false, fmt.Errorf("LOCAL_STORAGE_PATH is empty")
@@ -147,7 +150,7 @@ func (s *localStorage) ValidateSettings(settings core.TargetSettings) (bool, err
 		return false, fmt.Errorf("LOCAL_BUCKET_NAME is empty")
 	}
 
-	match := re.MatchString(bucket)
+	match := bucketNameRegexp.MatchString(bucket)
 	if !match {
 		return false, fmt.Errorf("bucket name contains illegal characters")
 	}
