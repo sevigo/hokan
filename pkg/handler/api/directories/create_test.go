@@ -67,7 +67,9 @@ func TestCreateBadRequest(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	assert.Equal(t, 400, w.Code)
-	assert.Equal(t, `{"code":400,"message":"invalid request body"}`, body)
+	tools.TestJSONPath(t, "400", "code", body)
+	tools.TestJSONPath(t, "invalid request body", "message", body)
+	// tools.TestJSONPath(t, "error", "status", body)
 }
 
 func TestCreateError(t *testing.T) {
@@ -88,5 +90,7 @@ func TestCreateError(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	assert.Equal(t, 500, w.Code)
-	assert.Equal(t, `{"code":500,"message":"cannot store a new directory"}`, body)
+	tools.TestJSONPath(t, "500", "code", body)
+	tools.TestJSONPath(t, "cannot store a new directory", "message", body)
+	// tools.TestJSONPath(t, "error", "status", body)
 }
