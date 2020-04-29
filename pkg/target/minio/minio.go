@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"regexp"
 	"strconv"
 
 	"github.com/minio/minio-go"
@@ -45,16 +46,15 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		return nil, core.ErrTargetNotActive
 	}
 
-	bucketName := conf.Settings["MINIO_BUCKET_NAME"]
-	useSSL, err := strconv.ParseBool(conf.Settings["MINIO_USE_SSL"])
-	if err != nil {
-		logger.WithError(err).Errorf("can't convert the value of MINIO_USE_SSL=%q to bool", conf.Settings["MINIO_USE_SSL"])
-		useSSL = false
+	s := &minioStore{}
+	if ok, err := s.ValidateSettings(conf.Settings); !ok {
+		return nil, err
 	}
 
-	log.WithFields(log.Fields{
-		"target": TargetName,
-	}).Info("Starting new target storage")
+	bucketName := conf.Settings["MINIO_BUCKET_NAME"]
+	useSSL, _ := strconv.ParseBool(conf.Settings["MINIO_USE_SSL"])
+
+	logger.Info("Starting new target storage")
 
 	minioClient, err := NewMinioWrapper(&core.MinioConfig{
 		Endpoint:        conf.Settings["MINIO_HOST"],
@@ -67,11 +67,11 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		return nil, err
 	}
 
-	return &minioStore{
-		bucketName: bucketName,
-		client:     minioClient,
-		fileStore:  fs,
-	}, nil
+	s.bucketName = bucketName
+	s.client = minioClient
+	s.fileStore = fs
+
+	return s, nil
 }
 
 func (s *minioStore) Save(ctx context.Context, file *core.File) error {
@@ -132,6 +132,32 @@ func (s *minioStore) Info(ctx context.Context) core.TargetInfo {
 	return core.TargetInfo{}
 }
 
+var bucketNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
+
 func (s *minioStore) ValidateSettings(settings core.TargetSettings) (bool, error) {
+	logger := log.WithField("target", TargetName)
+	logger.Infof("ValidateSettings(): %+v", settings)
+
+	for name := range DefaultConfig().Settings {
+		value, ok := settings[name]
+		if !ok {
+			return false, fmt.Errorf("%q key is missing", name)
+		}
+		if value == "" {
+			return false, fmt.Errorf("%q value is mepty", name)
+		}
+	}
+
+	_, err := strconv.ParseBool(settings["MINIO_USE_SSL"])
+	if err != nil {
+		return false, fmt.Errorf("can't convert the value of MINIO_USE_SSL=%q to bool", settings["MINIO_USE_SSL"])
+	}
+
+	bucket := settings["MINIO_BUCKET_NAME"]
+	match := bucketNameRegexp.MatchString(bucket)
+	if !match {
+		return false, fmt.Errorf("bucket name contains illegal characters")
+	}
+
 	return true, nil
 }
