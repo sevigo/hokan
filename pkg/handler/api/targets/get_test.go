@@ -10,6 +10,7 @@ import (
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/handler/api"
+	"github.com/sevigo/hokan/pkg/testing/tools"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
@@ -64,7 +65,9 @@ func TestGetTargetByNameNotFound(t *testing.T) {
 	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
 
 	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"code":404,"message":"default config for target not found"}`, body)
+	tools.TestJSONPath(t, "404", "code", body)
+	tools.TestJSONPath(t, "default config for target not found", "message", body)
+	// tools.TestJSONPath(t, "error", "status", body)
 }
 
 func TestGetTargetByNameError(t *testing.T) {
@@ -88,5 +91,7 @@ func TestGetTargetByNameError(t *testing.T) {
 	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
 
 	body := strings.TrimSpace(w.Body.String())
-	assert.Equal(t, `{"code":400,"message":"Some error"}`, body)
+	tools.TestJSONPath(t, "400", "code", body)
+	tools.TestJSONPath(t, "Some error", "message", body)
+	// tools.TestJSONPath(t, "error", "status", body)
 }
