@@ -36,10 +36,10 @@ type TargetRegister interface {
 }
 
 type TargetConfig struct {
-	Active      bool              `json:"active"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Settings    map[string]string `json:"settings"`
+	Active      bool           `json:"active"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Settings    TargetSettings `json:"settings"`
 }
 
 type Target struct {

@@ -14,8 +14,8 @@ require (
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nicksnyder/basen v1.0.0
+	github.com/pkg/errors v0.8.1 // indirect
 	github.com/r3labs/sse v0.0.0-20200310095403-ee05428e4d0e
-	github.com/rs/zerolog v1.18.0
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sevigo/notify v0.5.1
 	github.com/sirupsen/logrus v1.4.3-0.20200306102446-7ea96a3284ed
@@ -29,4 +29,5 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
+	gotest.tools v2.2.0+incompatible
 )
