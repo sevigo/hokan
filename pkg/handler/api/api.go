@@ -15,6 +15,7 @@ import (
 	targetsfiles "github.com/sevigo/hokan/pkg/handler/api/targets/files"
 
 	configtargets "github.com/sevigo/hokan/pkg/handler/api/config/targets"
+	targetssettings "github.com/sevigo/hokan/pkg/handler/api/config/targets/settings"
 
 	"github.com/sevigo/hokan/pkg/logger"
 )
@@ -74,6 +75,7 @@ func (s *Server) Handler() http.Handler {
 
 	r.Route("/config", func(r chi.Router) {
 		r.Get("/targets", configtargets.HandleList(s.Targets))
+		r.Post("/targets/{target}/settings", targetssettings.HandleCleate(s.Targets))
 	})
 
 	// List all avaible endpoints
@@ -98,6 +100,11 @@ func HandleAPIList() http.HandlerFunc {
 			{
 				Rel:    "remoteStorage",
 				Href:   "/api/targets",
+				Method: "GET",
+			},
+			{
+				Rel:    "configTargets",
+				Href:   "/api/config/targets",
 				Method: "GET",
 			},
 			{
