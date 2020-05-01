@@ -19,25 +19,25 @@ func HandleCleate(targets core.TargetRegister) http.HandlerFunc {
 		target := targets.GetTarget(targetName)
 		if target == nil {
 			l.Error("api: can't find target")
-			handler.JSON_404(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: "target not found"})
+			handler.JSON_404(w, r, "target not found")
 			return
 		}
 		settings := core.TargetSettings{}
 		err := json.NewDecoder(r.Body).Decode(&settings)
 		if err != nil {
 			l.WithError(err).Error("api: cannot unmarshal request body")
-			handler.JSON_400(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: "invalid request body"})
+			handler.JSON_400(w, r, "invalid request body")
 			return
 		}
 		if ok, err := target.ValidateSettings(settings); !ok {
 			l.WithError(err).Error("api: invalid settings")
-			handler.JSON_400(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: "invalid settings"})
+			handler.JSON_400(w, r, "invalid settings")
 			return
 		}
 		config, err := targets.GetConfig(r.Context(), targetName)
 		if err != nil {
 			l.WithError(err).Error("api: cannot find default config")
-			handler.JSON_404(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: "config not found"})
+			handler.JSON_404(w, r, "config not found")
 			return
 		}
 
@@ -46,11 +46,11 @@ func HandleCleate(targets core.TargetRegister) http.HandlerFunc {
 		saveErr := targets.SetConfig(r.Context(), config)
 		if saveErr != nil {
 			l.WithError(err).Error("api: cannot store a new config")
-			handler.JSON_404(w, r, core.ErrorResp{Code: http.StatusInternalServerError, Msg: "cannot store a new config"})
+			handler.JSON_404(w, r, "cannot store a new config")
 			return
 		}
 
 		l.Info("target storage config saved successfully")
-		handler.JSON_201(w, r)
+		handler.JSON_201(w, r, "target storage config saved successfully")
 	}
 }

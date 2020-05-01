@@ -6,11 +6,13 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/handler/api"
-	"github.com/sirupsen/logrus"
-	"gotest.tools/assert"
+	"github.com/sevigo/hokan/pkg/testing/tools"
 )
 
 func TestHandleListOK(t *testing.T) {
@@ -46,6 +48,14 @@ func TestHandleListOK(t *testing.T) {
 	}
 	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 201, w.Code)
+
+	body := w.Body.String()
+	assert.NotEmpty(t, body)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+
+	tools.TestJSONPath(t, "success", "status", body)
+	tools.TestJSONPath(t, "201", "code", body)
+	tools.TestJSONPath(t, "target storage config saved successfully", "message", body)
 }
 
 func TestHandleList404(t *testing.T) {
@@ -64,4 +74,12 @@ func TestHandleList404(t *testing.T) {
 	}
 	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 404, w.Code)
+
+	body := w.Body.String()
+	assert.NotEmpty(t, body)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+
+	tools.TestJSONPath(t, "error", "status", body)
+	tools.TestJSONPath(t, "404", "code", body)
+	tools.TestJSONPath(t, "target not found", "message", body)
 }

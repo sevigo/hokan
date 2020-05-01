@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/handler"
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
@@ -18,8 +18,8 @@ func HandleUpdate(targets core.TargetRegister) http.HandlerFunc {
 
 		oldConf, err := targets.GetConfig(r.Context(), targetName)
 		if err != nil {
-			render.Status(r, 400)
 			l.WithError(err).Error("api: can't get config")
+			handler.JSON_400(w, r, "can't get config")
 			return
 		}
 
@@ -27,8 +27,7 @@ func HandleUpdate(targets core.TargetRegister) http.HandlerFunc {
 		err = json.NewDecoder(r.Body).Decode(conf)
 		if err != nil {
 			l.WithError(err).Error("api: cannot unmarshal request body")
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: "invalid request body"})
+			handler.JSON_400(w, r, "invalid request body")
 			return
 		}
 
@@ -38,13 +37,12 @@ func HandleUpdate(targets core.TargetRegister) http.HandlerFunc {
 
 		err = targets.SetConfig(r.Context(), conf)
 		if err != nil {
-			render.Status(r, http.StatusInternalServerError)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusInternalServerError, Msg: "cannot store a new config"})
-			logger.FromRequest(r).WithError(err).Error("api: cannot store a new config")
+			l.WithError(err).Error("api: can't store a new config")
+			handler.JSON_500(w, r, "can't store a new config")
 			return
 		}
 
 		l.Info("targets.HandleUpdate(): target storage config updated successfully")
-		render.Status(r, http.StatusCreated)
+		handler.JSON_201(w, r, "target storage config updated successfully")
 	}
 }

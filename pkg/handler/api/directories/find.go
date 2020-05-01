@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/handler"
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
@@ -17,18 +17,15 @@ func HandleFind(dirStore core.DirectoryStore) http.HandlerFunc {
 		dir, err := dirStore.FindName(r.Context(), pathID)
 		if errors.Is(err, core.ErrDirectoryNotFound) {
 			logger.FromRequest(r).WithError(err).Error("api: invalid directory")
-			render.Status(r, 404)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: err.Error()})
+			handler.JSON_404(w, r, "invalid directory name")
 			return
 		}
 		if err != nil {
 			logger.FromRequest(r).WithError(err).Error("api: invalid directory")
-			render.Status(r, 500)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusInternalServerError, Msg: err.Error()})
+			handler.JSON_500(w, r, "invalid directory")
 			return
 		}
 
-		render.Status(r, 200)
-		render.JSON(w, r, dir)
+		handler.JSON_200(w, r, dir)
 	}
 }

@@ -66,8 +66,8 @@ func TestGetTargetByNameNotFound(t *testing.T) {
 
 	body := strings.TrimSpace(w.Body.String())
 	tools.TestJSONPath(t, "404", "code", body)
-	tools.TestJSONPath(t, "default config for target not found", "message", body)
-	// tools.TestJSONPath(t, "error", "status", body)
+	tools.TestJSONPath(t, "can't get config", "message", body)
+	tools.TestJSONPath(t, "error", "status", body)
 }
 
 func TestGetTargetByNameError(t *testing.T) {
@@ -92,6 +92,6 @@ func TestGetTargetByNameError(t *testing.T) {
 
 	body := strings.TrimSpace(w.Body.String())
 	tools.TestJSONPath(t, "400", "code", body)
-	tools.TestJSONPath(t, "Some error", "message", body)
-	// tools.TestJSONPath(t, "error", "status", body)
+	tools.TestJSONPath(t, "can't get config", "message", body)
+	tools.TestJSONPath(t, "error", "status", body)
 }

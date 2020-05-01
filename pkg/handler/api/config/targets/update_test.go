@@ -8,6 +8,7 @@ import (
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/handler/api"
+	"github.com/sevigo/hokan/pkg/testing/tools"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
@@ -37,6 +38,14 @@ func TestHandleActivateOK(t *testing.T) {
 	}
 	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 201, w.Code)
+
+	body := w.Body.String()
+	assert.NotEmpty(t, body)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+
+	tools.TestJSONPath(t, "success", "status", body)
+	tools.TestJSONPath(t, "201", "code", body)
+	tools.TestJSONPath(t, "target status changed successfully", "message", body)
 }
 
 func TestHandleDeActivateOK(t *testing.T) {
@@ -64,4 +73,12 @@ func TestHandleDeActivateOK(t *testing.T) {
 	}
 	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 201, w.Code)
+
+	body := w.Body.String()
+	assert.NotEmpty(t, body)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+
+	tools.TestJSONPath(t, "success", "status", body)
+	tools.TestJSONPath(t, "201", "code", body)
+	tools.TestJSONPath(t, "target status changed successfully", "message", body)
 }

@@ -28,7 +28,7 @@ func triggerActivation(targets core.TargetRegister, active bool) func(w http.Res
 		config, err := targets.GetConfig(r.Context(), targetName)
 		if err != nil {
 			log.WithError(err).Error("api: cannot find default config")
-			handler.JSON_404(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: "config not found"})
+			handler.JSON_404(w, r, "config not found")
 			return
 		}
 
@@ -36,11 +36,11 @@ func triggerActivation(targets core.TargetRegister, active bool) func(w http.Res
 		saveErr := targets.SetConfig(r.Context(), config)
 		if saveErr != nil {
 			log.WithError(err).Error("api: cannot store a new config")
-			handler.JSON_400(w, r, core.ErrorResp{Code: http.StatusInternalServerError, Msg: "cannot store a new config"})
+			handler.JSON_400(w, r, "cannot store a new config")
 			return
 		}
 
 		log.Info("target activated successfully")
-		handler.JSON_201(w, r)
+		handler.JSON_201(w, r, "target status changed successfully")
 	}
 }
