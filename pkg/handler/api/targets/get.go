@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/render"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/handler"
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
@@ -19,16 +20,14 @@ func HandleGet(targets core.TargetRegister) http.HandlerFunc {
 
 		conf, err := targets.GetConfig(r.Context(), targetName)
 		if errors.Is(err, core.ErrTargetConfigNotFound) {
-			// TODO: combine this to one call!
 			l.WithError(err).Error("api: can't get config")
-			render.Status(r, 404)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: err.Error()})
+			handler.JSON_404(w, r, "can't get config")
 			return
 		}
 		if err != nil {
 			l.WithError(err).Error("api: can't get config")
 			render.Status(r, 400)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: err.Error()})
+			handler.JSON_400(w, r, "can't get config")
 			return
 		}
 
@@ -55,7 +54,7 @@ func HandleGet(targets core.TargetRegister) http.HandlerFunc {
 				},
 			},
 		}
-		render.Status(r, 200)
-		render.JSON(w, r, renderData)
+
+		handler.JSON_200(w, r, renderData)
 	}
 }

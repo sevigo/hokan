@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/handler"
 	"github.com/sevigo/hokan/pkg/logger"
 )
 
@@ -28,18 +28,15 @@ func HandleGet(fileStore core.FileStore) http.HandlerFunc {
 		})
 		if errors.Is(err, core.ErrFileNotFound) {
 			l.WithError(err).Error("api: can't find file")
-			render.Status(r, http.StatusNotFound)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusNotFound, Msg: err.Error()})
+			handler.JSON_404(w, r, "can't find file")
 			return
 		}
 		if err != nil {
 			l.WithError(err).Error("api: can't get file")
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, core.ErrorResp{Code: http.StatusBadRequest, Msg: err.Error()})
+			handler.JSON_500(w, r, "can't get file")
 			return
 		}
 
-		render.Status(r, 200)
-		render.JSON(w, r, data)
+		handler.JSON_200(w, r, data)
 	}
 }

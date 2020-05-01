@@ -87,5 +87,5 @@ func TestHandleListNotFound(t *testing.T) {
 
 	tools.TestJSONPath(t, "404", "code", jsonStr)
 	tools.TestJSONPath(t, "target not found", "message", jsonStr)
-	fmt.Printf(jsonStr)
+	tools.TestJSONPath(t, "error", "status", jsonStr)
 }

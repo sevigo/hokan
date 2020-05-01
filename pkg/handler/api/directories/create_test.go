@@ -69,7 +69,7 @@ func TestCreateBadRequest(t *testing.T) {
 	assert.Equal(t, 400, w.Code)
 	tools.TestJSONPath(t, "400", "code", body)
 	tools.TestJSONPath(t, "invalid request body", "message", body)
-	// tools.TestJSONPath(t, "error", "status", body)
+	tools.TestJSONPath(t, "error", "status", body)
 }
 
 func TestCreateError(t *testing.T) {
@@ -91,6 +91,6 @@ func TestCreateError(t *testing.T) {
 
 	assert.Equal(t, 500, w.Code)
 	tools.TestJSONPath(t, "500", "code", body)
-	tools.TestJSONPath(t, "cannot store a new directory", "message", body)
-	// tools.TestJSONPath(t, "error", "status", body)
+	tools.TestJSONPath(t, "can't store a new directory", "message", body)
+	tools.TestJSONPath(t, "error", "status", body)
 }
