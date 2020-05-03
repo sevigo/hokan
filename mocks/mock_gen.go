@@ -105,10 +105,10 @@ func (mr *MockDBMockRecorder) Read(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // ReadBucket mocks base method
-func (m *MockDB) ReadBucket(arg0 string, arg1 *core.ReadBucketOptions) (map[string]string, error) {
+func (m *MockDB) ReadBucket(arg0 string, arg1 *core.ReadBucketOptions) ([]core.BucketData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadBucket", arg0, arg1)
-	ret0, _ := ret[0].(map[string]string)
+	ret0, _ := ret[0].([]core.BucketData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

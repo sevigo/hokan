@@ -37,22 +37,41 @@ func (db *Bolt) Read(bucketName, key string) ([]byte, error) {
 	return result, err
 }
 
-func (db *Bolt) ReadBucket(bucketName string, opt *core.ReadBucketOptions) (map[string]string, error) {
-	result := make(map[string]string)
+func (db *Bolt) ReadBucket(bucketName string, opt *core.ReadBucketOptions) ([]core.BucketData, error) {
+	if opt == nil {
+		opt = &core.ReadBucketOptions{}
+	}
+	result := []core.BucketData{}
+
 	err := db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
 			return &ErrBucketNotFound{fmt.Sprintf("ReadBucket: bucket %q was not found", bucketName)}
 		}
-		return b.ForEach(func(k, v []byte) error {
-			result[string(k)] = string(v)
-			return nil
-		})
-		// TODO: use Cursor
-		// c := b.Cursor()
-		// for k, v := c.First(); k != nil; k, v = c.Next() {
-		// 	fmt.Printf("key=%s, value=%s\n", k, v)
-		// }
+		c := b.Cursor()
+		i := uint64(0)
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			i++
+			if opt.Limit > 0 {
+				if i-1 < opt.Offset {
+					continue
+				}
+				if uint64(len(result)) < opt.Limit {
+					result = append(result, core.BucketData{
+						Key:   string(k),
+						Value: string(v),
+					})
+				} else {
+					break
+				}
+			} else {
+				result = append(result, core.BucketData{
+					Key:   string(k),
+					Value: string(v),
+				})
+			}
+		}
+		return nil
 	})
 	return result, err
 }

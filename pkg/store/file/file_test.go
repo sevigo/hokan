@@ -2,7 +2,10 @@ package file
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
 
@@ -11,6 +14,7 @@ import (
 
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/store/db"
 	"github.com/sevigo/hokan/pkg/testing/tools"
 	"github.com/sevigo/hokan/pkg/watcher/utils"
 )
@@ -52,4 +56,104 @@ func Test_fileStore_Save(t *testing.T) {
 	store := New(db)
 	err = store.Save(context.TODO(), testBucket, file)
 	assert.NoError(t, err)
+}
+
+func TestListOffsetLimit(t *testing.T) {
+	tmpDir, err := ioutil.TempDir(os.TempDir(), "")
+	assert.NoError(t, err)
+	dbFile := path.Join(tmpDir, "test.db")
+	defer os.RemoveAll(tmpDir)
+
+	storage, err := db.Connect(dbFile)
+	assert.NoError(t, err)
+	assert.NotNil(t, storage)
+
+	_, info, err := utils.FileChecksumInfo(dbFile)
+	assert.NoError(t, err)
+
+	fileStore := New(storage)
+	for i := 0; i < 1003; i++ {
+		name := fmt.Sprintf("/test/foo/file_%04d.png", i)
+		file := &core.File{
+			Path:     name,
+			Checksum: "abc",
+			Info:     info,
+		}
+		err := fileStore.Save(context.TODO(), "testBucket", file)
+		assert.NoError(t, err)
+	}
+
+	tests := []struct {
+		name         string
+		opt          *core.FileListOptions
+		expectedData []string
+	}{
+		{
+			name: "case 1",
+			opt: &core.FileListOptions{
+				TargetName: "testBucket",
+				Offset:     0,
+				Limit:      5,
+			},
+			expectedData: []string{
+				"/test/foo/file_0000.png",
+				"/test/foo/file_0001.png",
+				"/test/foo/file_0002.png",
+				"/test/foo/file_0003.png",
+				"/test/foo/file_0004.png",
+			},
+		},
+		{
+			name: "case 2",
+			opt: &core.FileListOptions{
+				TargetName: "testBucket",
+				Offset:     5,
+				Limit:      5,
+			},
+			expectedData: []string{
+				"/test/foo/file_0005.png",
+				"/test/foo/file_0006.png",
+				"/test/foo/file_0007.png",
+				"/test/foo/file_0008.png",
+				"/test/foo/file_0009.png",
+			},
+		},
+		{
+			name: "case 3",
+			opt: &core.FileListOptions{
+				TargetName: "testBucket",
+				Offset:     100,
+				Limit:      3,
+			},
+			expectedData: []string{
+				"/test/foo/file_0100.png",
+				"/test/foo/file_0101.png",
+				"/test/foo/file_0102.png",
+			},
+		},
+		{
+			name: "case 4",
+			opt: &core.FileListOptions{
+				TargetName: "testBucket",
+				Offset:     1000,
+				Limit:      5,
+			},
+			expectedData: []string{
+				"/test/foo/file_1000.png",
+				"/test/foo/file_1001.png",
+				"/test/foo/file_1002.png",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := fileStore.List(context.TODO(), tt.opt)
+			assert.NoError(t, err)
+			files := []string{}
+			for _, f := range data {
+				files = append(files, f.Path)
+			}
+			assert.Equal(t, tt.expectedData, files)
+		})
+	}
 }

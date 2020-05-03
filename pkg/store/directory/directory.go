@@ -35,9 +35,9 @@ func (s *directoryStore) List(ctx context.Context) ([]*core.Directory, error) {
 		return nil, err
 	}
 
-	for _, v := range data {
+	for _, entry := range data {
 		dir := &core.Directory{}
-		err := json.NewDecoder(strings.NewReader(v)).Decode(dir)
+		err := json.NewDecoder(strings.NewReader(entry.Value)).Decode(dir)
 		if err != nil {
 			return nil, err
 		}
