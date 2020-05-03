@@ -27,13 +27,17 @@ func New(database core.DB) core.FileStore {
 }
 
 func (s *fileStore) List(ctx context.Context, opt *core.FileListOptions) ([]*core.File, error) {
-	log.Print("file.List()")
+	// log.Print("file.List()")
 	if opt == nil {
 		return nil, fmt.Errorf("empty list options")
 	}
 	var files []*core.File
 
-	data, err := s.db.ReadBucket(opt.TargetName, &core.ReadBucketOptions{})
+	data, err := s.db.ReadBucket(opt.TargetName, &core.ReadBucketOptions{
+		Offset: opt.Offset,
+		Limit:  opt.Limit,
+		Query:  opt.Path,
+	})
 	if errors.Is(err, &db.ErrBucketNotFound{}) {
 		return nil, core.ErrTargetNotActive
 	}
@@ -41,9 +45,9 @@ func (s *fileStore) List(ctx context.Context, opt *core.FileListOptions) ([]*cor
 		return nil, err
 	}
 
-	for _, v := range data {
+	for _, entry := range data {
 		file := &core.File{}
-		err := json.NewDecoder(strings.NewReader(v)).Decode(file)
+		err := json.NewDecoder(strings.NewReader(entry.Value)).Decode(file)
 		if err != nil {
 			return nil, err
 		}
@@ -85,7 +89,7 @@ func (s *fileStore) Find(ctx context.Context, opt *core.FileSearchOptions) (*cor
 }
 
 func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File) error {
-	log.Printf("file.Save() %q\n", file.Path)
+	// log.Printf("file.Save() %q\n", file.Path)
 	key := path.Clean(file.Path)
 	if file.ID == "" {
 		file.ID = basen.Base62Encoding.EncodeToString([]byte(key))
