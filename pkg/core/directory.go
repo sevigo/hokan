@@ -17,6 +17,14 @@ type Directory struct {
 	Targets     []string `json:"targets"`
 }
 
+type DirectoryStats struct {
+	Path                string `json:"path"`
+	OS                  string `json:"os"`
+	TotalFiles          int    `json:"total-files"`
+	TotalSubDirectories int    `json:"total-dirs"`
+	TotalSize           int64  `json:"total-size"`
+}
+
 type DirectoryStore interface {
 	List(context.Context) ([]*Directory, error)
 	Find(context.Context, int64) (*Directory, error)
