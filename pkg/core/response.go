@@ -40,6 +40,12 @@ type DirectoriesListResp struct {
 	Meta        MetaDataResp `json:"meta"`
 }
 
+type DirectoryDetails struct {
+	Directory Directory      `json:"directory"`
+	Stats     DirectoryStats `json:"stats"`
+	Links     []LinksResp    `json:"links"`
+}
+
 type APIListResp struct {
 	Links []LinksResp `json:"links"`
 }

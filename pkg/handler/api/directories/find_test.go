@@ -2,7 +2,9 @@ package directories_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -17,9 +19,11 @@ import (
 	"github.com/sevigo/hokan/pkg/testing/tools"
 )
 
-const testPath = "C:\\Documents\\Fotos"
-
 func TestFindByPath(t *testing.T) {
+	testPath, err := ioutil.TempDir(os.TempDir(), "")
+	assert.NoError(t, err)
+	defer os.RemoveAll(testPath)
+
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -44,9 +48,12 @@ func TestFindByPath(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	body := strings.TrimSpace(w.Body.String())
-	tools.TestJSONPath(t, "YsmKL73TlYdFBq4g6vBYaZKl", "id", body)
-	tools.TestJSONPath(t, "false", "active", body)
-	tools.TestJSONPath(t, "C:\\Documents\\Fotos", "path", body)
+
+	tools.TestJSONPathNotEmpty(t, "directory.id", body)
+	tools.TestJSONPath(t, "false", "directory.active", body)
+	tools.TestJSONPath(t, testPath, "directory.path", body)
+	tools.TestJSONPath(t, "0", "stats.total-files", body)
+	tools.TestJSONPath(t, "1", "stats.total-dirs", body)
 }
 
 func TestFindByPathNotFound(t *testing.T) {
@@ -54,7 +61,7 @@ func TestFindByPathNotFound(t *testing.T) {
 	defer controller.Finish()
 
 	dirStore := mocks.NewMockDirectoryStore(controller)
-	pathID := basen.Base62Encoding.EncodeToString([]byte(testPath))
+	pathID := basen.Base62Encoding.EncodeToString([]byte("/test/path"))
 	dirStore.EXPECT().FindName(gomock.Any(), pathID).Return(nil, core.ErrDirectoryNotFound)
 
 	url := fmt.Sprintf("/directories/%s", pathID)

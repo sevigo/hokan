@@ -38,9 +38,14 @@ func createLinks(r *http.Request) []core.LinksResp {
 			Method: r.Method,
 		},
 		{
-			Rel:    "createDir",
+			Rel:    "addDir",
 			Href:   r.URL.EscapedPath(),
 			Method: "POST",
+		},
+		{
+			Rel:    "getDir",
+			Href:   r.URL.EscapedPath() + "/{dirID}",
+			Method: "GET",
 		},
 	}
 }
