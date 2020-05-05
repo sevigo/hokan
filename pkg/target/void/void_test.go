@@ -52,7 +52,7 @@ func Test_voidStorageSaveNew(t *testing.T) {
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), file)
+	err := store.Save(context.TODO(), file, nil)
 	assert.NoError(t, err)
 }
 
@@ -80,7 +80,7 @@ func Test_voidStorageSaveChanged(t *testing.T) {
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), fileB)
+	err := store.Save(context.TODO(), fileB, nil)
 	assert.NoError(t, err)
 }
 
@@ -103,6 +103,6 @@ func Test_minioStore_NoSave(t *testing.T) {
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), fileA)
+	err := store.Save(context.TODO(), fileA, nil)
 	assert.NoError(t, err)
 }

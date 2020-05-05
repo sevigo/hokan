@@ -17,10 +17,21 @@ const (
 	TargetStorageError
 )
 
+type TargetStorageSaveOpt struct {
+	Force bool
+}
+
+type TargetStorageFindOpt struct {
+	Query string
+}
+
+type TargetStorageListOpt struct {
+}
+
 type TargetStorage interface {
-	List(context.Context) ([]*File, error)
-	Find(context.Context, string) (*File, error)
-	Save(context.Context, *File) error
+	List(ctx context.Context, opt *TargetStorageListOpt) ([]*File, error)
+	Find(ctx context.Context, opt *TargetStorageFindOpt) (*File, error)
+	Save(ctx context.Context, file *File, opt *TargetStorageSaveOpt) error
 	Delete(context.Context, *File) error
 	Ping(context.Context) error
 	Info(context.Context) TargetInfo

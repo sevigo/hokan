@@ -44,7 +44,7 @@ func DefaultConfig() *core.TargetConfig {
 	}
 }
 
-func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
+func (s *voidStorage) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) error {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
@@ -62,13 +62,13 @@ func (s *voidStorage) Save(ctx context.Context, file *core.File) error {
 	return nil
 }
 
-func (s *voidStorage) List(context.Context) ([]*core.File, error) {
+func (s *voidStorage) List(ctx context.Context, opt *core.TargetStorageListOpt) ([]*core.File, error) {
 	log.Printf("[void] list\n")
 	return nil, nil
 }
 
-func (s *voidStorage) Find(ctx context.Context, q string) (*core.File, error) {
-	log.Printf("[void] find %q\n", q)
+func (s *voidStorage) Find(ctx context.Context, opt *core.TargetStorageFindOpt) (*core.File, error) {
+	log.Printf("[void] find %q\n", opt.Query)
 	return nil, nil
 }
 

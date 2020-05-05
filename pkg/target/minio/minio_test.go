@@ -80,7 +80,7 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), file)
+	err = store.Save(context.TODO(), file, nil)
 	assert.NoError(t, err)
 }
 
@@ -126,7 +126,7 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), fileB)
+	err = store.Save(context.TODO(), fileB, nil)
 	assert.NoError(t, err)
 }
 
@@ -157,7 +157,7 @@ func Test_minioStore_NoSave(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), fileA)
+	err = store.Save(context.TODO(), fileA, nil)
 	assert.NoError(t, err)
 }
 
@@ -190,7 +190,7 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), file)
+	err = store.Save(context.TODO(), file, nil)
 	assert.Error(t, err)
 }
 
