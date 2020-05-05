@@ -36,7 +36,7 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 			if r.getTargetStatus(target) == core.TargetStoragePaused {
 				continue
 			}
-			err := ts.Save(r.ctx, &file)
+			err := ts.Save(r.ctx, &file, &core.TargetStorageSaveOpt{})
 			if err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"target": target,

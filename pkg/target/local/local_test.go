@@ -68,7 +68,7 @@ func Test_voidStorageSaveNew(t *testing.T) {
 		fileStore:         fileStore,
 	}
 
-	err = store.Save(context.TODO(), file)
+	err = store.Save(context.TODO(), file, &core.TargetStorageSaveOpt{})
 	assert.NoError(t, err)
 }
 
@@ -96,7 +96,7 @@ func Test_voidStorageSaveNoChanges(t *testing.T) {
 		fileStore:  fileStore,
 	}
 
-	err = store.Save(context.TODO(), file)
+	err = store.Save(context.TODO(), file, &core.TargetStorageSaveOpt{})
 	assert.NoError(t, err)
 }
 

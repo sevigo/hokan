@@ -553,7 +553,7 @@ func (mr *MockTargetStorageMockRecorder) Delete(arg0, arg1 interface{}) *gomock.
 }
 
 // Find mocks base method
-func (m *MockTargetStorage) Find(arg0 context.Context, arg1 string) (*core.File, error) {
+func (m *MockTargetStorage) Find(arg0 context.Context, arg1 *core.TargetStorageFindOpt) (*core.File, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Find", arg0, arg1)
 	ret0, _ := ret[0].(*core.File)
@@ -582,18 +582,18 @@ func (mr *MockTargetStorageMockRecorder) Info(arg0 interface{}) *gomock.Call {
 }
 
 // List mocks base method
-func (m *MockTargetStorage) List(arg0 context.Context) ([]*core.File, error) {
+func (m *MockTargetStorage) List(arg0 context.Context, arg1 *core.TargetStorageListOpt) ([]*core.File, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0)
+	ret := m.ctrl.Call(m, "List", arg0, arg1)
 	ret0, _ := ret[0].([]*core.File)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List
-func (mr *MockTargetStorageMockRecorder) List(arg0 interface{}) *gomock.Call {
+func (mr *MockTargetStorageMockRecorder) List(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockTargetStorage)(nil).List), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockTargetStorage)(nil).List), arg0, arg1)
 }
 
 // Ping mocks base method
@@ -611,17 +611,17 @@ func (mr *MockTargetStorageMockRecorder) Ping(arg0 interface{}) *gomock.Call {
 }
 
 // Save mocks base method
-func (m *MockTargetStorage) Save(arg0 context.Context, arg1 *core.File) error {
+func (m *MockTargetStorage) Save(arg0 context.Context, arg1 *core.File, arg2 *core.TargetStorageSaveOpt) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", arg0, arg1)
+	ret := m.ctrl.Call(m, "Save", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Save indicates an expected call of Save
-func (mr *MockTargetStorageMockRecorder) Save(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTargetStorageMockRecorder) Save(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockTargetStorage)(nil).Save), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockTargetStorage)(nil).Save), arg0, arg1, arg2)
 }
 
 // ValidateSettings mocks base method

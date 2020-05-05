@@ -61,7 +61,7 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 	return s, nil
 }
 
-func (s *localStorage) Save(ctx context.Context, file *core.File) error {
+func (s *localStorage) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) error {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
@@ -96,12 +96,12 @@ func (s *localStorage) Save(ctx context.Context, file *core.File) error {
 	return nil
 }
 
-func (s *localStorage) List(context.Context) ([]*core.File, error) {
+func (s *localStorage) List(ctx context.Context, opt *core.TargetStorageListOpt) ([]*core.File, error) {
 	log.WithField("target", TargetName).Print("List")
 	return nil, nil
 }
 
-func (s *localStorage) Find(ctx context.Context, q string) (*core.File, error) {
+func (s *localStorage) Find(ctx context.Context, opt *core.TargetStorageFindOpt) (*core.File, error) {
 	log.WithField("target", TargetName).Print("Find")
 	return nil, nil
 }

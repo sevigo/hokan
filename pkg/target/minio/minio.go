@@ -74,7 +74,7 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 	return s, nil
 }
 
-func (s *minioStore) Save(ctx context.Context, file *core.File) error {
+func (s *minioStore) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) error {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
@@ -108,13 +108,13 @@ func (s *minioStore) Save(ctx context.Context, file *core.File) error {
 	return nil
 }
 
-func (s *minioStore) List(context.Context) ([]*core.File, error) {
+func (s *minioStore) List(ctx context.Context, opt *core.TargetStorageListOpt) ([]*core.File, error) {
 	log.Printf("[minio] list")
 	return nil, errors.New("not implemented")
 }
 
-func (s *minioStore) Find(ctx context.Context, q string) (*core.File, error) {
-	log.Printf("[minio] find %q", q)
+func (s *minioStore) Find(ctx context.Context, opt *core.TargetStorageFindOpt) (*core.File, error) {
+	log.Printf("[minio] find %q", opt.Query)
 	return nil, errors.New("not implemented")
 }
 
