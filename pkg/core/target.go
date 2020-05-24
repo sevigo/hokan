@@ -11,6 +11,8 @@ var ErrTargetNotActive = errors.New("target is not active")
 
 var ErrTargetConfigNotFound = errors.New("default config for target not found")
 
+const defaulSuccesstMessage = "requested operation was successful"
+
 const (
 	TargetStorageOK TargetStorageStatus = iota
 	TargetStoragePaused
@@ -28,10 +30,50 @@ type TargetStorageFindOpt struct {
 type TargetStorageListOpt struct {
 }
 
+type TargetStorageRestoreOpt struct {
+	LocalPath         string
+	OverrideOriginals bool
+	UseOriginalPath   bool
+}
+
+type TargetOperationResult struct {
+	Success bool
+	Error   error
+	Message string
+}
+
+func TargetOperationResultError(err error) <-chan TargetOperationResult {
+	return TargetOperationResultChan(err, "")
+}
+
+func TargetOperationResultChan(err error, msg string) <-chan TargetOperationResult {
+	result := make(chan TargetOperationResult)
+	if err != nil {
+		if msg == "" {
+			msg = err.Error()
+		}
+		result <- TargetOperationResult{
+			Success: false,
+			Message: msg,
+			Error:   err,
+		}
+	} else {
+		if msg == "" {
+			msg = defaulSuccesstMessage
+		}
+		result <- TargetOperationResult{
+			Success: true,
+			Message: msg,
+		}
+	}
+	return result
+}
+
 type TargetStorage interface {
-	List(ctx context.Context, opt *TargetStorageListOpt) ([]*File, error)
-	Find(ctx context.Context, opt *TargetStorageFindOpt) (*File, error)
-	Save(ctx context.Context, file *File, opt *TargetStorageSaveOpt) error
+	// List(ctx context.Context, opt *TargetStorageListOpt) ([]*File, error)
+	// Find(ctx context.Context, opt *TargetStorageFindOpt) (*File, error)
+	Save(ctx context.Context, file *File, opt *TargetStorageSaveOpt) <-chan TargetOperationResult
+	Restore(ctx context.Context, files []*File, opt *TargetStorageRestoreOpt) <-chan TargetOperationResult
 	Delete(context.Context, *File) error
 	Ping(context.Context) error
 	Info(context.Context) TargetInfo

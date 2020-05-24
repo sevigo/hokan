@@ -15,6 +15,8 @@ import (
 	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
+var bucketNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
+
 const TargetName = "minio"
 
 type minioStore struct {
@@ -108,14 +110,8 @@ func (s *minioStore) Save(ctx context.Context, file *core.File, opt *core.Target
 	return nil
 }
 
-func (s *minioStore) List(ctx context.Context, opt *core.TargetStorageListOpt) ([]*core.File, error) {
-	log.Printf("[minio] list")
-	return nil, errors.New("not implemented")
-}
-
-func (s *minioStore) Find(ctx context.Context, opt *core.TargetStorageFindOpt) (*core.File, error) {
-	log.Printf("[minio] find %q", opt.Query)
-	return nil, errors.New("not implemented")
+func (s *minioStore) Restore(ctx context.Context, files []*core.File, opt *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {
+	return core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
 func (s *minioStore) Delete(ctx context.Context, file *core.File) error {
@@ -131,8 +127,6 @@ func (s *minioStore) Ping(ctx context.Context) error {
 func (s *minioStore) Info(ctx context.Context) core.TargetInfo {
 	return core.TargetInfo{}
 }
-
-var bucketNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
 
 func (s *minioStore) ValidateSettings(settings core.TargetSettings) (bool, error) {
 	logger := log.WithField("target", TargetName)

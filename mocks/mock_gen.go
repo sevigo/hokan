@@ -552,21 +552,6 @@ func (mr *MockTargetStorageMockRecorder) Delete(arg0, arg1 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTargetStorage)(nil).Delete), arg0, arg1)
 }
 
-// Find mocks base method
-func (m *MockTargetStorage) Find(arg0 context.Context, arg1 *core.TargetStorageFindOpt) (*core.File, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Find", arg0, arg1)
-	ret0, _ := ret[0].(*core.File)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Find indicates an expected call of Find
-func (mr *MockTargetStorageMockRecorder) Find(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockTargetStorage)(nil).Find), arg0, arg1)
-}
-
 // Info mocks base method
 func (m *MockTargetStorage) Info(arg0 context.Context) core.TargetInfo {
 	m.ctrl.T.Helper()
@@ -579,21 +564,6 @@ func (m *MockTargetStorage) Info(arg0 context.Context) core.TargetInfo {
 func (mr *MockTargetStorageMockRecorder) Info(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockTargetStorage)(nil).Info), arg0)
-}
-
-// List mocks base method
-func (m *MockTargetStorage) List(arg0 context.Context, arg1 *core.TargetStorageListOpt) ([]*core.File, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0, arg1)
-	ret0, _ := ret[0].([]*core.File)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// List indicates an expected call of List
-func (mr *MockTargetStorageMockRecorder) List(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockTargetStorage)(nil).List), arg0, arg1)
 }
 
 // Ping mocks base method
@@ -610,11 +580,25 @@ func (mr *MockTargetStorageMockRecorder) Ping(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockTargetStorage)(nil).Ping), arg0)
 }
 
+// Restore mocks base method
+func (m *MockTargetStorage) Restore(arg0 context.Context, arg1 []*core.File, arg2 *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Restore", arg0, arg1, arg2)
+	ret0, _ := ret[0].(<-chan core.TargetOperationResult)
+	return ret0
+}
+
+// Restore indicates an expected call of Restore
+func (mr *MockTargetStorageMockRecorder) Restore(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Restore", reflect.TypeOf((*MockTargetStorage)(nil).Restore), arg0, arg1, arg2)
+}
+
 // Save mocks base method
-func (m *MockTargetStorage) Save(arg0 context.Context, arg1 *core.File, arg2 *core.TargetStorageSaveOpt) error {
+func (m *MockTargetStorage) Save(arg0 context.Context, arg1 *core.File, arg2 *core.TargetStorageSaveOpt) <-chan core.TargetOperationResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
+	ret0, _ := ret[0].(<-chan core.TargetOperationResult)
 	return ret0
 }
 

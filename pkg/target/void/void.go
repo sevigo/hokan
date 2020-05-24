@@ -62,14 +62,8 @@ func (s *voidStorage) Save(ctx context.Context, file *core.File, opt *core.Targe
 	return nil
 }
 
-func (s *voidStorage) List(ctx context.Context, opt *core.TargetStorageListOpt) ([]*core.File, error) {
-	log.Printf("[void] list\n")
-	return nil, nil
-}
-
-func (s *voidStorage) Find(ctx context.Context, opt *core.TargetStorageFindOpt) (*core.File, error) {
-	log.Printf("[void] find %q\n", opt.Query)
-	return nil, nil
+func (s *voidStorage) Restore(ctx context.Context, files []*core.File, opt *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {
+	return core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
 func (s *voidStorage) Delete(ctx context.Context, file *core.File) error {

@@ -17,6 +17,8 @@ import (
 	"github.com/sevigo/hokan/pkg/target/utils/volume"
 )
 
+var bucketNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
+
 const TargetName = "local"
 
 // Storage local
@@ -61,12 +63,11 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 	return s, nil
 }
 
-func (s *localStorage) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) error {
+func (s *localStorage) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) <-chan core.TargetOperationResult {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
 	})
-
 	// TODO: this is all the same, move me
 	storedFile, err := s.fileStore.Find(ctx, &core.FileSearchOptions{
 		FilePath:   file.Path,
@@ -78,7 +79,7 @@ func (s *localStorage) Save(ctx context.Context, file *core.File, opt *core.Targ
 		base := volume + string(os.PathSeparator)
 		relFilePath, err := filepath.Rel(base, file.Path)
 		if err != nil {
-			return err
+			return core.TargetOperationResultError(err)
 		}
 		// on windows volume will be 'C:', so we just remove :
 		// on all other systems it will be empty
@@ -88,22 +89,17 @@ func (s *localStorage) Save(ctx context.Context, file *core.File, opt *core.Targ
 		to := filepath.Join(s.targetStoragePath, s.bucketName, volume, relFilePath)
 		errSave := s.save(file.Path, to)
 		if err != nil {
-			return errSave
+			return core.TargetOperationResultError(errSave)
 		}
-		return s.fileStore.Save(ctx, TargetName, file)
+		saveErr := s.fileStore.Save(ctx, TargetName, file)
+		return core.TargetOperationResultChan(saveErr, "")
 	}
 	logger.Info("file hasn't changed")
-	return nil
+	return core.TargetOperationResultChan(nil, "file hasn't changed")
 }
 
-func (s *localStorage) List(ctx context.Context, opt *core.TargetStorageListOpt) ([]*core.File, error) {
-	log.WithField("target", TargetName).Print("List")
-	return nil, nil
-}
-
-func (s *localStorage) Find(ctx context.Context, opt *core.TargetStorageFindOpt) (*core.File, error) {
-	log.WithField("target", TargetName).Print("Find")
-	return nil, nil
+func (s *localStorage) Restore(ctx context.Context, files []*core.File, opt *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {
+	return core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
 func (s *localStorage) Delete(ctx context.Context, file *core.File) error {
@@ -111,7 +107,11 @@ func (s *localStorage) Delete(ctx context.Context, file *core.File) error {
 	return nil
 }
 
+// Ping checkes if the local storage is avaible
 func (s *localStorage) Ping(ctx context.Context) error {
+	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+		return err
+	}
 	return nil
 }
 
@@ -127,8 +127,6 @@ func (s *localStorage) Info(ctx context.Context) core.TargetInfo {
 		"volume": vol,
 	}
 }
-
-var bucketNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
 
 func (s *localStorage) ValidateSettings(settings core.TargetSettings) (bool, error) {
 	logger := log.WithField("target", TargetName)
