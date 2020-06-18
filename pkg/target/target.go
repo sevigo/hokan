@@ -23,7 +23,8 @@ var targets = map[string]core.TargetFactory{
 }
 
 type Register struct {
-	ctx context.Context
+	ctx     context.Context
+	Results chan core.TargetOperationResult
 	sync.Mutex
 	fileStore      core.FileStore
 	configStore    core.ConfigStore
@@ -46,6 +47,7 @@ func New(
 		event:          event,
 		register:       make(map[string]core.TargetStorage),
 		registerStatus: make(map[string]core.TargetStorageStatus),
+		Results:        make(chan core.TargetOperationResult), // ??? 
 	}
 	r.initTargets(ctx)
 	go r.StartFileAddedWatcher()

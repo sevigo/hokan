@@ -2,6 +2,7 @@ package local
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -18,19 +19,22 @@ var testFilePath = "local.go"
 var bucketName = "test"
 
 func TestConfig(t *testing.T) {
-	conf := DefaultConfig()
+	store := &localStorage{}
+	conf := store.DefaultConfig()
 	assert.Equal(t, "local", conf.Name)
 	assert.Equal(t, false, conf.Active)
 }
 
 func TestNewNotActive(t *testing.T) {
-	conf := DefaultConfig()
+	store := &localStorage{}
+	conf := store.DefaultConfig()
 	_, err := New(context.Background(), nil, *conf)
 	assert.EqualError(t, err, "target is not active")
 }
 
 func TestNewActive(t *testing.T) {
-	conf := DefaultConfig()
+	store := &localStorage{}
+	conf := store.DefaultConfig()
 	conf.Active = true
 	conf.Settings["LOCAL_BUCKET_NAME"] = "test"
 	conf.Settings["LOCAL_STORAGE_PATH"] = "."
@@ -52,10 +56,6 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   localPath,
-	}).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	tmpDir, err := ioutil.TempDir(os.TempDir(), "")
@@ -68,11 +68,33 @@ func Test_voidStorageSaveNew(t *testing.T) {
 		fileStore:         fileStore,
 	}
 
-	err = store.Save(context.TODO(), file, &core.TargetStorageSaveOpt{})
-	assert.NoError(t, err)
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, file, &core.TargetStorageSaveOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "requested operation was successful",
+	}, data)
 }
 
-func Test_voidStorageSaveNoChanges(t *testing.T) {
+func TestVoidStorageSaveWrongPath(t *testing.T) {
+	file := &core.File{
+		Path:     "/wrong/path",
+		Checksum: "abc",
+	}
+	store := &localStorage{
+		bucketName: bucketName,
+	}
+
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, file, &core.TargetStorageSaveOpt{})
+	data := <-result
+	assert.Equal(t, false, data.Success)
+	assert.Equal(t, "cannot open file  [/wrong/path]: open /wrong/path: The system cannot find the path specified.", data.Message)
+}
+
+func TestVoidStorageSaveError(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -86,22 +108,83 @@ func Test_voidStorageSaveNoChanges(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   localPath,
-	}).Return(file, nil)
+	errTest := errors.New("test")
+	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(errTest)
 
 	store := &localStorage{
 		bucketName: bucketName,
 		fileStore:  fileStore,
 	}
 
-	err = store.Save(context.TODO(), file, &core.TargetStorageSaveOpt{})
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, file, &core.TargetStorageSaveOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   errTest,
+		Message: "test",
+	}, data)
+}
+
+func TestRestore(t *testing.T) {
+	store := &localStorage{}
+	result := make(chan core.TargetOperationResult)
+	go store.Restore(context.TODO(), result, []*core.File{}, &core.TargetStorageRestoreOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   core.ErrNotImplemented,
+		Message: "not implemented",
+	}, data)
+}
+
+func TestDelete(t *testing.T) {
+	store := &localStorage{}
+	result := make(chan core.TargetOperationResult)
+	go store.Delete(context.TODO(), result, []*core.File{}, &core.TargetStorageDeleteOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   core.ErrNotImplemented,
+		Message: "not implemented",
+	}, data)
+}
+
+func TestVoidStoragePing(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	pwd, err := os.Getwd()
+	assert.NoError(t, err)
+	localPath := filepath.Join(pwd, testFilePath)
+	fileStore := mocks.NewMockFileStore(controller)
+
+	store := &localStorage{
+		bucketName:        bucketName,
+		fileStore:         fileStore,
+		targetStoragePath: localPath,
+	}
+
+	err = store.Ping(context.TODO())
 	assert.NoError(t, err)
 }
 
+func TestVoidStoragePingError(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	store := &localStorage{
+		bucketName:        bucketName,
+		targetStoragePath: "/wrong/path",
+	}
+
+	err := store.Ping(context.TODO())
+	assert.Error(t, err)
+}
+
 func TestLocalInfo(t *testing.T) {
-	conf := DefaultConfig()
+	store := &localStorage{}
+	conf := store.DefaultConfig()
 	conf.Active = true
 
 	if runtime.GOOS == "windows" {
@@ -122,8 +205,10 @@ func TestLocalInfo(t *testing.T) {
 	assert.NotEmpty(t, info["free"])
 	assert.NotEmpty(t, info["volume"])
 }
+
 func TestNewError(t *testing.T) {
-	conf := DefaultConfig()
+	store := &localStorage{}
+	conf := store.DefaultConfig()
 	conf.Active = true
 	conf.Settings["LOCAL_STORAGE_PATH"] = ""
 	conf.Settings["LOCAL_BUCKET_NAME"] = ""

@@ -52,8 +52,8 @@ func Test_voidStorageSaveNew(t *testing.T) {
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), file, nil)
-	assert.NoError(t, err)
+	msg := <-store.Save(context.TODO(), file, nil)
+	assert.NoError(t, msg.Error)
 }
 
 func Test_voidStorageSaveChanged(t *testing.T) {
@@ -80,11 +80,15 @@ func Test_voidStorageSaveChanged(t *testing.T) {
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), fileB, nil)
-	assert.NoError(t, err)
+	result := <-store.Save(context.TODO(), fileB, nil)
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "requested operation was successful",
+	}, result)
 }
 
-func Test_minioStore_NoSave(t *testing.T) {
+func Test_voidStore_NoSave(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -103,6 +107,10 @@ func Test_minioStore_NoSave(t *testing.T) {
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), fileA, nil)
-	assert.NoError(t, err)
+	result := <-store.Save(context.TODO(), fileA, nil)
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "file hasn't changed",
+	}, result)
 }

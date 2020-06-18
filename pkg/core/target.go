@@ -19,6 +19,9 @@ const (
 	TargetStorageError
 )
 
+type TargetStorageDeleteOpt struct {
+}
+
 type TargetStorageSaveOpt struct {
 	Force bool
 }
@@ -42,17 +45,21 @@ type TargetOperationResult struct {
 	Message string
 }
 
-func TargetOperationResultError(err error) <-chan TargetOperationResult {
-	return TargetOperationResultChan(err, "")
+func TargetOperationResultError(err error) TargetOperationResult {
+	return targetOperationResultChan(err, "")
 }
 
-func TargetOperationResultChan(err error, msg string) <-chan TargetOperationResult {
-	result := make(chan TargetOperationResult)
+func TargetOperationResultSuccess(msg string) TargetOperationResult {
+	return targetOperationResultChan(nil, msg)
+}
+
+func targetOperationResultChan(err error, msg string) TargetOperationResult {
+	result := TargetOperationResult{}
 	if err != nil {
 		if msg == "" {
 			msg = err.Error()
 		}
-		result <- TargetOperationResult{
+		result = TargetOperationResult{
 			Success: false,
 			Message: msg,
 			Error:   err,
@@ -61,7 +68,7 @@ func TargetOperationResultChan(err error, msg string) <-chan TargetOperationResu
 		if msg == "" {
 			msg = defaulSuccesstMessage
 		}
-		result <- TargetOperationResult{
+		result = TargetOperationResult{
 			Success: true,
 			Message: msg,
 		}
@@ -70,11 +77,10 @@ func TargetOperationResultChan(err error, msg string) <-chan TargetOperationResu
 }
 
 type TargetStorage interface {
-	// List(ctx context.Context, opt *TargetStorageListOpt) ([]*File, error)
-	// Find(ctx context.Context, opt *TargetStorageFindOpt) (*File, error)
-	Save(ctx context.Context, file *File, opt *TargetStorageSaveOpt) <-chan TargetOperationResult
-	Restore(ctx context.Context, files []*File, opt *TargetStorageRestoreOpt) <-chan TargetOperationResult
-	Delete(context.Context, *File) error
+	DefaultConfig() *TargetConfig
+	Save(ctx context.Context, result chan TargetOperationResult, file *File, opt *TargetStorageSaveOpt)
+	Restore(ctx context.Context, result chan TargetOperationResult, files []*File, opt *TargetStorageRestoreOpt)
+	Delete(ctx context.Context, result chan TargetOperationResult, files []*File, opt *TargetStorageDeleteOpt)
 	Ping(context.Context) error
 	Info(context.Context) TargetInfo
 	ValidateSettings(settings TargetSettings) (bool, error)

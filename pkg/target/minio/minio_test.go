@@ -80,8 +80,12 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), file, nil)
-	assert.NoError(t, err)
+	result := <-store.Save(context.TODO(), file, nil)
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "requested operation was successful",
+	}, result)
 }
 
 func Test_minioStore_SaveFileChange(t *testing.T) {
@@ -126,8 +130,12 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), fileB, nil)
-	assert.NoError(t, err)
+	result := <-store.Save(context.TODO(), fileB, nil)
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "requested operation was successful",
+	}, result)
 }
 
 func Test_minioStore_NoSave(t *testing.T) {
@@ -157,8 +165,12 @@ func Test_minioStore_NoSave(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), fileA, nil)
-	assert.NoError(t, err)
+	result := <-store.Save(context.TODO(), fileA, nil)
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "file hasn't changed",
+	}, result)
 }
 
 func Test_minioStore_ErrorNoSave(t *testing.T) {
@@ -190,8 +202,9 @@ func Test_minioStore_ErrorNoSave(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), file, nil)
-	assert.Error(t, err)
+	result := <-store.Save(context.TODO(), file, nil)
+	assert.Error(t, result.Error)
+	assert.False(t, result.Success)
 }
 
 func TestPing(t *testing.T) {

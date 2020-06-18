@@ -8,21 +8,12 @@ import (
 
 	"github.com/sevigo/hokan/pkg/core"
 	configstore "github.com/sevigo/hokan/pkg/store/config"
-	"github.com/sevigo/hokan/pkg/target/local"
-	"github.com/sevigo/hokan/pkg/target/minio"
-	"github.com/sevigo/hokan/pkg/target/void"
 )
-
-var defaultConfigs = map[string]*core.TargetConfig{
-	local.TargetName: local.DefaultConfig(),
-	minio.TargetName: minio.DefaultConfig(),
-	void.TargetName:  void.DefaultConfig(),
-}
 
 func (r *Register) AllConfigs() map[string]core.TargetConfig {
 	configs := map[string]core.TargetConfig{}
 
-	for name := range defaultConfigs {
+	for name := range r.AllTargets() {
 		conf, err := r.GetConfig(r.ctx, name)
 		if err != nil {
 			log.WithError(err).Errorf("can't get config for %q", name)
@@ -34,14 +25,11 @@ func (r *Register) AllConfigs() map[string]core.TargetConfig {
 	return configs
 }
 
-func (r *Register) GetConfig(ctx context.Context, targetName string) (*core.TargetConfig, error) {
+func (r *Register) GetConfig(ctx context.Context, name string) (*core.TargetConfig, error) {
 	var err error
-	defaultConf, ok := defaultConfigs[targetName]
-	if !ok {
-		log.Errorf("default config for target storage %q not found", targetName)
-		return nil, core.ErrTargetConfigNotFound
-	}
-	conf, err := r.configStore.Find(ctx, targetName)
+	target := r.GetTarget(name)
+	defaultConf := target.DefaultConfig()
+	conf, err := r.configStore.Find(ctx, name)
 	if errors.Is(err, configstore.ErrConfigNotFound) {
 		err = r.configStore.Save(ctx, defaultConf)
 		conf = defaultConf

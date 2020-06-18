@@ -76,7 +76,7 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 	return s, nil
 }
 
-func (s *minioStore) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) error {
+func (s *minioStore) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) <-chan core.TargetOperationResult {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
@@ -86,6 +86,7 @@ func (s *minioStore) Save(ctx context.Context, file *core.File, opt *core.Target
 		FilePath:   file.Path,
 		TargetName: TargetName,
 	})
+
 	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debug("saving file")
 		objectName := path.Clean(file.Path)
@@ -101,13 +102,15 @@ func (s *minioStore) Save(ctx context.Context, file *core.File, opt *core.Target
 		}
 		n, err := s.client.FPutObjectWithContext(ctx, s.bucketName, objectName, file.Path, options)
 		if err != nil {
-			return err
+			return core.TargetOperationResultError(err)
 		}
 		logger.Infof("Successfully uploaded %s of size %d", objectName, n)
-		return s.fileStore.Save(ctx, TargetName, file)
+		saveErr := s.fileStore.Save(ctx, TargetName, file)
+		return core.TargetOperationResultChan(saveErr, "")
 	}
+
 	logger.Info("file hasn't change")
-	return nil
+	return core.TargetOperationResultChan(nil, "file hasn't changed")
 }
 
 func (s *minioStore) Restore(ctx context.Context, files []*core.File, opt *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {

@@ -44,7 +44,7 @@ func DefaultConfig() *core.TargetConfig {
 	}
 }
 
-func (s *voidStorage) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) error {
+func (s *voidStorage) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) <-chan core.TargetOperationResult {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
@@ -54,12 +54,15 @@ func (s *voidStorage) Save(ctx context.Context, file *core.File, opt *core.Targe
 		FilePath:   file.Path,
 		TargetName: TargetName,
 	})
+
 	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
 		logger.Debugf("saving the file %s", s.prefix)
-		return s.fileStore.Save(ctx, TargetName, file)
+		saveErr := s.fileStore.Save(ctx, TargetName, file)
+		return core.TargetOperationResultChan(saveErr, "")
 	}
+
 	logger.Info("the file has not changed")
-	return nil
+	return core.TargetOperationResultChan(nil, "file hasn't changed")
 }
 
 func (s *voidStorage) Restore(ctx context.Context, files []*core.File, opt *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {
