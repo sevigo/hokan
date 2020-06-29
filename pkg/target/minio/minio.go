@@ -2,7 +2,6 @@ package minio
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path"
 	"regexp"
@@ -12,7 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
-	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
 var bucketNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.]+$")
@@ -23,21 +21,6 @@ type minioStore struct {
 	client     core.MinioWrapper
 	fileStore  core.FileStore
 	bucketName string
-}
-
-func DefaultConfig() *core.TargetConfig {
-	return &core.TargetConfig{
-		Active:      false,
-		Name:        "minio",
-		Description: "open source cloud object storage server compatible with Amazon S3",
-		Settings: core.TargetSettings{
-			"MINIO_HOST":        "",
-			"MINIO_ACCESS_KEY":  "",
-			"MINIO_SECRET_KEY":  "",
-			"MINIO_USE_SSL":     "",
-			"MINIO_BUCKET_NAME": "",
-		},
-	}
 }
 
 func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.TargetStorage, error) {
@@ -76,50 +59,55 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 	return s, nil
 }
 
-func (s *minioStore) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) <-chan core.TargetOperationResult {
+func (s *minioStore) DefaultConfig() *core.TargetConfig {
+	return &core.TargetConfig{
+		Active:      false,
+		Name:        "minio",
+		Description: "open source cloud object storage server compatible with Amazon S3",
+		Settings: core.TargetSettings{
+			"MINIO_HOST":        "",
+			"MINIO_ACCESS_KEY":  "",
+			"MINIO_SECRET_KEY":  "",
+			"MINIO_USE_SSL":     "",
+			"MINIO_BUCKET_NAME": "",
+		},
+	}
+}
+
+func (s *minioStore) Save(ctx context.Context, result chan core.TargetOperationResult, file *core.File, opt *core.TargetStorageSaveOpt) {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
 	})
 
-	storedFile, err := s.fileStore.Find(ctx, &core.FileSearchOptions{
-		FilePath:   file.Path,
-		TargetName: TargetName,
-	})
-
-	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
-		logger.Debug("saving file")
-		objectName := path.Clean(file.Path)
-		options := minio.PutObjectOptions{
-			UserMetadata: map[string]string{
-				"path":      file.Path,
-				"size":      fmt.Sprintf("%d", file.Info.Size()),
-				"name":      file.Info.Name(),
-				"mode-time": file.Info.ModTime().String(),
-				"checksum":  file.Checksum,
-			},
-			// TODO: we can use Progress for the reporting the progress back to the client
-		}
-		n, err := s.client.FPutObjectWithContext(ctx, s.bucketName, objectName, file.Path, options)
-		if err != nil {
-			return core.TargetOperationResultError(err)
-		}
-		logger.Infof("Successfully uploaded %s of size %d", objectName, n)
-		saveErr := s.fileStore.Save(ctx, TargetName, file)
-		return core.TargetOperationResultChan(saveErr, "")
+	logger.Debug("saving file")
+	objectName := path.Clean(file.Path)
+	options := minio.PutObjectOptions{
+		UserMetadata: map[string]string{
+			"path":      file.Path,
+			"size":      fmt.Sprintf("%d", file.Info.Size()),
+			"name":      file.Info.Name(),
+			"mode-time": file.Info.ModTime().String(),
+			"checksum":  file.Checksum,
+		},
+		// TODO: we can use Progress for the reporting the progress back to the client
 	}
-
-	logger.Info("file hasn't change")
-	return core.TargetOperationResultChan(nil, "file hasn't changed")
+	n, err := s.client.FPutObjectWithContext(ctx, s.bucketName, objectName, file.Path, options)
+	if err != nil {
+		result <- core.TargetOperationResultError(err)
+		return
+	}
+	logger.Infof("Successfully uploaded %s of size %d", objectName, n)
+	saveErr := s.fileStore.Save(ctx, TargetName, file)
+	result <- core.TargetOperationResultError(saveErr)
 }
 
-func (s *minioStore) Restore(ctx context.Context, files []*core.File, opt *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {
-	return core.TargetOperationResultError(core.ErrNotImplemented)
+func (s *minioStore) Restore(ctx context.Context, result chan core.TargetOperationResult, files []*core.File, opt *core.TargetStorageRestoreOpt) {
+	result <- core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
-func (s *minioStore) Delete(ctx context.Context, file *core.File) error {
-	log.Printf("[minio] save %#v\n", file)
-	return errors.New("not implemented")
+func (s *minioStore) Delete(ctx context.Context, result chan core.TargetOperationResult, files []*core.File, opt *core.TargetStorageDeleteOpt) {
+	result <- core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
 func (s *minioStore) Ping(ctx context.Context) error {
@@ -135,7 +123,7 @@ func (s *minioStore) ValidateSettings(settings core.TargetSettings) (bool, error
 	logger := log.WithField("target", TargetName)
 	logger.Infof("ValidateSettings(): %+v", settings)
 
-	for name := range DefaultConfig().Settings {
+	for name := range s.DefaultConfig().Settings {
 		value, ok := settings[name]
 		if !ok {
 			return false, fmt.Errorf("%q key is missing", name)

@@ -2,12 +2,10 @@ package void
 
 import (
 	"context"
-	"errors"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
-	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
 const TargetName = "void"
@@ -32,7 +30,7 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 	}, nil
 }
 
-func DefaultConfig() *core.TargetConfig {
+func (s *voidStorage) DefaultConfig() *core.TargetConfig {
 	return &core.TargetConfig{
 		// always active target for the testing
 		Active:      true,
@@ -44,34 +42,23 @@ func DefaultConfig() *core.TargetConfig {
 	}
 }
 
-func (s *voidStorage) Save(ctx context.Context, file *core.File, opt *core.TargetStorageSaveOpt) <-chan core.TargetOperationResult {
+func (s *voidStorage) Save(ctx context.Context, result chan core.TargetOperationResult, file *core.File, opt *core.TargetStorageSaveOpt) {
 	logger := log.WithFields(log.Fields{
 		"target": TargetName,
 		"file":   file.Path,
 	})
-	// TODO: this is all the same, move me
-	storedFile, err := s.fileStore.Find(ctx, &core.FileSearchOptions{
-		FilePath:   file.Path,
-		TargetName: TargetName,
-	})
-
-	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
-		logger.Debugf("saving the file %s", s.prefix)
-		saveErr := s.fileStore.Save(ctx, TargetName, file)
-		return core.TargetOperationResultChan(saveErr, "")
-	}
-
-	logger.Info("the file has not changed")
-	return core.TargetOperationResultChan(nil, "file hasn't changed")
+	logger.Debugf("saving the file %s", s.prefix)
+	saveErr := s.fileStore.Save(ctx, TargetName, file)
+	result <- core.TargetOperationResultError(saveErr)
 }
 
-func (s *voidStorage) Restore(ctx context.Context, files []*core.File, opt *core.TargetStorageRestoreOpt) <-chan core.TargetOperationResult {
-	return core.TargetOperationResultError(core.ErrNotImplemented)
+func (s *voidStorage) Restore(ctx context.Context, result chan core.TargetOperationResult, files []*core.File, opt *core.TargetStorageRestoreOpt) {
+	result <- core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
-func (s *voidStorage) Delete(ctx context.Context, file *core.File) error {
-	log.Printf("[void] save %#v\n", file)
-	return nil
+func (s *voidStorage) Delete(ctx context.Context, result chan core.TargetOperationResult, files []*core.File, opt *core.TargetStorageDeleteOpt) {
+	log.Printf("[void] save %#v\n", files)
+	result <- core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
 func (s *voidStorage) Ping(ctx context.Context) error {
