@@ -3,6 +3,7 @@ package target
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -28,7 +29,8 @@ func (r *Register) AllConfigs() map[string]core.TargetConfig {
 func (r *Register) GetConfig(ctx context.Context, name string) (*core.TargetConfig, error) {
 	var err error
 	target := r.GetTarget(name)
-	defaultConf := target.DefaultConfig()
+	fmt.Printf(">>>> GetConfig(): target=%v\n", target)
+	// defaultConf := target.DefaultConfig()
 	conf, err := r.configStore.Find(ctx, name)
 	if errors.Is(err, configstore.ErrConfigNotFound) {
 		err = r.configStore.Save(ctx, defaultConf)

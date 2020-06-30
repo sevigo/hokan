@@ -47,7 +47,7 @@ func New(
 		event:          event,
 		register:       make(map[string]core.TargetStorage),
 		registerStatus: make(map[string]core.TargetStorageStatus),
-		Results:        make(chan core.TargetOperationResult), // ??? 
+		Results:        make(chan core.TargetOperationResult), // ???
 	}
 	r.initTargets(ctx)
 	go r.StartFileAddedWatcher()
