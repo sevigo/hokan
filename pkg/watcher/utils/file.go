@@ -30,5 +30,5 @@ func FileChecksumInfo(path string) (string, *core.FileInfo, error) {
 	}
 
 	sum := fmt.Sprintf("%x", h.Sum(nil))
-	return sum, &core.FileInfo{info}, nil
+	return sum, &core.FileInfo{FileInfo: info}, nil
 }
