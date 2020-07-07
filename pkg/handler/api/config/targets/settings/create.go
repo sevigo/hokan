@@ -16,8 +16,8 @@ func HandleCleate(targets core.TargetRegister) http.HandlerFunc {
 		targetName := chi.URLParam(r, "target")
 		l := logger.FromRequest(r).WithField("target", targetName)
 
-		target := targets.GetTarget(targetName)
-		if target == nil {
+		configurator := targets.GetTargetStorageConfigurator(targetName)
+		if configurator == nil {
 			l.Error("api: can't find target")
 			handler.JSON_404(w, r, "target not found")
 			return
@@ -29,7 +29,7 @@ func HandleCleate(targets core.TargetRegister) http.HandlerFunc {
 			handler.JSON_400(w, r, "invalid request body")
 			return
 		}
-		if ok, err := target.ValidateSettings(settings); !ok {
+		if ok, err := configurator.ValidateSettings(settings); !ok {
 			l.WithError(err).Error("api: invalid settings")
 			handler.JSON_400(w, r, "invalid settings")
 			return

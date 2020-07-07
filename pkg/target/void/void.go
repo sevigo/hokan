@@ -24,22 +24,19 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		"target": TargetName,
 	}).Info("Starting new target storage")
 
+	configurator := NewConfigurator()
+	if ok, err := configurator.ValidateSettings(conf.Settings); !ok {
+		return nil, err
+	}
+
 	return &voidStorage{
 		fileStore: fs,
 		prefix:    conf.Settings["VOID_PREFIX"],
 	}, nil
 }
 
-func (s *voidStorage) DefaultConfig() *core.TargetConfig {
-	return &core.TargetConfig{
-		// always active target for the testing
-		Active:      true,
-		Name:        TargetName,
-		Description: "fake target storage for testing, will print the name of the file",
-		Settings: map[string]string{
-			"VOID_PREFIX": "",
-		},
-	}
+func (s *voidStorage) Name() string {
+	return TargetName
 }
 
 func (s *voidStorage) Save(ctx context.Context, result chan core.TargetOperationResult, file *core.File, opt *core.TargetStorageSaveOpt) {
@@ -67,8 +64,4 @@ func (s *voidStorage) Ping(ctx context.Context) error {
 
 func (s *voidStorage) Info(ctx context.Context) core.TargetInfo {
 	return core.TargetInfo{}
-}
-
-func (s *voidStorage) ValidateSettings(settings core.TargetSettings) (bool, error) {
-	return true, nil
 }

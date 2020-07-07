@@ -19,11 +19,11 @@ func TestHandleListOK(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	target := mocks.NewMockTargetStorage(controller)
-	target.EXPECT().ValidateSettings(core.TargetSettings{"FOO": "bar"}).Return(true, nil)
+	configurator := mocks.NewMockTargetStorageConfigurator(controller)
+	configurator.EXPECT().ValidateSettings(core.TargetSettings{"FOO": "bar"}).Return(true, nil)
 
 	targets := mocks.NewMockTargetRegister(controller)
-	targets.EXPECT().GetTarget("test").Return(target)
+	targets.EXPECT().GetTargetStorageConfigurator("test").Return(configurator)
 	targets.EXPECT().GetConfig(gomock.Any(), "test").Return(&core.TargetConfig{
 		Name:        "test",
 		Description: "test target",
@@ -63,7 +63,7 @@ func TestHandleList404(t *testing.T) {
 	defer controller.Finish()
 
 	targets := mocks.NewMockTargetRegister(controller)
-	targets.EXPECT().GetTarget("test").Return(nil)
+	targets.EXPECT().GetTargetStorageConfigurator("test").Return(nil)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/config/targets/test/settings", strings.NewReader(`{"FOO":"bar"}`))

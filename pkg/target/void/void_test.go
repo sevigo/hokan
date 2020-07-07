@@ -12,28 +12,6 @@ import (
 
 var testFilePath = "/test/file.txt"
 
-func TestConfig(t *testing.T) {
-	store := &voidStorage{}
-	conf := store.DefaultConfig()
-	assert.Equal(t, "void", conf.Name)
-	assert.Equal(t, true, conf.Active)
-}
-
-func TestNewNotActive(t *testing.T) {
-	store := &voidStorage{}
-	conf := store.DefaultConfig()
-	conf.Active = false
-	_, err := New(context.Background(), nil, *conf)
-	assert.EqualError(t, err, "target is not active")
-}
-
-func TestNewActive(t *testing.T) {
-	store := &voidStorage{}
-	conf := store.DefaultConfig()
-	_, err := New(context.Background(), nil, *conf)
-	assert.NoError(t, err)
-}
-
 func Test_voidStorageSaveNew(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
@@ -111,13 +89,6 @@ func Test_voidStore_Info(t *testing.T) {
 	store := &voidStorage{}
 	info := store.Info(context.TODO())
 	assert.NotNil(t, info)
-}
-
-func Test_voidStore_ValidateSettings(t *testing.T) {
-	store := &voidStorage{}
-	ok, err := store.ValidateSettings(core.TargetSettings{})
-	assert.True(t, ok)
-	assert.NoError(t, err)
 }
 
 func Test_voidStore_Ping(t *testing.T) {

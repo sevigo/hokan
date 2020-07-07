@@ -3,7 +3,6 @@ package target
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -26,17 +25,17 @@ func (r *Register) AllConfigs() map[string]core.TargetConfig {
 	return configs
 }
 
-func (r *Register) GetConfig(ctx context.Context, name string) (*core.TargetConfig, error) {
-	var err error
-	target := r.GetTarget(name)
-	fmt.Printf(">>>> GetConfig(): target=%v\n", target)
-	// defaultConf := target.DefaultConfig()
-	conf, err := r.configStore.Find(ctx, name)
+func (r *Register) GetConfig(ctx context.Context, name string) (conf *core.TargetConfig, err error) {
+	conf, err = r.configStore.Find(ctx, name)
 	if errors.Is(err, configstore.ErrConfigNotFound) {
+		defaultConf, ok := r.storagesDefaultConfigs[name]
+		if !ok {
+			return nil, configstore.ErrConfigNotFound
+		}
 		err = r.configStore.Save(ctx, defaultConf)
 		conf = defaultConf
 	}
-	return conf, err
+	return
 }
 
 func (r *Register) SetConfig(ctx context.Context, config *core.TargetConfig) error {
@@ -47,10 +46,14 @@ func (r *Register) SetConfig(ctx context.Context, config *core.TargetConfig) err
 	log.WithField("target", config.Name).Info("target.SetConfig(): new config stored successfully")
 	// we changed from passiv to active, so we init the storage and rescan
 	if config.Active {
-		err = r.initTarget(ctx, config.Name)
+		configurator, ok := r.configurators[config.Name]
+		if !ok {
+			return core.ErrTargetConfigNotFound
+		}
+		err = r.initTarget(ctx, configurator)
 		if err != nil {
 			// initWithRetry will call rescanAllWatchedDirs
-			go r.initWithRetry(ctx, config.Name)
+			go r.initWithRetry(ctx, configurator)
 		} else {
 			log.WithField("target", config.Name).Info("target.SetConfig(): target is activated now")
 			r.rescanAllWatchedDirs()

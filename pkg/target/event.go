@@ -60,7 +60,7 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 func (r *Register) saveFileToTarget(storage core.TargetStorage, file *core.File) {
 	storedFile, err := r.fileStore.Find(r.ctx, &core.FileSearchOptions{
 		FilePath:   file.Path,
-		TargetName: storage.DefaultConfig().Name,
+		TargetName: storage.Name(),
 	})
 	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
 		storage.Save(r.ctx, r.Results, file, &core.TargetStorageSaveOpt{})

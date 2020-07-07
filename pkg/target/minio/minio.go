@@ -31,8 +31,8 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		return nil, core.ErrTargetNotActive
 	}
 
-	s := &minioStore{}
-	if ok, err := s.ValidateSettings(conf.Settings); !ok {
+	configurator := NewConfigurator()
+	if ok, err := configurator.ValidateSettings(conf.Settings); !ok {
 		return nil, err
 	}
 
@@ -52,26 +52,15 @@ func New(ctx context.Context, fs core.FileStore, conf core.TargetConfig) (core.T
 		return nil, err
 	}
 
-	s.bucketName = bucketName
-	s.client = minioClient
-	s.fileStore = fs
-
-	return s, nil
+	return &minioStore{
+		bucketName: bucketName,
+		client:     minioClient,
+		fileStore:  fs,
+	}, nil
 }
 
-func (s *minioStore) DefaultConfig() *core.TargetConfig {
-	return &core.TargetConfig{
-		Active:      false,
-		Name:        "minio",
-		Description: "open source cloud object storage server compatible with Amazon S3",
-		Settings: core.TargetSettings{
-			"MINIO_HOST":        "",
-			"MINIO_ACCESS_KEY":  "",
-			"MINIO_SECRET_KEY":  "",
-			"MINIO_USE_SSL":     "",
-			"MINIO_BUCKET_NAME": "",
-		},
-	}
+func (s *minioStore) Name() string {
+	return TargetName
 }
 
 func (s *minioStore) Save(ctx context.Context, result chan core.TargetOperationResult, file *core.File, opt *core.TargetStorageSaveOpt) {
@@ -107,42 +96,16 @@ func (s *minioStore) Restore(ctx context.Context, result chan core.TargetOperati
 }
 
 func (s *minioStore) Delete(ctx context.Context, result chan core.TargetOperationResult, files []*core.File, opt *core.TargetStorageDeleteOpt) {
+	log.WithField("target", TargetName).Print("Delete")
 	result <- core.TargetOperationResultError(core.ErrNotImplemented)
 }
 
 func (s *minioStore) Ping(ctx context.Context) error {
+	log.WithField("target", TargetName).Print("target")
 	_, err := s.client.BucketExists(s.bucketName)
 	return err
 }
 
 func (s *minioStore) Info(ctx context.Context) core.TargetInfo {
 	return core.TargetInfo{}
-}
-
-func (s *minioStore) ValidateSettings(settings core.TargetSettings) (bool, error) {
-	logger := log.WithField("target", TargetName)
-	logger.Infof("ValidateSettings(): %+v", settings)
-
-	for name := range s.DefaultConfig().Settings {
-		value, ok := settings[name]
-		if !ok {
-			return false, fmt.Errorf("%q key is missing", name)
-		}
-		if value == "" {
-			return false, fmt.Errorf("%q value is mepty", name)
-		}
-	}
-
-	_, err := strconv.ParseBool(settings["MINIO_USE_SSL"])
-	if err != nil {
-		return false, fmt.Errorf("can't convert the value of MINIO_USE_SSL=%q to bool", settings["MINIO_USE_SSL"])
-	}
-
-	bucket := settings["MINIO_BUCKET_NAME"]
-	match := bucketNameRegexp.MatchString(bucket)
-	if !match {
-		return false, fmt.Errorf("bucket name contains illegal characters")
-	}
-
-	return true, nil
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/target/void"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,14 +21,17 @@ func TestRegister_initTarget(t *testing.T) {
 		Active: true,
 	}, nil)
 
+	targetConfigurator := void.NewConfigurator()
 	r := &Register{
 		ctx: context.TODO(),
 		// fileStore:      fileStore,
 		configStore: configStore,
 		// event:          event,
-		register:       make(map[string]core.TargetStorage),
-		registerStatus: make(map[string]core.TargetStorageStatus),
-		Results:        make(chan core.TargetOperationResult),
+		storages:               make(map[string]core.TargetStorage),
+		storagesStatus:         make(map[string]core.TargetStorageStatus),
+		storagesDefaultConfigs: make(map[string]*core.TargetConfig),
+
+		Results: make(chan core.TargetOperationResult),
 	}
 	tests := []struct {
 		name       string
@@ -42,7 +46,7 @@ func TestRegister_initTarget(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := r.initTarget(context.TODO(), tt.targetName)
+			err := r.initTarget(context.TODO(), targetConfigurator)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return

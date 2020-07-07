@@ -24,28 +24,6 @@ func getTestingFile(t *testing.T) string {
 	return filepath.Join(pwd, testFilePath)
 }
 
-func TestConfig(t *testing.T) {
-	store := &minioStore{}
-	conf := store.DefaultConfig()
-	assert.Equal(t, "minio", conf.Name)
-	assert.Equal(t, false, conf.Active)
-}
-
-func TestNewNotActive(t *testing.T) {
-	store := &minioStore{}
-	conf := store.DefaultConfig()
-	_, err := New(context.Background(), nil, *conf)
-	assert.EqualError(t, err, "target is not active")
-}
-
-func TestNewActiveErr(t *testing.T) {
-	store := &minioStore{}
-	conf := store.DefaultConfig()
-	conf.Active = true
-	_, err := New(context.Background(), nil, *conf)
-	assert.Error(t, err)
-}
-
 func Test_minioStore_SaveNewFile(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
@@ -183,81 +161,6 @@ func TestPing(t *testing.T) {
 
 	err := store.Ping(context.TODO())
 	assert.NoError(t, err)
-}
-
-func Test_localStorage_ValidateSettings(t *testing.T) {
-	store := &minioStore{}
-
-	tests := []struct {
-		name     string
-		settings core.TargetSettings
-		wantErr  bool
-	}{
-		{
-			name: "case 1",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "http://localhost:8081",
-				"MINIO_ACCESS_KEY":  "abc",
-				"MINIO_SECRET_KEY":  "xyz",
-				"MINIO_USE_SSL":     "false",
-				"MINIO_BUCKET_NAME": "test",
-			},
-			wantErr: false,
-		},
-		{
-			name: "case 2",
-			settings: core.TargetSettings{
-				"MINIO_ACCESS_KEY":  "",
-				"MINIO_SECRET_KEY":  "",
-				"MINIO_USE_SSL":     "",
-				"MINIO_BUCKET_NAME": "",
-			},
-			wantErr: true,
-		},
-		{
-			name: "case 3",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "",
-				"MINIO_ACCESS_KEY":  "",
-				"MINIO_SECRET_KEY":  "",
-				"MINIO_USE_SSL":     "",
-				"MINIO_BUCKET_NAME": "",
-			},
-			wantErr: true,
-		},
-		{
-			name: "case 4",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "http://localhost:8081",
-				"MINIO_ACCESS_KEY":  "abc",
-				"MINIO_SECRET_KEY":  "xyz",
-				"MINIO_USE_SSL":     "no",
-				"MINIO_BUCKET_NAME": "test",
-			},
-			wantErr: true,
-		},
-		{
-			name: "case 5",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "http://localhost:8081",
-				"MINIO_ACCESS_KEY":  "abc",
-				"MINIO_SECRET_KEY":  "xyz",
-				"MINIO_USE_SSL":     "true",
-				"MINIO_BUCKET_NAME": "!<.test",
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := store.ValidateSettings(tt.settings)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
 }
 
 func Test_minioStore_Info(t *testing.T) {

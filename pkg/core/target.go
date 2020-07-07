@@ -19,8 +19,7 @@ const (
 	TargetStorageError
 )
 
-type TargetStorageDeleteOpt struct {
-}
+type TargetStorageDeleteOpt struct{}
 
 type TargetStorageSaveOpt struct {
 	Force bool
@@ -30,8 +29,7 @@ type TargetStorageFindOpt struct {
 	Query string
 }
 
-type TargetStorageListOpt struct {
-}
+type TargetStorageListOpt struct{}
 
 type TargetStorageRestoreOpt struct {
 	LocalPath         string
@@ -54,35 +52,29 @@ func TargetOperationResultSuccess(msg string) TargetOperationResult {
 }
 
 func targetOperationResultChan(err error, msg string) TargetOperationResult {
-	result := TargetOperationResult{}
 	if err != nil {
 		if msg == "" {
 			msg = err.Error()
 		}
-		result = TargetOperationResult{
+		return TargetOperationResult{
 			Success: false,
 			Message: msg,
 			Error:   err,
 		}
-	} else {
-		if msg == "" {
-			msg = defaulSuccesstMessage
-		}
-		result = TargetOperationResult{
-			Success: true,
-			Message: msg,
-		}
 	}
-	return result
+	if msg == "" {
+		msg = defaulSuccesstMessage
+	}
+	return TargetOperationResult{
+		Success: true,
+		Message: msg,
+	}
 }
 
-type TargetStorage interface {
+type TargetStorageConfigurator interface {
+	Name() string
+	Target() TargetFactory
 	DefaultConfig() *TargetConfig
-	Save(ctx context.Context, result chan TargetOperationResult, file *File, opt *TargetStorageSaveOpt)
-	Restore(ctx context.Context, result chan TargetOperationResult, files []*File, opt *TargetStorageRestoreOpt)
-	Delete(ctx context.Context, result chan TargetOperationResult, files []*File, opt *TargetStorageDeleteOpt)
-	Ping(context.Context) error
-	Info(context.Context) TargetInfo
 	ValidateSettings(settings TargetSettings) (bool, error)
 }
 
@@ -90,15 +82,18 @@ type TargetRegister interface {
 	AllConfigs() map[string]TargetConfig
 	AllTargets() map[string]Target
 	GetTarget(name string) TargetStorage
+	GetTargetStorageConfigurator(name string) TargetStorageConfigurator
 	GetConfig(context.Context, string) (*TargetConfig, error)
 	SetConfig(context.Context, *TargetConfig) error
 }
 
-type TargetConfig struct {
-	Active      bool           `json:"active"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Settings    TargetSettings `json:"settings"`
+type TargetStorage interface {
+	Name() string
+	Save(ctx context.Context, result chan TargetOperationResult, file *File, opt *TargetStorageSaveOpt)
+	Restore(ctx context.Context, result chan TargetOperationResult, files []*File, opt *TargetStorageRestoreOpt)
+	Delete(ctx context.Context, result chan TargetOperationResult, files []*File, opt *TargetStorageDeleteOpt)
+	Ping(context.Context) error
+	Info(context.Context) TargetInfo
 }
 
 type Target struct {
@@ -113,3 +108,10 @@ type TargetSettings map[string]string
 
 // TargetFactory is a function that returns a TargetStorage.
 type TargetFactory func(context.Context, FileStore, TargetConfig) (TargetStorage, error)
+
+type TargetConfig struct {
+	Active      bool           `json:"active"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Settings    TargetSettings `json:"settings"`
+}
