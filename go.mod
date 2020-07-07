@@ -4,32 +4,33 @@ go 1.13
 
 require (
 	github.com/coreos/go-semver v0.3.0
-	github.com/go-chi/chi v4.0.3+incompatible
-	github.com/go-chi/cors v1.0.1
+	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-chi/cors v1.1.1
 	github.com/go-chi/render v1.0.1
-	github.com/go-ini/ini v1.52.0 // indirect
+	github.com/go-ini/ini v1.57.0 // indirect
 	github.com/golang/mock v1.4.3
 	github.com/google/wire v0.4.0
-	github.com/juju/ratelimit v1.0.1 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nicksnyder/basen v1.0.0
-	github.com/r3labs/sse v0.0.0-20200310095403-ee05428e4d0e
-	github.com/segmentio/ksuid v1.0.2
+	github.com/r3labs/sse v0.0.0-20200629114018-c9bb0c82ec80
+	github.com/segmentio/ksuid v1.0.3
 	github.com/sevigo/notify v0.5.1
-	github.com/sirupsen/logrus v1.4.3-0.20200306102446-7ea96a3284ed
-	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
-	github.com/snapcore/go-gettext v0.0.0-20191107141714-82bbea49e785 // indirect
-	github.com/snapcore/snapd v0.0.0-20200706155753-96d265d6d7e3
-	github.com/stretchr/testify v1.5.1
+	github.com/sirupsen/logrus v1.6.0
+	github.com/smartystreets/assertions v1.1.1 // indirect
+	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.6.0
-	go.etcd.io/bbolt v1.3.3
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/sys v0.0.0-20191120155948-bd437916bb0e // indirect
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
-	gopkg.in/ini.v1 v1.42.0 // indirect
-	gopkg.in/macaroon.v1 v1.0.0 // indirect
-	gopkg.in/retry.v1 v1.0.3 // indirect
-	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637 // indirect
-	gopkg.in/yaml.v2 v2.2.8 // indirect
+	go.etcd.io/bbolt v1.3.5
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
+	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
+	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
+	golang.org/x/tools v0.0.0-20200706234117-b22de6825cf7 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/ini.v1 v1.57.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
