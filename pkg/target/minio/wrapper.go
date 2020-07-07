@@ -19,7 +19,7 @@ func NewMinioWrapper(config *core.MinioConfig) (core.MinioWrapper, error) {
 		return nil, err
 	}
 
-	// Make a new bucket with mchine name (must be from the config)
+	// Make a new bucket with machine name (must be from the config)
 	err = minioClient.MakeBucket(config.Bucket, "")
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if you run this twice)

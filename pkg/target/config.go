@@ -8,21 +8,12 @@ import (
 
 	"github.com/sevigo/hokan/pkg/core"
 	configstore "github.com/sevigo/hokan/pkg/store/config"
-	"github.com/sevigo/hokan/pkg/target/local"
-	"github.com/sevigo/hokan/pkg/target/minio"
-	"github.com/sevigo/hokan/pkg/target/void"
 )
-
-var defaultConfigs = map[string]*core.TargetConfig{
-	local.TargetName: local.DefaultConfig(),
-	minio.TargetName: minio.DefaultConfig(),
-	void.TargetName:  void.DefaultConfig(),
-}
 
 func (r *Register) AllConfigs() map[string]core.TargetConfig {
 	configs := map[string]core.TargetConfig{}
 
-	for name := range defaultConfigs {
+	for name := range r.AllTargets() {
 		conf, err := r.GetConfig(r.ctx, name)
 		if err != nil {
 			log.WithError(err).Errorf("can't get config for %q", name)
@@ -34,19 +25,17 @@ func (r *Register) AllConfigs() map[string]core.TargetConfig {
 	return configs
 }
 
-func (r *Register) GetConfig(ctx context.Context, targetName string) (*core.TargetConfig, error) {
-	var err error
-	defaultConf, ok := defaultConfigs[targetName]
-	if !ok {
-		log.Errorf("default config for target storage %q not found", targetName)
-		return nil, core.ErrTargetConfigNotFound
-	}
-	conf, err := r.configStore.Find(ctx, targetName)
+func (r *Register) GetConfig(ctx context.Context, name string) (conf *core.TargetConfig, err error) {
+	conf, err = r.configStore.Find(ctx, name)
 	if errors.Is(err, configstore.ErrConfigNotFound) {
+		defaultConf, ok := r.storagesDefaultConfigs[name]
+		if !ok {
+			return nil, configstore.ErrConfigNotFound
+		}
 		err = r.configStore.Save(ctx, defaultConf)
 		conf = defaultConf
 	}
-	return conf, err
+	return
 }
 
 func (r *Register) SetConfig(ctx context.Context, config *core.TargetConfig) error {
@@ -57,10 +46,14 @@ func (r *Register) SetConfig(ctx context.Context, config *core.TargetConfig) err
 	log.WithField("target", config.Name).Info("target.SetConfig(): new config stored successfully")
 	// we changed from passiv to active, so we init the storage and rescan
 	if config.Active {
-		err = r.initTarget(ctx, config.Name)
+		configurator, ok := r.configurators[config.Name]
+		if !ok {
+			return core.ErrTargetConfigNotFound
+		}
+		err = r.initTarget(ctx, configurator)
 		if err != nil {
 			// initWithRetry will call rescanAllWatchedDirs
-			go r.initWithRetry(ctx, config.Name)
+			go r.initWithRetry(ctx, configurator)
 		} else {
 			log.WithField("target", config.Name).Info("target.SetConfig(): target is activated now")
 			r.rescanAllWatchedDirs()

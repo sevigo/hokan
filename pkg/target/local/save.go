@@ -22,7 +22,7 @@ func (s *localStorage) save(fromPath, toPath string) error {
 
 	from, err := os.Open(fromPath)
 	if err != nil {
-		return fmt.Errorf("cannot open file  [%s]: %v", fromPath, err)
+		return fmt.Errorf("cannot open file [%s]: %v", fromPath, err)
 	}
 	defer from.Close()
 	readBuffer := bufio.NewReader(from)

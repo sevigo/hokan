@@ -1,11 +1,13 @@
 package target
 
 import (
+	"errors"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
+	"github.com/sevigo/hokan/pkg/target/utils"
 )
 
 func (r *Register) StartFileAddedWatcher() {
@@ -36,23 +38,35 @@ func (r *Register) processFileAddedEvent(e *core.EventData) error {
 			if r.getTargetStatus(target) == core.TargetStoragePaused {
 				continue
 			}
-			err := ts.Save(r.ctx, &file, &core.TargetStorageSaveOpt{})
-			if err != nil {
-				log.WithError(err).WithFields(log.Fields{
-					"target": target,
-					"file":   file.Path,
-				}).Error("can't save the file to the target storage")
-				r.setTargetStatus(target, core.TargetStorageError)
-				continue
-			}
-			if err == nil && r.getTargetStatus(target) == core.TargetStorageError {
-				log.WithField("target", target).Info("target storage recoverd")
-				r.setTargetStatus(target, core.TargetStorageOK)
-				r.rescanAllWatchedDirs()
-			}
+
+			// if result.Error != nil {
+			// 	log.WithError(result.Error).WithFields(log.Fields{
+			// 		"target": target,
+			// 		"file":   file.Path,
+			// 	}).Error("can't save the file to the target storage")
+			// 	r.setTargetStatus(target, core.TargetStorageError)
+			// 	continue
+			// }
+			// if result.Error == nil && r.getTargetStatus(target) == core.TargetStorageError {
+			// 	log.WithField("target", target).Info("target storage recoverd")
+			// 	r.setTargetStatus(target, core.TargetStorageOK)
+			// 	r.rescanAllWatchedDirs()
+			// }
 		}
 	}
 	return nil
+}
+
+func (r *Register) saveFileToTarget(storage core.TargetStorage, file *core.File) {
+	storedFile, err := r.fileStore.Find(r.ctx, &core.FileSearchOptions{
+		FilePath:   file.Path,
+		TargetName: storage.Name(),
+	})
+	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {
+		storage.Save(r.ctx, r.Results, file, &core.TargetStorageSaveOpt{})
+		return
+	}
+	r.Results <- core.TargetOperationResultSuccess("file hasn't changed")
 }
 
 func (r *Register) rescanAllWatchedDirs() {

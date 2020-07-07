@@ -12,25 +12,6 @@ import (
 
 var testFilePath = "/test/file.txt"
 
-func TestConfig(t *testing.T) {
-	conf := DefaultConfig()
-	assert.Equal(t, "void", conf.Name)
-	assert.Equal(t, true, conf.Active)
-}
-
-func TestNewNotActive(t *testing.T) {
-	conf := DefaultConfig()
-	conf.Active = false
-	_, err := New(context.Background(), nil, *conf)
-	assert.EqualError(t, err, "target is not active")
-}
-
-func TestNewActive(t *testing.T) {
-	conf := DefaultConfig()
-	_, err := New(context.Background(), nil, *conf)
-	assert.NoError(t, err)
-}
-
 func Test_voidStorageSaveNew(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
@@ -42,67 +23,76 @@ func Test_voidStorageSaveNew(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   testFilePath,
-	}).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	store := &voidStorage{
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), file, nil)
-	assert.NoError(t, err)
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, file, nil)
+	msg := <-result
+	assert.NoError(t, msg.Error)
 }
 
 func Test_voidStorageSaveChanged(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	fileA := &core.File{
-		Path:     testFilePath,
-		Checksum: "abc",
-	}
 	fileB := &core.File{
 		Path:     testFilePath,
 		Checksum: "abX",
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   testFilePath,
-	}).Return(fileA, nil)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, fileB).Return(nil)
 
 	store := &voidStorage{
 		fileStore: fileStore,
 	}
 
-	err := store.Save(context.TODO(), fileB, nil)
-	assert.NoError(t, err)
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, fileB, nil)
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "requested operation was successful",
+	}, data)
 }
 
-func Test_minioStore_NoSave(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
+func Test_voidStore_Delete(t *testing.T) {
+	store := &voidStorage{}
+	result := make(chan core.TargetOperationResult)
+	go store.Delete(context.TODO(), result, []*core.File{}, &core.TargetStorageDeleteOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   core.ErrNotImplemented,
+		Message: "not implemented",
+	}, data)
+}
 
-	fileA := &core.File{
-		Path:     testFilePath,
-		Checksum: "abc",
-	}
+func Test_voidStore_Restore(t *testing.T) {
+	store := &voidStorage{}
+	result := make(chan core.TargetOperationResult)
+	go store.Restore(context.TODO(), result, []*core.File{}, &core.TargetStorageRestoreOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   core.ErrNotImplemented,
+		Message: "not implemented",
+	}, data)
+}
 
-	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   testFilePath,
-	}).Return(fileA, nil)
+func Test_voidStore_Info(t *testing.T) {
+	store := &voidStorage{}
+	info := store.Info(context.TODO())
+	assert.NotNil(t, info)
+}
 
-	store := &voidStorage{
-		fileStore: fileStore,
-	}
-
-	err := store.Save(context.TODO(), fileA, nil)
+func Test_voidStore_Ping(t *testing.T) {
+	store := &voidStorage{}
+	err := store.Ping(context.TODO())
 	assert.NoError(t, err)
 }

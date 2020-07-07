@@ -2,7 +2,7 @@ package minio
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,7 +12,6 @@ import (
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/watcher/utils"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,25 +22,6 @@ func getTestingFile(t *testing.T) string {
 	pwd, err := os.Getwd()
 	assert.NoError(t, err)
 	return filepath.Join(pwd, testFilePath)
-}
-
-func TestConfig(t *testing.T) {
-	conf := DefaultConfig()
-	assert.Equal(t, "minio", conf.Name)
-	assert.Equal(t, false, conf.Active)
-}
-
-func TestNewNotActive(t *testing.T) {
-	conf := DefaultConfig()
-	_, err := New(context.Background(), nil, *conf)
-	assert.EqualError(t, err, "target is not active")
-}
-
-func TestNewActiveErr(t *testing.T) {
-	conf := DefaultConfig()
-	conf.Active = true
-	_, err := New(context.Background(), nil, *conf)
-	assert.Error(t, err)
 }
 
 func Test_minioStore_SaveNewFile(t *testing.T) {
@@ -59,10 +39,6 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		FilePath:   testFilePath,
-		TargetName: TargetName,
-	}).Return(nil, core.ErrFileNotFound)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, file).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
@@ -80,23 +56,60 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), file, nil)
-	assert.NoError(t, err)
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, file, nil)
+	data := <-result
+
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "requested operation was successful",
+	}, data)
 }
 
-func Test_minioStore_SaveFileChange(t *testing.T) {
+func Test_minioStore_SaveError(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
 	checksum, info, err := utils.FileChecksumInfo(getTestingFile(t))
 	assert.NoError(t, err)
 
-	fileA := &core.File{
+	file := &core.File{
 		Path:     testFilePath,
 		Checksum: checksum,
 		Targets:  []string{"minio"},
 		Info:     info,
 	}
+
+	fileStore := mocks.NewMockFileStore(controller)
+	minioClient := mocks.NewMockMinioWrapper(controller)
+	errSave := errors.New("error on save")
+	minioClient.EXPECT().FPutObjectWithContext(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(int64(0), errSave)
+
+	store := &minioStore{
+		bucketName: testBucket,
+		fileStore:  fileStore,
+		client:     minioClient,
+	}
+
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, file, nil)
+	data := <-result
+
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   errSave,
+		Message: "error on save",
+	}, data)
+}
+func Test_minioStore_SaveFileChange(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	_, info, err := utils.FileChecksumInfo(getTestingFile(t))
+	assert.NoError(t, err)
+
 	fileB := &core.File{
 		Path:     testFilePath,
 		Checksum: "abX",
@@ -105,10 +118,6 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 	}
 
 	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   testFilePath,
-	}).Return(fileA, nil)
 	fileStore.EXPECT().Save(context.TODO(), TargetName, fileB).Return(nil)
 
 	minioClient := mocks.NewMockMinioWrapper(controller)
@@ -126,72 +135,15 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 		client:     minioClient,
 	}
 
-	err = store.Save(context.TODO(), fileB, nil)
-	assert.NoError(t, err)
-}
+	result := make(chan core.TargetOperationResult)
+	go store.Save(context.TODO(), result, fileB, nil)
+	data := <-result
 
-func Test_minioStore_NoSave(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	checksum, info, err := utils.FileChecksumInfo("minio_test.go")
-	assert.NoError(t, err)
-
-	fileA := &core.File{
-		Path:     testFilePath,
-		Checksum: checksum,
-		Targets:  []string{"minio"},
-		Info:     info,
-	}
-
-	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   testFilePath,
-	}).Return(fileA, nil)
-	minioClient := mocks.NewMockMinioWrapper(controller)
-
-	store := &minioStore{
-		bucketName: testBucket,
-		fileStore:  fileStore,
-		client:     minioClient,
-	}
-
-	err = store.Save(context.TODO(), fileA, nil)
-	assert.NoError(t, err)
-}
-
-func Test_minioStore_ErrorNoSave(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	checksum, info, err := utils.FileChecksumInfo("minio_test.go")
-	assert.NoError(t, err)
-
-	file := &core.File{
-		Path:     testFilePath,
-		Checksum: checksum,
-		Info:     info,
-		Targets:  []string{"minio"},
-	}
-
-	fileStore := mocks.NewMockFileStore(controller)
-	fileStore.EXPECT().Find(context.TODO(), &core.FileSearchOptions{
-		TargetName: TargetName,
-		FilePath:   testFilePath,
-	}).Return(nil, core.ErrFileNotFound)
-
-	minioClient := mocks.NewMockMinioWrapper(controller)
-	minioClient.EXPECT().FPutObjectWithContext(context.TODO(), testBucket, testFilePath, testFilePath, gomock.Any()).Return(int64(0), fmt.Errorf("error"))
-
-	store := &minioStore{
-		bucketName: testBucket,
-		fileStore:  fileStore,
-		client:     minioClient,
-	}
-
-	err = store.Save(context.TODO(), file, nil)
-	assert.Error(t, err)
+	assert.Equal(t, core.TargetOperationResult{
+		Success: true,
+		Error:   nil,
+		Message: "requested operation was successful",
+	}, data)
 }
 
 func TestPing(t *testing.T) {
@@ -211,77 +163,32 @@ func TestPing(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func Test_localStorage_ValidateSettings(t *testing.T) {
+func Test_minioStore_Info(t *testing.T) {
 	store := &minioStore{}
+	info := store.Info(context.TODO())
+	assert.NotNil(t, info)
+}
 
-	tests := []struct {
-		name     string
-		settings core.TargetSettings
-		wantErr  bool
-	}{
-		{
-			name: "case 1",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "http://localhost:8081",
-				"MINIO_ACCESS_KEY":  "abc",
-				"MINIO_SECRET_KEY":  "xyz",
-				"MINIO_USE_SSL":     "false",
-				"MINIO_BUCKET_NAME": "test",
-			},
-			wantErr: false,
-		},
-		{
-			name: "case 2",
-			settings: core.TargetSettings{
-				"MINIO_ACCESS_KEY":  "",
-				"MINIO_SECRET_KEY":  "",
-				"MINIO_USE_SSL":     "",
-				"MINIO_BUCKET_NAME": "",
-			},
-			wantErr: true,
-		},
-		{
-			name: "case 3",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "",
-				"MINIO_ACCESS_KEY":  "",
-				"MINIO_SECRET_KEY":  "",
-				"MINIO_USE_SSL":     "",
-				"MINIO_BUCKET_NAME": "",
-			},
-			wantErr: true,
-		},
-		{
-			name: "case 4",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "http://localhost:8081",
-				"MINIO_ACCESS_KEY":  "abc",
-				"MINIO_SECRET_KEY":  "xyz",
-				"MINIO_USE_SSL":     "no",
-				"MINIO_BUCKET_NAME": "test",
-			},
-			wantErr: true,
-		},
-		{
-			name: "case 5",
-			settings: core.TargetSettings{
-				"MINIO_HOST":        "http://localhost:8081",
-				"MINIO_ACCESS_KEY":  "abc",
-				"MINIO_SECRET_KEY":  "xyz",
-				"MINIO_USE_SSL":     "true",
-				"MINIO_BUCKET_NAME": "!<.test",
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := store.ValidateSettings(tt.settings)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
+func Test_minioStore_Delete(t *testing.T) {
+	store := &minioStore{}
+	result := make(chan core.TargetOperationResult)
+	go store.Delete(context.TODO(), result, []*core.File{}, &core.TargetStorageDeleteOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   core.ErrNotImplemented,
+		Message: "not implemented",
+	}, data)
+}
+
+func Test_minioStore_Restore(t *testing.T) {
+	store := &minioStore{}
+	result := make(chan core.TargetOperationResult)
+	go store.Restore(context.TODO(), result, []*core.File{}, &core.TargetStorageRestoreOpt{})
+	data := <-result
+	assert.Equal(t, core.TargetOperationResult{
+		Success: false,
+		Error:   core.ErrNotImplemented,
+		Message: "not implemented",
+	}, data)
 }
