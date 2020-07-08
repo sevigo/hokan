@@ -16,7 +16,7 @@ import (
 var ErrConfigNotFound = errors.New("config not found")
 
 const bucketName = "config"
-const targetPrefix = "taget"
+const targetPrefix = "target"
 
 type configStore struct {
 	db core.DB

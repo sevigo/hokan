@@ -11,8 +11,6 @@ import (
 )
 
 func (s *localStorage) save(fromPath, toPath string) error {
-	fmt.Printf("storage.local.store(): Copy file from [%s] to [%s]\n", fromPath, toPath)
-
 	log.WithFields(log.Fields{
 		"op":        "Save",
 		"target":    TargetName,
