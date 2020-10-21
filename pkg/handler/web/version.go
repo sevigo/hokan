@@ -5,14 +5,10 @@ import (
 
 	"github.com/go-chi/render"
 
-	"github.com/sevigo/hokan/pkg/logger"
 	"github.com/sevigo/hokan/pkg/version"
 )
 
 func HandleVersion(w http.ResponseWriter, r *http.Request) {
-	l := logger.FromRequest(r).WithField("version", version.Version.String())
-	l.Info("web.HandleVersion()")
-
 	v := struct {
 		Source  string `json:"source,omitempty"`
 		Version string `json:"version,omitempty"`

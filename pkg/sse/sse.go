@@ -1,7 +1,7 @@
 package sse
 
 import (
-	serverevents "github.com/r3labs/sse"
+	serverevents "github.com/r3labs/sse/v2"
 
 	"github.com/sevigo/hokan/pkg/core"
 )

@@ -8,13 +8,10 @@ import (
 
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/handler"
-	"github.com/sevigo/hokan/pkg/logger"
 	"github.com/sevigo/hokan/pkg/version"
 )
 
 func HandleInfo(w http.ResponseWriter, r *http.Request) {
-	logger.FromRequest(r).Info("web.HandleInfo()")
-
 	machine, err := os.Hostname()
 	if err != nil {
 		machine = "machine"
