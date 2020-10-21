@@ -15,14 +15,20 @@ type Watch struct {
 	store    core.DirectoryStore
 	notifier core.Notifier
 	catalog  []*core.Directory
+	sse      core.ServerSideEventCreator
 }
 
-func New(ctx context.Context, dirStore core.DirectoryStore, event core.EventCreator, notifier core.Notifier) (*Watch, error) {
+func New(ctx context.Context,
+	dirStore core.DirectoryStore,
+	event core.EventCreator,
+	notifier core.Notifier,
+	sse core.ServerSideEventCreator) (*Watch, error) {
 	w := &Watch{
 		ctx:      ctx,
 		event:    event,
 		store:    dirStore,
 		notifier: notifier,
+		sse:      sse,
 	}
 	wg.Add(2) //nolint:gomnd
 	go w.StartDirWatcher()

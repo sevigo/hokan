@@ -4,7 +4,7 @@ VENDOR_TMP=${TMP}/vendor
 LOCAL_BIN:=${TMP}/bin
 
 run:
-	cd cmd/hokan; go run main.go inject_server.go inject_store.go inject_watcher.go inject_target.go wire_gen.go
+	GODEBUG=http2debug=1 cd cmd/hokan; go run main.go inject_server.go inject_store.go inject_watcher.go inject_target.go wire_gen.go
 
 wire:
 	go get github.com/google/wire/cmd/wire

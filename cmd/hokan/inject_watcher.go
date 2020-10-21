@@ -16,8 +16,12 @@ var watcherSet = wire.NewSet(
 	provideNotifier,
 )
 
-func provideWatcher(ctx context.Context, dirStore core.DirectoryStore, event core.EventCreator, notifier core.Notifier) (core.Watcher, error) {
-	return watcher.New(ctx, dirStore, event, notifier)
+func provideWatcher(ctx context.Context,
+	dirStore core.DirectoryStore,
+	event core.EventCreator,
+	notifier core.Notifier,
+	sse core.ServerSideEventCreator) (core.Watcher, error) {
+	return watcher.New(ctx, dirStore, event, notifier, sse)
 }
 
 func provideNotifier(ctx context.Context) core.Notifier {

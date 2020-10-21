@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -44,6 +45,14 @@ func (s *Server) Handler() http.Handler {
 	r.Get("/version", HandleVersion)
 	r.Get("/info", HandleInfo)
 	r.Get("/events", s.SSE.Handler)
+
+	// TODO: remove me later
+	r.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(http.Dir(`./public`)))
+		fs.ServeHTTP(w, r)
+	})
 
 	return r
 }
