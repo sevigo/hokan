@@ -41,8 +41,6 @@ func (s *Server) Handler() http.Handler {
 	cors := cors.New(corsOpts)
 	r.Use(cors.Handler)
 
-	s.SSE.PublishMessage("ping")
-
 	r.Get("/version", HandleVersion)
 	r.Get("/info", HandleInfo)
 	r.Get("/events", s.SSE.Handler)
