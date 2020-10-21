@@ -9,6 +9,7 @@ run:
 wire:
 	go get github.com/google/wire/cmd/wire
 
+# run this command after changing something in cmd/hokan/inject_*
 generate: wire
 	go generate	./...
 
@@ -28,8 +29,3 @@ lint: install-golangci-lint
 
 test:
 	go test -timeout 10s -cover ./...
-
-# sudo snap install scc
-# scc .
-# git fetch --all
-# git checkout --track origin/local-stroage 

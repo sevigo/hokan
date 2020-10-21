@@ -34,8 +34,8 @@ var serverSet = wire.NewSet(
 	provideLogger,
 )
 
-func provideWeb(logger *logrus.Logger) *web.Server {
-	return web.New(logger)
+func provideWeb(logger *logrus.Logger, sse core.ServerSideEventCreator) *web.Server {
+	return web.New(logger, sse)
 }
 
 func apiServerProvider(

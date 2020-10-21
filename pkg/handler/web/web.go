@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/sevigo/hokan/pkg/logger"
+	"github.com/sevigo/hokan/pkg/core"
 )
 
 var corsOpts = cors.Options{
@@ -22,25 +22,30 @@ var corsOpts = cors.Options{
 
 type Server struct {
 	Logger *logrus.Logger
+	SSE    core.ServerSideEventCreator
 }
 
-func New(logger *logrus.Logger) *Server {
+func New(logger *logrus.Logger, sse core.ServerSideEventCreator) *Server {
 	return &Server{
 		Logger: logger,
+		SSE:    sse,
 	}
 }
 
 func (s *Server) Handler() http.Handler {
 	r := chi.NewRouter()
+
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.NoCache)
-	r.Use(logger.Middleware(s.Logger))
 
 	cors := cors.New(corsOpts)
 	r.Use(cors.Handler)
 
+	s.SSE.PublishMessage("ping")
+
 	r.Get("/version", HandleVersion)
 	r.Get("/info", HandleInfo)
+	r.Get("/events", s.SSE.Handler)
 
 	return r
 }

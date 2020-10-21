@@ -44,6 +44,9 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/r3labs/sse v0.0.0-20200629114018-c9bb0c82ec80 h1:BcutWYmIuaJkm1DK5gTTl/q6+kuT6lAEhK4TYdod1rE=
 github.com/r3labs/sse v0.0.0-20200629114018-c9bb0c82ec80/go.mod h1:S8xSOnV3CgpNrWd0GQ/OoQfMtlg2uPRSuTzcSGrzwK8=
+github.com/r3labs/sse v0.0.0-20201007160420-c638e5516aa7 h1:iqr49uskkd+EC9lZlCrHrEq66zi5BNLJWkFOepY2L6A=
+github.com/r3labs/sse/v2 v2.3.0 h1:R/UMa0ML6AYKQ8irQNHhY+204lz1LytDIdKhCxSVAd8=
+github.com/r3labs/sse/v2 v2.3.0/go.mod h1:hUrYMKfu9WquG9MyI0r6TKiNH+6Sw/QPKm2YbNbU5g8=
 github.com/segmentio/ksuid v1.0.3 h1:FoResxvleQwYiPAVKe1tMUlEirodZqlqglIuFsdDntY=
 github.com/segmentio/ksuid v1.0.3/go.mod h1:/XUiZBD3kVx5SmUOl55voK5yeAbBNNIed+2O73XgrPE=
 github.com/sevigo/notify v0.5.1 h1:jEnW4vMOnuUqFymYr5kFSftu2IBSdnv0uF6BOjbGOkA=
