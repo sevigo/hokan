@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -29,7 +30,9 @@ func (w *Watch) StartFileWatcher() {
 				log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileAdded] event")
 			}
 		case err := <-w.notifier.Error():
-			log.WithField("level", err.Level).Errorf("[notifier] %q", err.Message)
+			msg := fmt.Sprintf("[notifier] %q", err.Message)
+			w.sse.PublishMessage(msg)
+			log.WithField("level", err.Level).Error(msg)
 		}
 	}
 }
@@ -46,6 +49,8 @@ func (w *Watch) publishFileChange(path string) error {
 	if err != nil {
 		return err
 	}
+	// TODO maybe move this event to event.Publish ?
+	w.sse.PublishMessage(fmt.Sprintf("[event] File %q added", path))
 	return w.event.Publish(w.ctx, &core.EventData{
 		Type: core.FileAdded,
 		Data: core.File{

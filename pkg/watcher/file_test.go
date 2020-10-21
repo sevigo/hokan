@@ -33,6 +33,9 @@ func TestWatch_StartFileWatcher(t *testing.T) {
 		assert.Equal(t, localPath, data.Path)
 		return nil
 	})
+	sse := mocks.NewMockServerSideEventCreator(controller)
+	// TODO: after message format for SSE is clear, add test here
+	sse.EXPECT().PublishMessage(gomock.Any())
 
 	ctx := context.Background()
 	w := &Watch{
@@ -44,6 +47,7 @@ func TestWatch_StartFileWatcher(t *testing.T) {
 				Path: pwd,
 			},
 		},
+		sse: sse,
 	}
 
 	go w.StartFileWatcher()

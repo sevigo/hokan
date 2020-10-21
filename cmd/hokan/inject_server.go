@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 
@@ -90,6 +91,6 @@ func provideEventCreator() core.EventCreator {
 	return event.New(event.Config{})
 }
 
-func provideServerSideEventCreator() core.ServerSideEventCreator {
-	return sse.New()
+func provideServerSideEventCreator(ctx context.Context) core.ServerSideEventCreator {
+	return sse.New(ctx)
 }
