@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"runtime/debug"
 	"time"
@@ -31,9 +32,10 @@ func Middleware(logger *logrus.Logger) func(next http.Handler) http.Handler {
 				if rec := recover(); rec != nil {
 					log.WithFields(logrus.Fields{
 						"recover_info": rec,
-						"debug_stack":  debug.Stack(),
+						"debug_stack":  string(debug.Stack()),
 					}).Error("log system error")
-
+					fmt.Printf("\nStack-trace:\n\n")
+					debug.PrintStack()
 					http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				}
 			}()
