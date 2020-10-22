@@ -6,12 +6,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
 const ErrOnShutdownCode = 1
+const hardTimeout = 5 * time.Second
 
 // A Server defines parameters for running an HTTP server.
 type Server struct {
@@ -40,9 +42,14 @@ func (s Server) ListenAndServe(ctx context.Context) error {
 		case syscall.SIGTERM:
 			log.Print("Got SIGTERM...")
 		}
-		err := s1.Shutdown(ctx)
-		if err != nil {
-			log.Error("Shutdown error")
+
+		// using SSE stream not allways allows to shutdown the service gracefully,
+		// so we use a hard timeout here
+		newCtx, cancel := context.WithTimeout(context.Background(), hardTimeout)
+		defer cancel()
+
+		if err := s1.Shutdown(newCtx); err != nil {
+			log.Errorf("Shutdown error: %v", err)
 			os.Exit(ErrOnShutdownCode)
 		} else {
 			os.Exit(0)

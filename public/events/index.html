@@ -21,9 +21,6 @@
 <script>
   // https://developer.mozilla.org/en-US/docs/Web/API/EventSource
   var evtSource = new EventSource('http://localhost:8081/events?stream=messages');
-  console.log(evtSource.withCredentials);
-  console.log(evtSource.readyState);
-  console.log(evtSource.url);
   var eventList = document.querySelector('ul');
 
   evtSource.onopen = function() {
@@ -31,10 +28,16 @@
   };
 
   evtSource.onmessage = function(e) {
-    console.log("Message:", e.data);
-    var newElement = document.createElement("li");
-    newElement.textContent = "message: " + e.data;
-    eventList.appendChild(newElement);
+    const event = JSON.parse(e.data);
+    console.log("Event:", event);
+    if (event.type == "control") {
+      console.log("close !!!!");
+      evtSource.close()
+    } else {
+      var newElement = document.createElement("li");
+      newElement.textContent = event.message;
+      eventList.appendChild(newElement);
+    }
   };
 
   evtSource.onerror = function() {
