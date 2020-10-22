@@ -1,7 +1,9 @@
 package sse
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"os/signal"
@@ -40,11 +42,40 @@ func (s *serverEvents) handleServerStop() {
 	// probably we need to close the connection on the client side
 	// if http://localhost:8081/debug/events/ is active, the server can't shut down graceful
 	log.Print("[SSE] Got interrupt ...")
+	s.sendStopSignal()
 	s.server.Close()
 }
 
-func (s *serverEvents) PublishMessage(msg string) {
+func (s *serverEvents) sendStopSignal() {
+	data := &core.ServerSideEvent{
+		Message:  "stop",
+		Type:     "control",
+		Producer: "server",
+	}
+
+	w := new(bytes.Buffer)
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		panic(err)
+	}
+
 	s.server.Publish("messages", &serverevents.Event{
-		Data: []byte(msg),
+		Data: w.Bytes(),
+	})
+}
+
+func (s *serverEvents) PublishMessage(msg string) {
+	data := &core.ServerSideEvent{
+		Message: msg,
+	}
+
+	w := new(bytes.Buffer)
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		panic(err)
+	}
+
+	s.server.Publish("messages", &serverevents.Event{
+		Data: w.Bytes(),
 	})
 }
