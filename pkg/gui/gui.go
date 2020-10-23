@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
@@ -20,16 +21,19 @@ type Config struct {
 	BaseDir      string
 	ResourcesDir string
 	DevTools     bool
+	IconPath     string
 }
 
 // https://github.com/snight1983/BitcoinVIP/blob/582cc9975157c4f2517ab59966f5e656ebdf9ee3/spvwallet/gui/bootstrap/run.go
 func (c Config) Run(ctx context.Context) error {
 	l := log.New(os.Stderr, "", 0)
+	c.IconPath = path.Join(c.BaseDir, "icons", "icon-color.png")
 	var a *astilectron.Astilectron
 	var err error
+
 	if a, err = astilectron.New(l, astilectron.Options{
-		// AppIconDefaultPath: iconPath,
-		AppName: c.AppName,
+		AppIconDefaultPath: c.IconPath,
+		AppName:            c.AppName,
 		// where you want the provisioner to install the dependencies
 		BaseDirectoryPath: c.BaseDir,
 		VersionElectron:   "10.1.4",
@@ -84,7 +88,7 @@ func (c Config) addWindow(a *astilectron.Astilectron) error {
 
 func (c Config) addTray(a *astilectron.Astilectron) error {
 	var t = a.NewTray(&astilectron.TrayOptions{
-		Image:   astikit.StrPtr(c.BaseDir + "/icons/icon.png"),
+		Image:   astikit.StrPtr(c.IconPath),
 		Tooltip: astikit.StrPtr("Tray's tooltip"),
 	})
 
