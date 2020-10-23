@@ -5,4 +5,5 @@ func defaultGUI(c *Config) {
 		c.GUI.AppName = "Hokan UI"
 	}
 	c.GUI.BaseDir = "../../resources/"
+	c.GUI.DevTools = false
 }
