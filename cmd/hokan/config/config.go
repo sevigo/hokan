@@ -9,6 +9,13 @@ type Config struct {
 	Database Database
 	Logging  Logging
 	Server   Server
+	GUI      GUI
+}
+
+type GUI struct {
+	AppName  string
+	BaseDir  string
+	DevTools bool
 }
 
 type Logging struct {
@@ -36,6 +43,7 @@ func Environ() (Config, error) {
 	defaultAddress(&cfg)
 	defaultStore(&cfg)
 	defaultLogger(&cfg)
+	defaultGUI(&cfg)
 	return cfg, nil
 }
 

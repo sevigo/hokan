@@ -33,11 +33,12 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	mainHealthzHandler := provideHealthz()
 	handler := provideRouter(server, webServer, eventsServer, mainHealthzHandler)
 	serverServer := provideServer(handler, config2)
+	guiConfig := provideGUI(config2)
 	notifier := provideNotifier(ctx)
 	watcher, err := provideWatcher(ctx, directoryStore, eventCreator, notifier, serverSideEventCreator)
 	if err != nil {
 		return application{}, err
 	}
-	mainApplication := newApplication(serverServer, directoryStore, watcher, targetRegister)
+	mainApplication := newApplication(serverServer, guiConfig, directoryStore, watcher, targetRegister)
 	return mainApplication, nil
 }

@@ -4,7 +4,7 @@ VENDOR_TMP=${TMP}/vendor
 LOCAL_BIN:=${TMP}/bin
 
 run:
-	cd cmd/hokan; go run main.go inject_server.go inject_store.go inject_watcher.go inject_target.go wire_gen.go
+	cd cmd/hokan; go run main.go inject_server.go inject_store.go inject_watcher.go inject_target.go inject_gui.go wire_gen.go
 
 build:
 	cd cmd/hokan; go build -o ../../bin/hokan; cd ../..; ./bin/hokan

@@ -3,6 +3,8 @@ module github.com/sevigo/hokan
 go 1.13
 
 require (
+	github.com/asticode/go-astikit v0.10.2
+	github.com/asticode/go-astilectron v0.18.0
 	github.com/coreos/go-semver v0.3.0
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/cors v1.1.1
