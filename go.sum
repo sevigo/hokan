@@ -3,6 +3,8 @@ github.com/asticode/go-astikit v0.10.2 h1:SfteifOv5z31KrjGfY+2YVLp0UyuX8hgquxJn3
 github.com/asticode/go-astikit v0.10.2/go.mod h1:h4ly7idim1tNhaVkdVBeXQZEE3L0xblP7fCWbgwipF0=
 github.com/asticode/go-astilectron v0.18.0 h1:4Hc069d3/8La+nWt5o/WWYmNiYfzfGGzC1ErAuL2Wq0=
 github.com/asticode/go-astilectron v0.18.0/go.mod h1:bF7zkk11IwP8lBPhEl3cCtkKIwsRRR6264OFM1v3Yso=
+github.com/asticode/go-astilog v2.0.1+incompatible h1:ZbNSFJg/cCMXCBVCP8Yi0S2ZwBKj3uEIhbrzI9M8ksk=
+github.com/asticode/go-astilog v2.0.1+incompatible/go.mod h1:Ps37X/dJWJEfYRhZW+oSPV9Q2bJsZKeUbcELRGHHcTw=
 github.com/coreos/go-semver v0.3.0 h1:wkHLiw0WNATZnSG7epLsujiMCgPAc9xhjJ4tgnAxmfM=
 github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=

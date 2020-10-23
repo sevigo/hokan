@@ -3,14 +3,17 @@ package gui
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
-	log "github.com/sirupsen/logrus"
+	// log "github.com/sirupsen/logrus"
 )
 
 const windowHeight = 700
 const windowWidth = 700
+const entryPoint = "http://localhost:8081/debug/events/"
 
 type Config struct {
 	AppName      string
@@ -19,18 +22,21 @@ type Config struct {
 	DevTools     bool
 }
 
+// https://github.com/snight1983/BitcoinVIP/blob/582cc9975157c4f2517ab59966f5e656ebdf9ee3/spvwallet/gui/bootstrap/run.go
 func (c Config) Run(ctx context.Context) error {
-	l := log.New()
-	// Create astilectron
-	a, err := astilectron.New(l, astilectron.Options{
-		AppName:           c.AppName,
+	l := log.New(os.Stderr, "", 0)
+	var a *astilectron.Astilectron
+	var err error
+	if a, err = astilectron.New(l, astilectron.Options{
+		// AppIconDefaultPath: iconPath,
+		AppName: c.AppName,
+		// where you want the provisioner to install the dependencies
 		BaseDirectoryPath: c.BaseDir,
-	})
-	if err != nil {
+		VersionElectron:   "10.1.4",
+	}); err != nil {
 		return fmt.Errorf("gui: creating astilectron failed: %w", err)
 	}
 	defer a.Close()
-	// Handle signals
 	a.HandleSignals()
 
 	// Start
@@ -47,16 +53,15 @@ func (c Config) Run(ctx context.Context) error {
 
 	// Blocking pattern
 	a.Wait()
-
 	return nil
 }
 
 // Docs: https://github.com/asticode/go-astilectron
 func (c Config) addWindow(a *astilectron.Astilectron) error {
-	// New window
 	var w *astilectron.Window
 	var err error
-	if w, err = a.NewWindow(c.BaseDir+"index.html", &astilectron.WindowOptions{
+
+	if w, err = a.NewWindow(entryPoint, &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Height: astikit.IntPtr(windowHeight),
 		Width:  astikit.IntPtr(windowWidth),
@@ -78,7 +83,6 @@ func (c Config) addWindow(a *astilectron.Astilectron) error {
 }
 
 func (c Config) addTray(a *astilectron.Astilectron) error {
-	// New tray
 	var t = a.NewTray(&astilectron.TrayOptions{
 		Image:   astikit.StrPtr(c.BaseDir + "/icons/icon.png"),
 		Tooltip: astikit.StrPtr("Tray's tooltip"),
