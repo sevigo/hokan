@@ -9,6 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const windowHeight = 700
+const windowWidth = 700
+
 type Config struct {
 	AppName      string
 	BaseDir      string
@@ -23,7 +26,7 @@ func (c Config) Run(ctx context.Context) error {
 		BaseDirectoryPath: c.BaseDir,
 	})
 	if err != nil {
-		l.Fatal(fmt.Errorf("main: creating astilectron failed: %w", err))
+		return fmt.Errorf("gui: creating astilectron failed: %w", err)
 	}
 	defer a.Close()
 	// Handle signals
@@ -35,11 +38,15 @@ func (c Config) Run(ctx context.Context) error {
 	}
 
 	// New window
+	var useDevTools = true
 	var w *astilectron.Window
-	if w, err = a.NewWindow("resources/index.html", &astilectron.WindowOptions{
+	if w, err = a.NewWindow(c.BaseDir+"index.html", &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
-		Height: astikit.IntPtr(700),
-		Width:  astikit.IntPtr(700),
+		Height: astikit.IntPtr(windowHeight),
+		Width:  astikit.IntPtr(windowWidth),
+		WebPreferences: &astilectron.WebPreferences{
+			DevTools: &useDevTools,
+		},
 	}); err != nil {
 		return fmt.Errorf("gui: new window failed: %w", err)
 	}

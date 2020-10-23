@@ -34,8 +34,12 @@ func main() {
 	})
 
 	g.Go(func() error {
-		log.Info("starting GUI")
-		return app.gui.Run(ctx)
+		log.Info("starting GUI process")
+		err := app.gui.Run(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return err
 	})
 
 	if err := g.Wait(); err != nil {
