@@ -12,6 +12,7 @@ import (
 	"github.com/sevigo/hokan/cmd/hokan/config"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/event"
+	"github.com/sevigo/hokan/pkg/gui"
 	"github.com/sevigo/hokan/pkg/handler/api"
 	"github.com/sevigo/hokan/pkg/handler/events"
 	"github.com/sevigo/hokan/pkg/handler/health"
@@ -27,7 +28,7 @@ var serverSet = wire.NewSet(
 	apiServerProvider,
 	eventsServerProvider,
 	provideHealthz,
-	provideWeb,
+	provideWebHandler,
 	provideRouter,
 	provideServer,
 	provideEventCreator,
@@ -35,8 +36,8 @@ var serverSet = wire.NewSet(
 	provideLogger,
 )
 
-func provideWeb(logger *logrus.Logger, sse core.ServerSideEventCreator) *web.Server {
-	return web.New(logger, sse)
+func provideWebHandler() *web.Server {
+	return web.New()
 }
 
 func apiServerProvider(
@@ -65,11 +66,16 @@ func provideLogger(config config.Config) *logrus.Logger {
 	return l
 }
 
-func provideRouter(apiHandler *api.Server, webHandler *web.Server, serverEventsHandler *events.Server, healthz healthzHandler) http.Handler {
+func provideRouter(apiHandler *api.Server,
+	webHandler *web.Server,
+	serverEventsHandler *events.Server,
+	healthz healthzHandler,
+	guiServer *gui.Server) http.Handler {
 	r := chi.NewRouter()
 	r.Mount("/healthz", healthz)
 	r.Mount("/api", apiHandler.Handler())
 	r.Mount("/sse", serverEventsHandler.Handler())
+	r.Mount("/gui", guiServer.Handler())
 	r.Mount("/", webHandler.Handler())
 	return r
 }

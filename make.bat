@@ -16,7 +16,7 @@ echo BUILD ...
 cd cmd\hokan
 go build -o ..\..\bin\hokan.exe
 cd ..\..
-start /wait bin\hokan.exe
+.\bin\hokan.exe
 goto :eof
 
 :run

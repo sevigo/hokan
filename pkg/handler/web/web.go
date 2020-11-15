@@ -2,14 +2,10 @@ package web
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	"github.com/sirupsen/logrus"
-
-	"github.com/sevigo/hokan/pkg/core"
 )
 
 var corsOpts = cors.Options{
@@ -22,15 +18,10 @@ var corsOpts = cors.Options{
 }
 
 type Server struct {
-	Logger *logrus.Logger
-	SSE    core.ServerSideEventCreator
 }
 
-func New(logger *logrus.Logger, sse core.ServerSideEventCreator) *Server {
-	return &Server{
-		Logger: logger,
-		SSE:    sse,
-	}
+func New() *Server {
+	return &Server{}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -44,15 +35,6 @@ func (s *Server) Handler() http.Handler {
 
 	r.Get("/version", HandleVersion)
 	r.Get("/info", HandleInfo)
-	r.Get("/events", s.SSE.Handler)
-
-	// TODO: remove me later
-	r.Get("/debug/*", func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(http.Dir(`./public`)))
-		fs.ServeHTTP(w, r)
-	})
 
 	return r
 }

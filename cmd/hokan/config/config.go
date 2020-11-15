@@ -13,9 +13,10 @@ type Config struct {
 }
 
 type GUI struct {
-	AppName  string
-	BaseDir  string
-	DevTools bool
+	AppName      string
+	DevTools     bool
+	ResourcesDir string
+	BuildDir     string
 }
 
 type Logging struct {

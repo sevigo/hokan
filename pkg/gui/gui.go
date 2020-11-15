@@ -6,37 +6,33 @@ import (
 	"log"
 	"os"
 	"path"
+	"sync"
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
-	// log "github.com/sirupsen/logrus"
+	"github.com/sevigo/hokan/pkg/gui/tray"
 )
 
-const windowHeight = 700
-const windowWidth = 700
-const entryPoint = "http://localhost:8081/debug/events/"
-
-type Config struct {
-	AppName      string
-	BaseDir      string
-	ResourcesDir string
-	DevTools     bool
-	IconPath     string
-}
+const (
+	electronV10    = "10.1.4"
+	windowHeight   = 700
+	windowWidth    = 700
+	debugEventsURL = "http://localhost:8081/gui/debug"
+)
 
 // https://github.com/snight1983/BitcoinVIP/blob/582cc9975157c4f2517ab59966f5e656ebdf9ee3/spvwallet/gui/bootstrap/run.go
-func (c Config) Run(ctx context.Context) error {
+func (s *Server) Run(ctx context.Context) error {
 	l := log.New(os.Stderr, "", 0)
-	c.IconPath = path.Join(c.BaseDir, "icons", "icon-color.png")
+	s.config.IconPath = path.Join(s.config.ResourcesDir, "icons", "icon-color.png")
 	var a *astilectron.Astilectron
 	var err error
 
 	if a, err = astilectron.New(l, astilectron.Options{
-		AppIconDefaultPath: c.IconPath,
-		AppName:            c.AppName,
+		AppIconDefaultPath: s.config.IconPath,
+		AppName:            s.config.AppName,
 		// where you want the provisioner to install the dependencies
-		BaseDirectoryPath: c.BaseDir,
-		VersionElectron:   "10.1.4",
+		BaseDirectoryPath: s.config.BuildDir,
+		VersionElectron:   electronV10,
 	}); err != nil {
 		return fmt.Errorf("gui: creating astilectron failed: %w", err)
 	}
@@ -48,10 +44,13 @@ func (c Config) Run(ctx context.Context) error {
 		return fmt.Errorf("gui: starting astilectron failed: %w", err)
 	}
 
-	if err := c.addWindow(a); err != nil {
+	// if err := c.addDebugWindow(a); err != nil {
+	// 	return err
+	// }
+	if err := s.addTray(a); err != nil {
 		return err
 	}
-	if err := c.addTray(a); err != nil {
+	if m, err = tray.GetMainMenu(a); err != nil {
 		return err
 	}
 
@@ -61,11 +60,11 @@ func (c Config) Run(ctx context.Context) error {
 }
 
 // Docs: https://github.com/asticode/go-astilectron
-func (c Config) addWindow(a *astilectron.Astilectron) error {
+func (s Server) addDebugWindow(a *astilectron.Astilectron) error {
 	var w *astilectron.Window
 	var err error
 
-	if w, err = a.NewWindow(entryPoint, &astilectron.WindowOptions{
+	if w, err = a.NewWindow(debugEventsURL, &astilectron.WindowOptions{
 		Center: astikit.BoolPtr(true),
 		Height: astikit.IntPtr(windowHeight),
 		Width:  astikit.IntPtr(windowWidth),
@@ -78,7 +77,7 @@ func (c Config) addWindow(a *astilectron.Astilectron) error {
 		return fmt.Errorf("gui: creating window failed: %w", err)
 	}
 	// Open dev tools
-	if c.DevTools {
+	if s.config.DevTools {
 		if err = w.OpenDevTools(); err != nil {
 			return fmt.Errorf("gui: opening dev tools faild: %w", err)
 		}
@@ -86,10 +85,13 @@ func (c Config) addWindow(a *astilectron.Astilectron) error {
 	return nil
 }
 
-func (c Config) addTray(a *astilectron.Astilectron) error {
-	var t = a.NewTray(&astilectron.TrayOptions{
-		Image:   astikit.StrPtr(c.IconPath),
-		Tooltip: astikit.StrPtr("Tray's tooltip"),
+var m *astilectron.Window
+var once sync.Once
+
+func (s Server) addTray(a *astilectron.Astilectron) error {
+	t := a.NewTray(&astilectron.TrayOptions{
+		Image:   astikit.StrPtr(s.config.IconPath),
+		Tooltip: astikit.StrPtr(s.config.AppName),
 	})
 
 	// Create tray
@@ -97,26 +99,20 @@ func (c Config) addTray(a *astilectron.Astilectron) error {
 		return err
 	}
 
-	// New tray menu
-	var m = t.NewMenu([]*astilectron.MenuItemOptions{
-		{
-			Label: astikit.StrPtr("Root 1"),
-			SubMenu: []*astilectron.MenuItemOptions{
-				{Label: astikit.StrPtr("Item 1")},
-				{Label: astikit.StrPtr("Item 2")},
-				{Type: astilectron.MenuItemTypeSeparator},
-				{Label: astikit.StrPtr("Item 3")},
-			},
-		},
-		{
-			Label: astikit.StrPtr("Root 2"),
-			SubMenu: []*astilectron.MenuItemOptions{
-				{Label: astikit.StrPtr("Item 1")},
-				{Label: astikit.StrPtr("Item 2")},
-			},
-		},
+	t.On(astilectron.EventNameTrayEventClicked, func(e astilectron.Event) (deleteListener bool) {
+		once.Do(func() {
+			m.Create()
+			if s.config.DevTools {
+				m.OpenDevTools()
+			}
+		})
+		if !m.IsShown() {
+			m.Show()
+		} else {
+			m.Hide()
+		}
+		return
 	})
 
-	// Create the menu
-	return m.Create()
+	return nil
 }

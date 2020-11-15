@@ -8,14 +8,14 @@ import (
 	"github.com/sevigo/hokan/pkg/core"
 )
 
+type Server struct {
+	serverEvents core.ServerSideEventCreator
+}
+
 func New(serverEvents core.ServerSideEventCreator) *Server {
 	return &Server{
 		serverEvents: serverEvents,
 	}
-}
-
-type Server struct {
-	serverEvents core.ServerSideEventCreator
 }
 
 func (s *Server) Handler() http.Handler {
