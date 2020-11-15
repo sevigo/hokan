@@ -5,23 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/golang/mock/gomock"
-	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/handler/web"
 	"github.com/sevigo/hokan/pkg/testing/tools"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleInfo(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-	sse := mocks.NewMockServerSideEventCreator(controller)
-
-	s := web.Server{
-		Logger: logrus.StandardLogger(),
-		SSE:    sse,
-	}
+	s := web.Server{}
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/info", nil)

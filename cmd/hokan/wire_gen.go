@@ -27,18 +27,19 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	}
 	logger := provideLogger(config2)
 	server := apiServerProvider(fileStore, directoryStore, eventCreator, targetRegister, logger)
+	webServer := provideWebHandler()
 	serverSideEventCreator := provideServerSideEventCreator(ctx)
-	webServer := provideWeb(logger, serverSideEventCreator)
 	eventsServer := eventsServerProvider(serverSideEventCreator)
 	mainHealthzHandler := provideHealthz()
-	handler := provideRouter(server, webServer, eventsServer, mainHealthzHandler)
+	appConfig := provideAppConfig(config2)
+	guiServer := provideGUIServer(appConfig)
+	handler := provideRouter(server, webServer, eventsServer, mainHealthzHandler, guiServer)
 	serverServer := provideServer(handler, config2)
-	guiConfig := provideGUI(config2)
 	notifier := provideNotifier(ctx)
 	watcher, err := provideWatcher(ctx, directoryStore, eventCreator, notifier, serverSideEventCreator)
 	if err != nil {
 		return application{}, err
 	}
-	mainApplication := newApplication(serverServer, guiConfig, directoryStore, watcher, targetRegister)
+	mainApplication := newApplication(serverServer, guiServer, directoryStore, watcher, targetRegister)
 	return mainApplication, nil
 }

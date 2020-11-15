@@ -35,7 +35,7 @@ func main() {
 
 	g.Go(func() error {
 		log.Info("starting GUI process")
-		err := app.gui.Run(ctx)
+		err := app.guiServer.Run(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -49,24 +49,24 @@ func main() {
 
 // application is the main struct.
 type application struct {
-	dirs    core.DirectoryStore
-	watcher core.Watcher
-	targets core.TargetRegister
-	server  *server.Server
-	gui     *gui.Config
+	dirs      core.DirectoryStore
+	watcher   core.Watcher
+	targets   core.TargetRegister
+	server    *server.Server
+	guiServer *gui.Server
 }
 
 func newApplication(
 	srv *server.Server,
-	gui *gui.Config,
+	guiServer *gui.Server,
 	dirs core.DirectoryStore,
 	watcher core.Watcher,
 	targets core.TargetRegister) application {
 	return application{
-		dirs:    dirs,
-		server:  srv,
-		watcher: watcher,
-		targets: targets,
-		gui:     gui,
+		guiServer: guiServer,
+		dirs:      dirs,
+		server:    srv,
+		watcher:   watcher,
+		targets:   targets,
 	}
 }

@@ -1,11 +1,10 @@
 module github.com/sevigo/hokan
 
-go 1.13
+go 1.15
 
 require (
 	github.com/asticode/go-astikit v0.10.2
 	github.com/asticode/go-astilectron v0.18.0
-	github.com/asticode/go-astilog v2.0.1+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/cors v1.1.1
@@ -19,7 +18,6 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nicksnyder/basen v1.0.0
 	github.com/r3labs/sse/v2 v2.3.0
-	github.com/rs/zerolog v1.20.0
 	github.com/segmentio/ksuid v1.0.3
 	github.com/sevigo/notify v0.5.1
 	github.com/sirupsen/logrus v1.6.0
