@@ -24,7 +24,8 @@ var targetConfigurators = []core.TargetStorageConfigurator{
 type Register struct {
 	sync.Mutex
 
-	ctx         context.Context
+	ctx context.Context
+	// write results of any operation here, this will be propagated to the UI
 	Results     chan core.TargetOperationResult
 	fileStore   core.FileStore
 	configStore core.ConfigStore
@@ -54,7 +55,7 @@ func New(
 		storagesDefaultConfigs: make(map[string]*core.TargetConfig),
 		configurators:          make(map[string]core.TargetStorageConfigurator),
 
-		Results: make(chan core.TargetOperationResult), // ???
+		Results: make(chan core.TargetOperationResult),
 	}
 
 	r.initTargets(ctx)
