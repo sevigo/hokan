@@ -39,6 +39,9 @@ type Database struct {
 	Path string
 }
 
+// Environ returns a some default hard-coded configuration
+// later it could be some configuration from the local config file
+// or remote configuration service
 func Environ() (Config, error) {
 	cfg := Config{}
 	defaultAddress(&cfg)
