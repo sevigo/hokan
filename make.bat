@@ -22,7 +22,7 @@ goto :eof
 :run
 echo RUN ...
 cd cmd\hokan
-go run main.go inject_server.go inject_store.go inject_watcher.go inject_target.go inject_gui.go wire_gen.go
+go run main.go inject_server.go inject_store.go inject_watcher.go inject_backup.go  wire_gen.go
 goto :eof
 
 :test

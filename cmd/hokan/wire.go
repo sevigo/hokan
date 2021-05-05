@@ -16,8 +16,7 @@ func InitializeApplication(ctx context.Context, config config.Config) (applicati
 		serverSet,
 		storeSet,
 		watcherSet,
-		targetSet,
-		guiSet,
+		backupSet,
 		newApplication,
 	)
 

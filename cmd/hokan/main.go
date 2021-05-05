@@ -8,7 +8,6 @@ import (
 
 	"github.com/sevigo/hokan/cmd/hokan/config"
 	"github.com/sevigo/hokan/pkg/core"
-	"github.com/sevigo/hokan/pkg/gui"
 	"github.com/sevigo/hokan/pkg/server"
 )
 
@@ -33,14 +32,14 @@ func main() {
 		return app.server.ListenAndServe(ctx)
 	})
 
-	g.Go(func() error {
-		log.Info("starting GUI process")
-		err := app.guiServer.Run(ctx)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return err
-	})
+	// g.Go(func() error {
+	// 	log.Info("starting GUI process")
+	// 	err := app.guiServer.Run(ctx)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	return err
+	// })
 
 	if err := g.Wait(); err != nil {
 		log.Fatal("main: program terminated")
@@ -49,24 +48,17 @@ func main() {
 
 // application is the main struct.
 type application struct {
-	dirs      core.DirectoryStore
-	watcher   core.Watcher
-	targets   core.TargetRegister
-	server    *server.Server
-	guiServer *gui.Server
+	dirs    core.DirectoryStore
+	watcher core.Watcher
+	backup  core.Backup
+	server  *server.Server
 }
 
-func newApplication(
-	srv *server.Server,
-	guiServer *gui.Server,
-	dirs core.DirectoryStore,
-	watcher core.Watcher,
-	targets core.TargetRegister) application {
+func newApplication(srv *server.Server, dirs core.DirectoryStore, watcher core.Watcher, backup core.Backup) application {
 	return application{
-		guiServer: guiServer,
-		dirs:      dirs,
-		server:    srv,
-		watcher:   watcher,
-		targets:   targets,
+		dirs:    dirs,
+		server:  srv,
+		watcher: watcher,
+		backup:  backup,
 	}
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/sevigo/hokan/cmd/hokan/config"
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/event"
-	"github.com/sevigo/hokan/pkg/gui"
 	"github.com/sevigo/hokan/pkg/handler/api"
 	"github.com/sevigo/hokan/pkg/handler/events"
 	"github.com/sevigo/hokan/pkg/handler/health"
@@ -44,9 +43,8 @@ func apiServerProvider(
 	fileStore core.FileStore,
 	dirStore core.DirectoryStore,
 	events core.EventCreator,
-	targets core.TargetRegister,
 	logger *logrus.Logger) *api.Server {
-	return api.New(fileStore, dirStore, events, targets, logger)
+	return api.New(fileStore, dirStore, events, logger)
 }
 
 func eventsServerProvider(sseCreator core.ServerSideEventCreator) *events.Server {
@@ -69,13 +67,11 @@ func provideLogger(config config.Config) *logrus.Logger {
 func provideRouter(apiHandler *api.Server,
 	webHandler *web.Server,
 	serverEventsHandler *events.Server,
-	healthz healthzHandler,
-	guiServer *gui.Server) http.Handler {
+	healthz healthzHandler) http.Handler {
 	r := chi.NewRouter()
 	r.Mount("/healthz", healthz)
 	r.Mount("/api", apiHandler.Handler())
 	r.Mount("/sse", serverEventsHandler.Handler())
-	r.Mount("/gui", guiServer.Handler())
 	r.Mount("/", webHandler.Handler())
 	return r
 }
