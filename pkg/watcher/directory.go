@@ -51,15 +51,13 @@ func (w *Watch) GetDirsToWatch() error {
 		return err
 	}
 	for _, dir := range dirs {
-		if dir.Active {
-			log.Printf("watcher.GetDirsToWatch(): publish %#v", dir)
-			err = w.event.Publish(w.ctx, &core.EventData{
-				Type: core.WatchDirStart,
-				Data: dir,
-			})
-			if err != nil {
-				log.WithError(err).Print("Can't publish [WatchDirStart] event")
-			}
+		log.Printf("watcher.GetDirsToWatch(): publish %#v", dir)
+		err = w.event.Publish(w.ctx, &core.EventData{
+			Type: core.WatchDirStart,
+			Data: dir,
+		})
+		if err != nil {
+			log.WithError(err).Print("Can't publish [WatchDirStart] event")
 		}
 	}
 	return nil

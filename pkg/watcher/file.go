@@ -2,7 +2,6 @@ package watcher
 
 import (
 	"fmt"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -38,13 +37,6 @@ func (w *Watch) StartFileWatcher() {
 }
 
 func (w *Watch) publishFileChange(path string) error {
-	var targets []string
-	for _, dir := range w.catalog {
-		if strings.Contains(path, dir.Path) {
-			targets = dir.Targets
-		}
-	}
-
 	checksum, info, err := utils.FileChecksumInfo(path)
 	if err != nil {
 		return err
@@ -57,7 +49,6 @@ func (w *Watch) publishFileChange(path string) error {
 			Path:     path,
 			Checksum: checksum,
 			Info:     info,
-			Targets:  targets,
 		},
 	})
 }

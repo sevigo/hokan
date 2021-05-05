@@ -55,24 +55,6 @@ func (s *Server) Handler() http.Handler {
 		r.Get("/{pathID}", dirs.HandleFind(s.Dirs))
 	})
 
-	// r.Route("/targets", func(r chi.Router) {
-	// 	r.Put("/{targetName}", targetstorage.HandleUpdate(s.Targets))
-	// 	r.Get("/", targetstorage.HandleList(s.Targets))
-	// 	r.Get("/{targetName}", targetstorage.HandleGet(s.Targets))
-
-	// 	r.Route("/{targetName}/files", func(r chi.Router) {
-	// 		r.Get("/", targetsfiles.HandleList(s.Files))
-	// 		r.Get("/{fileID}", targetsfiles.HandleGet(s.Files))
-	// 	})
-	// })
-
-	// r.Route("/config", func(r chi.Router) {
-	// 	r.Get("/targets", configtargets.HandleList(s.Targets))
-	// 	r.Post("/targets/{target}/settings", targetssettings.HandleCleate(s.Targets))
-	// 	r.Post("/targets/{target}/deactivate", configtargets.HandleDeactivate(s.Targets))
-	// 	r.Post("/targets/{target}/activate", configtargets.HandleActivate(s.Targets))
-	// })
-
 	// List all avaible endpoints
 	r.Get("/", HandleAPIList())
 
@@ -90,16 +72,6 @@ func HandleAPIList() http.HandlerFunc {
 			{
 				Rel:    "localDirs",
 				Href:   "/api/directories",
-				Method: "GET",
-			},
-			{
-				Rel:    "remoteStorage",
-				Href:   "/api/targets",
-				Method: "GET",
-			},
-			{
-				Rel:    "configTargets",
-				Href:   "/api/config/targets",
 				Method: "GET",
 			},
 			{
