@@ -7,16 +7,18 @@ import (
 
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/watcher/utils"
+	"github.com/sevigo/notify/event"
 	"github.com/sevigo/notify/watcher"
 )
 
 func (w *Watch) StartFileWatcher() {
+	log.Printf("watcher.StartFileWatcher(): starting")
 	ctx := w.ctx
 
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("StartFileWatcher(): event stream canceled")
+			log.Printf("watcher.StartFileWatcher(): event-stream canceled")
 			return
 		case ev := <-w.notifier.Event():
 			log.WithFields(log.Fields{
@@ -28,10 +30,8 @@ func (w *Watch) StartFileWatcher() {
 			if err != nil {
 				log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileAdded] event")
 			}
-		case err := <-w.notifier.Error():
-			msg := fmt.Sprintf("[notifier] %q", err.Message)
-			w.sse.PublishMessage(msg)
-			log.WithField("level", err.Level).Error(msg)
+		case e := <-w.notifier.Error():
+			w.printNotifyMessage(e)
 		}
 	}
 }
@@ -51,4 +51,24 @@ func (w *Watch) publishFileChange(path string) error {
 			Info:     info,
 		},
 	})
+}
+
+// TODO: find a better place for me
+func (w *Watch) printNotifyMessage(e event.Error) {
+	msg := fmt.Sprintf("[notifier] %q", e.Message)
+	switch e.Level {
+	case "DEBUG":
+		log.WithField("level", e.Level).Debug(msg)
+	case "INFO":
+		log.WithField("level", e.Level).Info(msg)
+	case "WARN", "WARNING":
+		log.WithField("level", e.Level).Warn(msg)
+	case "ERROR":
+		log.WithField("level", e.Level).Error(msg)
+	case "CRITICAL":
+		log.WithField("level", e.Level).Fatal(msg)
+	default:
+		log.Print(msg)
+	}
+	w.sse.PublishMessage(msg)
 }

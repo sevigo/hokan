@@ -30,6 +30,7 @@ func New(ctx context.Context,
 		notifier: notifier,
 		sse:      sse,
 	}
+
 	wg.Add(2) //nolint:gomnd
 	go w.StartDirWatcher()
 	go w.StartRescanWatcher()

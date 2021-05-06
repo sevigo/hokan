@@ -15,7 +15,7 @@ func (w *Watch) StartDirWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Info("watcher.StartDirWatcher(): stream canceled")
+			log.Info("watcher.StartDirWatcher(): event-stream canceled")
 			return
 		case e := <-eventData:
 			data, ok := e.Data.(*core.Directory)
@@ -37,8 +37,10 @@ func (w *Watch) StartRescanWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
+			log.Info("watcher.StartRescanWatcher(): event-stream canceled")
 			return
-		case <-eventData:
+		case data := <-eventData:
+			log.Printf("watcher. StartRescanWatcher(): dir rescan event: %#v", data)
 			w.notifier.RescanAll()
 		}
 	}

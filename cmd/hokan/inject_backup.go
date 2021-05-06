@@ -14,8 +14,8 @@ var backupSet = wire.NewSet(
 	provideBackup,
 )
 
-func provideBackup(ctx context.Context, fileStore core.FileStore, config config.Config) (core.Backup, error) {
-	return backup.New(ctx, fileStore, &core.BackupOptions{
+func provideBackup(ctx context.Context, fileStore core.FileStore, events core.EventCreator, config config.Config) (core.Backup, error) {
+	return backup.New(ctx, fileStore, events, &core.BackupOptions{
 		Name:      config.Backup.Name,
 		TargetURL: config.Backup.TargetLocalPath,
 	})

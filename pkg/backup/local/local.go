@@ -71,6 +71,7 @@ func (s *localStorage) Save(ctx context.Context, result chan core.BackupResult, 
 		}
 		return
 	}
+
 	saveStoreErr := s.fileStore.Save(ctx, name, file)
 	if saveStoreErr != nil {
 		result <- core.BackupResult{

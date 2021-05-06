@@ -8,6 +8,7 @@ import (
 var ErrBackupStorageNotFound = errors.New("Backup storage not found")
 
 const BackupSuccessMessage = "requested operation was successful"
+const BackupNoChangeMessage = "file hasn't been modified"
 
 type BackupOptions struct {
 	Name            string

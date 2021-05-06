@@ -2,6 +2,7 @@ package void
 
 import (
 	"context"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -35,7 +36,7 @@ func (v *voidBackup) Save(ctx context.Context, result chan core.BackupResult, fi
 		"backup": name,
 		"file":   file.Path,
 	})
-	logger.Debugf("saving the file %q into %s", file.Path, v.prefix)
+	logger.Infof("void.Save(): saving the file %q", file.Path)
 	err := v.fileStore.Save(ctx, name, file)
 	if err != nil {
 		result <- core.BackupResult{
@@ -45,7 +46,7 @@ func (v *voidBackup) Save(ctx context.Context, result chan core.BackupResult, fi
 	} else {
 		result <- core.BackupResult{
 			Success: true,
-			Message: core.BackupSuccessMessage,
+			Message: fmt.Sprintf("%s for file %q", core.BackupSuccessMessage, file.Path),
 		}
 	}
 }

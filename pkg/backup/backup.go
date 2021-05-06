@@ -17,7 +17,7 @@ var backupStorageRegister = map[string]core.BackupFactory{
 	"minio": minio.New,
 }
 
-func New(ctx context.Context, fileStore core.FileStore, options *core.BackupOptions) (core.Backup, error) {
+func New(ctx context.Context, fileStore core.FileStore, events core.EventCreator, options *core.BackupOptions) (core.Backup, error) {
 	backup, err := getBackupStorage(options.Name)
 	if err != nil {
 		log.WithField("backup", options.Name).
@@ -25,7 +25,23 @@ func New(ctx context.Context, fileStore core.FileStore, options *core.BackupOpti
 			Fatal("can't initiate new backup storage")
 		return nil, err
 	}
-	return backup(ctx, fileStore, options)
+
+	b, err := backup(ctx, fileStore, options)
+	if err != nil {
+		return nil, err
+	}
+	watch := &Watcher{
+		ctx:       ctx,
+		fileStore: fileStore,
+		events:    events,
+		backup:    b,
+
+		Results: make(chan core.BackupResult),
+	}
+	go watch.FileAdded()
+	go debugBackupResult(watch.Results)
+
+	return b, nil
 }
 
 func getBackupStorage(name string) (core.BackupFactory, error) {
@@ -33,4 +49,14 @@ func getBackupStorage(name string) (core.BackupFactory, error) {
 		return backupStorageRegister[name], nil
 	}
 	return nil, core.ErrBackupStorageNotFound
+}
+
+func debugBackupResult(result chan core.BackupResult) {
+	for msg := range result {
+		if msg.Error != nil {
+			log.Errorf("backup.Result(): [%s] %s", msg.Error, msg.Message)
+		} else {
+			log.Printf("backup.Result(): %s", msg.Message)
+		}
+	}
 }

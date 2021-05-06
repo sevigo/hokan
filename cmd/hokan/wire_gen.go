@@ -34,7 +34,7 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	if err != nil {
 		return application{}, err
 	}
-	backup, err := provideBackup(ctx, fileStore, config2)
+	backup, err := provideBackup(ctx, fileStore, eventCreator, config2)
 	if err != nil {
 		return application{}, err
 	}
