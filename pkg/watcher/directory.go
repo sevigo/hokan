@@ -15,7 +15,7 @@ func (w *Watch) StartDirWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Info("watcher.StartDirWatcher(): stream canceled")
+			log.Info("watcher.StartDirWatcher(): event-stream canceled")
 			return
 		case e := <-eventData:
 			data, ok := e.Data.(*core.Directory)
@@ -37,8 +37,10 @@ func (w *Watch) StartRescanWatcher() {
 	for {
 		select {
 		case <-ctx.Done():
+			log.Info("watcher.StartRescanWatcher(): event-stream canceled")
 			return
-		case <-eventData:
+		case data := <-eventData:
+			log.Printf("watcher. StartRescanWatcher(): dir rescan event: %#v", data)
 			w.notifier.RescanAll()
 		}
 	}
@@ -51,15 +53,13 @@ func (w *Watch) GetDirsToWatch() error {
 		return err
 	}
 	for _, dir := range dirs {
-		if dir.Active {
-			log.Printf("watcher.GetDirsToWatch(): publish %#v", dir)
-			err = w.event.Publish(w.ctx, &core.EventData{
-				Type: core.WatchDirStart,
-				Data: dir,
-			})
-			if err != nil {
-				log.WithError(err).Print("Can't publish [WatchDirStart] event")
-			}
+		log.Printf("watcher.GetDirsToWatch(): publish %#v", dir)
+		err = w.event.Publish(w.ctx, &core.EventData{
+			Type: core.WatchDirStart,
+			Data: dir,
+		})
+		if err != nil {
+			log.WithError(err).Print("Can't publish [WatchDirStart] event")
 		}
 	}
 	return nil

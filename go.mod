@@ -11,7 +11,7 @@ require (
 	github.com/go-chi/render v1.0.1
 	github.com/go-ini/ini v1.62.0 // indirect
 	github.com/golang/mock v1.4.4
-	github.com/google/wire v0.4.0
+	github.com/google/wire v0.5.0
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
@@ -29,7 +29,7 @@ require (
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
-	golang.org/x/text v0.3.2 // indirect
+	golang.org/x/text v0.3.2
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect

@@ -4,7 +4,7 @@ VENDOR_TMP=${TMP}/vendor
 LOCAL_BIN:=${TMP}/bin
 
 run:
-	cd cmd/hokan; go run main.go inject_server.go inject_store.go inject_watcher.go inject_target.go inject_gui.go wire_gen.go
+	cd cmd/hokan; go run main.go inject_server.go inject_store.go inject_watcher.go inject_backup.go wire_gen.go
 
 build:
 	cd cmd/hokan; go build -o ../../bin/hokan; cd ../..; ./bin/hokan
@@ -22,7 +22,7 @@ install-mockgen:
 
 mockgen: install-mockgen
 	# grep "interface {" pkg/core/* | awk '{print $2}' | paste -sd "," - 
-	${LOCAL_BIN}/mockgen -destination=mocks/mock_gen.go -package=mocks github.com/sevigo/hokan/pkg/core ConfigStore,DB,DirectoryStore,EventCreator,FileStore,MinioWrapper,Notifier,ServerSideEventCreator,TargetStorage,TargetStorageConfigurator,TargetRegister,UserStore,Watcher
+	${LOCAL_BIN}/mockgen -destination=mocks/mock_gen.go -package=mocks github.com/sevigo/hokan/pkg/core ConfigStore,Backup,DB,DirectoryStore,EventCreator,FileStore,MinioWrapper,Notifier,ServerSideEventCreator,TargetStorage,TargetStorageConfigurator,TargetRegister,UserStore,Watcher
 
 install-golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ${LOCAL_BIN} v1.24.0

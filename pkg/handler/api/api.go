@@ -11,11 +11,6 @@ import (
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/handler"
 	dirs "github.com/sevigo/hokan/pkg/handler/api/directories"
-	targetstorage "github.com/sevigo/hokan/pkg/handler/api/targets"
-	targetsfiles "github.com/sevigo/hokan/pkg/handler/api/targets/files"
-
-	configtargets "github.com/sevigo/hokan/pkg/handler/api/config/targets"
-	targetssettings "github.com/sevigo/hokan/pkg/handler/api/config/targets/settings"
 
 	"github.com/sevigo/hokan/pkg/logger"
 )
@@ -30,20 +25,18 @@ var corsOpts = cors.Options{
 }
 
 type Server struct {
-	Logger  *logrus.Logger
-	Dirs    core.DirectoryStore
-	Files   core.FileStore
-	Events  core.EventCreator
-	Targets core.TargetRegister
+	Logger *logrus.Logger
+	Dirs   core.DirectoryStore
+	Files  core.FileStore
+	Events core.EventCreator
 }
 
-func New(fileStore core.FileStore, dirStore core.DirectoryStore, events core.EventCreator, targets core.TargetRegister, logger *logrus.Logger) *Server {
+func New(fileStore core.FileStore, dirStore core.DirectoryStore, events core.EventCreator, logger *logrus.Logger) *Server {
 	return &Server{
-		Logger:  logger,
-		Dirs:    dirStore,
-		Files:   fileStore,
-		Events:  events,
-		Targets: targets,
+		Logger: logger,
+		Dirs:   dirStore,
+		Files:  fileStore,
+		Events: events,
 	}
 }
 
@@ -60,24 +53,6 @@ func (s *Server) Handler() http.Handler {
 		r.Post("/", dirs.HandleCreate(s.Dirs, s.Events))
 		r.Get("/", dirs.HandleList(s.Dirs))
 		r.Get("/{pathID}", dirs.HandleFind(s.Dirs))
-	})
-
-	r.Route("/targets", func(r chi.Router) {
-		r.Put("/{targetName}", targetstorage.HandleUpdate(s.Targets))
-		r.Get("/", targetstorage.HandleList(s.Targets))
-		r.Get("/{targetName}", targetstorage.HandleGet(s.Targets))
-
-		r.Route("/{targetName}/files", func(r chi.Router) {
-			r.Get("/", targetsfiles.HandleList(s.Files))
-			r.Get("/{fileID}", targetsfiles.HandleGet(s.Files))
-		})
-	})
-
-	r.Route("/config", func(r chi.Router) {
-		r.Get("/targets", configtargets.HandleList(s.Targets))
-		r.Post("/targets/{target}/settings", targetssettings.HandleCleate(s.Targets))
-		r.Post("/targets/{target}/deactivate", configtargets.HandleDeactivate(s.Targets))
-		r.Post("/targets/{target}/activate", configtargets.HandleActivate(s.Targets))
 	})
 
 	// List all avaible endpoints
@@ -97,16 +72,6 @@ func HandleAPIList() http.HandlerFunc {
 			{
 				Rel:    "localDirs",
 				Href:   "/api/directories",
-				Method: "GET",
-			},
-			{
-				Rel:    "remoteStorage",
-				Href:   "/api/targets",
-				Method: "GET",
-			},
-			{
-				Rel:    "configTargets",
-				Href:   "/api/config/targets",
 				Method: "GET",
 			},
 			{

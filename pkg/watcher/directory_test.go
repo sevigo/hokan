@@ -35,8 +35,7 @@ func TestWatch_StartDirWatcher(t *testing.T) {
 	w.event.Publish(ctx, &core.EventData{
 		Type: core.WatchDirStart,
 		Data: &core.Directory{
-			Active: true,
-			Path:   "/foo",
+			Path: "/foo",
 		},
 	})
 
@@ -79,14 +78,12 @@ func TestWatch_GetDirsToWatch(t *testing.T) {
 	store := mocks.NewMockDirectoryStore(controller)
 	store.EXPECT().List(gomock.Any()).Return([]*core.Directory{
 		{
-			ID:     "1",
-			Active: true,
-			Path:   "/foo",
+			ID:   "1",
+			Path: "/foo",
 		},
 		{
-			ID:     "2",
-			Active: false,
-			Path:   "/bar",
+			ID:   "2",
+			Path: "/bar",
 		},
 	}, nil)
 	notifier := mocks.NewMockNotifier(controller)
@@ -94,9 +91,8 @@ func TestWatch_GetDirsToWatch(t *testing.T) {
 	e.EXPECT().Publish(gomock.Any(), &core.EventData{
 		Type: core.WatchDirStart,
 		Data: &core.Directory{
-			ID:     "1",
-			Active: true,
-			Path:   "/foo",
+			ID:   "1",
+			Path: "/foo",
 		},
 	}).Return(nil)
 
