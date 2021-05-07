@@ -58,11 +58,9 @@ func Test_voidStorageSaveOK(t *testing.T) {
 	result := make(chan core.BackupResult)
 	go store.Save(context.TODO(), result, file, nil)
 	msg := <-result
-	assert.Equal(t, core.BackupResult{
-		Success: true,
-		Error:   nil,
-		Message: core.BackupSuccessMessage,
-	}, msg)
+	assert.NoError(t, msg.Error)
+	assert.True(t, msg.Success)
+	assert.Contains(t, msg.Message, core.BackupSuccessMessage)
 }
 
 func Test_voidStore_Delete(t *testing.T) {

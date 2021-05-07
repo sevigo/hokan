@@ -4,31 +4,34 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	serverevents "github.com/r3labs/sse/v2"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
 )
 
 type serverEvents struct {
-	ctx    context.Context
-	server *serverevents.Server
+	ctx           context.Context
+	server        *serverevents.Server
+	backupResults chan core.BackupResult
 }
 
-func New(ctx context.Context) core.ServerSideEventCreator {
+func New(ctx context.Context, results chan core.BackupResult) core.ServerSideEventCreator {
 	server := serverevents.New()
 	server.CreateStream("messages")
 
 	s := &serverEvents{
-		server: server,
-		ctx:    ctx,
+		server:        server,
+		ctx:           ctx,
+		backupResults: results,
 	}
 
 	go s.handleServerStop()
+	go s.debugBackupResult()
 
 	return s
 }
@@ -78,4 +81,20 @@ func (s *serverEvents) PublishMessage(msg string) {
 	s.server.Publish("messages", &serverevents.Event{
 		Data: w.Bytes(),
 	})
+}
+
+func (s *serverEvents) debugBackupResult() {
+	for {
+		select {
+		case <-s.ctx.Done():
+			log.Printf("sss.debugBackupResult(): event-stream canceled")
+			return
+		case result := <-s.backupResults:
+			if result.Error != nil {
+				log.Errorf("backup.Result(): [%s] %s", result.Error, result.Message)
+			} else {
+				log.Printf("backup.Result(): %s", result.Message)
+			}
+		}
+	}
 }

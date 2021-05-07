@@ -6,13 +6,10 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	"github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/handler"
 	dirs "github.com/sevigo/hokan/pkg/handler/api/directories"
-
-	"github.com/sevigo/hokan/pkg/logger"
 )
 
 var corsOpts = cors.Options{
@@ -25,15 +22,13 @@ var corsOpts = cors.Options{
 }
 
 type Server struct {
-	Logger *logrus.Logger
 	Dirs   core.DirectoryStore
 	Files  core.FileStore
 	Events core.EventCreator
 }
 
-func New(fileStore core.FileStore, dirStore core.DirectoryStore, events core.EventCreator, logger *logrus.Logger) *Server {
+func New(fileStore core.FileStore, dirStore core.DirectoryStore, events core.EventCreator) *Server {
 	return &Server{
-		Logger: logger,
 		Dirs:   dirStore,
 		Files:  fileStore,
 		Events: events,
@@ -43,8 +38,7 @@ func New(fileStore core.FileStore, dirStore core.DirectoryStore, events core.Eve
 func (s *Server) Handler() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
-
-	r.Use(logger.Middleware(s.Logger))
+	// r.Use(logger.Middleware(s.Logger))
 
 	cors := cors.New(corsOpts)
 	r.Use(cors.Handler)

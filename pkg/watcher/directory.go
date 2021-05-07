@@ -47,6 +47,7 @@ func (w *Watch) StartRescanWatcher() {
 }
 
 func (w *Watch) GetDirsToWatch() error {
+	log.Debug("watcher.GetDirsToWatch()")
 	dirs, err := w.store.List(w.ctx)
 	if err != nil {
 		log.WithError(err).Print("Can't list all directories")

@@ -51,7 +51,7 @@ func Test_directoryStore_Create(t *testing.T) {
 		Do(func(bucket, key, value string) {
 			assert.Equal(t, "watch:directories", bucket)
 			assert.Equal(t, "rokrX", key)
-			assert.Equal(t, `{"id":"rokrX","active":false,"path":"/foo","recursive":false,"machine":"","ignore":null,"targets":null}`, strings.TrimSpace(value))
+			assert.Equal(t, `{"id":"rokrX","path":"/foo","recursive":false,"machine":"","ignore":null}`, strings.TrimSpace(value))
 		}).Return(nil)
 
 	s := directoryStore{db}
