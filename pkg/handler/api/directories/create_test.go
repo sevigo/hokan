@@ -35,14 +35,13 @@ func TestCreate(t *testing.T) {
 		Data: &core.Directory{
 			ID:        basen.Base62Encoding.EncodeToString([]byte(testFotosPath)),
 			Path:      testFotosPath,
-			Active:    true,
 			Machine:   "test",
 			Recursive: true,
 		},
 	})
 
 	in := new(bytes.Buffer)
-	err := json.NewEncoder(in).Encode(&core.Directory{Path: testFotosPath, Active: true, Machine: "test", Recursive: true})
+	err := json.NewEncoder(in).Encode(&core.Directory{Path: testFotosPath, Machine: "test", Recursive: true})
 	assert.NoError(t, err)
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/", in)
@@ -52,7 +51,6 @@ func TestCreate(t *testing.T) {
 
 	assert.Equal(t, 201, w.Code)
 	tools.TestJSONPath(t, "YsmKL73TlYdFBq4g6vBYaZKl", "id", body)
-	tools.TestJSONPath(t, "true", "active", body)
 	tools.TestJSONPath(t, "C:\\Documents\\Fotos", "path", body)
 	tools.TestJSONPath(t, "test", "machine", body)
 	tools.TestJSONPath(t, "true", "recursive", body)

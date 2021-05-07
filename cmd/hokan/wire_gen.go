@@ -21,10 +21,10 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	fileStore := provideFileStore(db)
 	directoryStore := provideDirectoryStore(db)
 	eventCreator := provideEventCreator()
-	logger := provideLogger(config2)
-	server := apiServerProvider(fileStore, directoryStore, eventCreator, logger)
+	server := apiServerProvider(fileStore, directoryStore, eventCreator)
 	webServer := provideWebHandler()
-	serverSideEventCreator := provideServerSideEventCreator(ctx)
+	v := proviceBackupResultChan()
+	serverSideEventCreator := provideServerSideEventCreator(ctx, v)
 	eventsServer := eventsServerProvider(serverSideEventCreator)
 	mainHealthzHandler := provideHealthz()
 	handler := provideRouter(server, webServer, eventsServer, mainHealthzHandler)
@@ -34,7 +34,7 @@ func InitializeApplication(ctx context.Context, config2 config.Config) (applicat
 	if err != nil {
 		return application{}, err
 	}
-	backup, err := provideBackup(ctx, fileStore, eventCreator, config2)
+	backup, err := provideBackup(ctx, fileStore, eventCreator, v, config2)
 	if err != nil {
 		return application{}, err
 	}

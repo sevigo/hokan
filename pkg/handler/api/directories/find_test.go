@@ -10,7 +10,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/nicksnyder/basen"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/sevigo/hokan/mocks"
@@ -41,8 +40,7 @@ func TestFindByPath(t *testing.T) {
 	r := httptest.NewRequest("GET", url, nil)
 
 	s := api.Server{
-		Dirs:   dirStore,
-		Logger: logrus.StandardLogger(),
+		Dirs: dirStore,
 	}
 	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 200, w.Code)
@@ -50,7 +48,6 @@ func TestFindByPath(t *testing.T) {
 	body := strings.TrimSpace(w.Body.String())
 
 	tools.TestJSONPathNotEmpty(t, "directory.id", body)
-	tools.TestJSONPath(t, "false", "directory.active", body)
 	tools.TestJSONPath(t, testPath, "directory.path", body)
 	tools.TestJSONPath(t, "0", "stats.total-files", body)
 	tools.TestJSONPath(t, "1", "stats.total-dirs", body)
@@ -69,8 +66,7 @@ func TestFindByPathNotFound(t *testing.T) {
 	r := httptest.NewRequest("GET", url, nil)
 
 	s := api.Server{
-		Dirs:   dirStore,
-		Logger: logrus.StandardLogger(),
+		Dirs: dirStore,
 	}
 	s.Handler().ServeHTTP(w, r)
 	assert.Equal(t, 404, w.Code)

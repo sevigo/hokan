@@ -10,19 +10,11 @@ type Config struct {
 	Logging  Logging
 	Server   Server
 	Backup   Backup
-	GUI      GUI
 }
 
 type Backup struct {
 	Name            string
 	TargetLocalPath string
-}
-
-type GUI struct {
-	AppName      string
-	DevTools     bool
-	ResourcesDir string
-	BuildDir     string
 }
 
 type Logging struct {
@@ -53,7 +45,6 @@ func Environ() (Config, error) {
 	defaultAddress(&cfg)
 	defaultStore(&cfg)
 	defaultLogger(&cfg)
-	defaultGUI(&cfg)
 	defaultBackup(&cfg)
 	return cfg, nil
 }
