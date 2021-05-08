@@ -21,7 +21,6 @@ require (
 	github.com/sevigo/notify v0.7.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/assertions v1.1.1 // indirect
-	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.6.0
@@ -29,8 +28,6 @@ require (
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
-	golang.org/x/text v0.3.2 // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
