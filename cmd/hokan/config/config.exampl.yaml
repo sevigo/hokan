@@ -1,0 +1,7 @@
+---
+name: "minio"
+minio: 
+    access_key_id: keyid
+    endpoint: localhost
+    secret_access_key: secret
+    use_ssl: false
