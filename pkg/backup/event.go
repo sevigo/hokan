@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/core"
-	"github.com/sevigo/hokan/pkg/target/utils"
+	"github.com/sevigo/hokan/pkg/backup/utils"
 )
 
 type Watcher struct {
