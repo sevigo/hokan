@@ -13,8 +13,23 @@ type Config struct {
 }
 
 type Backup struct {
+	configPath      string
+	configName      string
 	Name            string
 	TargetLocalPath string
+	MinIO           MinIOConf
+}
+
+// minio:
+//     access_key_id: key
+//     endpoint: localhost
+//     secret_access_key: secret
+//     use_ssl: false
+type MinIOConf struct {
+	Endpoint        string `mapstructure:"endpoint"`
+	AccessKeyID     string `mapstructure:"access_key_id"`
+	SecretAccessKey string `mapstructure:"secret_access_key"`
+	UseSSL          bool   `mapstructure:"use_ssl"`
 }
 
 type Logging struct {

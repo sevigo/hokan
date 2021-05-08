@@ -22,6 +22,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.6.0
 	go.etcd.io/bbolt v1.3.5
