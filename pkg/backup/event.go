@@ -20,6 +20,7 @@ type Watcher struct {
 	Results chan core.BackupResult
 }
 
+// add a subscriber to FileAdded event
 func (w *Watcher) FileAdded() {
 	log.Printf("watcher.FileAdded(): starting")
 	ctx := w.ctx

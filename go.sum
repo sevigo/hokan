@@ -177,8 +177,8 @@ github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
 github.com/segmentio/ksuid v1.0.3 h1:FoResxvleQwYiPAVKe1tMUlEirodZqlqglIuFsdDntY=
 github.com/segmentio/ksuid v1.0.3/go.mod h1:/XUiZBD3kVx5SmUOl55voK5yeAbBNNIed+2O73XgrPE=
-github.com/sevigo/notify v0.7.0 h1:x/hwRyp/0jycOoFfAasgT192A7GeD4KoNtahVY/gxfE=
-github.com/sevigo/notify v0.7.0/go.mod h1:G33hCJYge/LrnJK1t2fojQQghQtH49rpYA4Bcr4OCug=
+github.com/sevigo/notify v0.8.0 h1:USYVEvB4t15VYtNRcqjkgJaMsHkt4AP2XAiKiDFwcyk=
+github.com/sevigo/notify v0.8.0/go.mod h1:G33hCJYge/LrnJK1t2fojQQghQtH49rpYA4Bcr4OCug=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.8.1 h1:dJKuHgqk1NNQlqoA6BTlM1Wf9DOH3NBjQyu0h9+AZZE=
 github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=

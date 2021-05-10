@@ -27,11 +27,13 @@ func (f FileInfo) MarshalJSON() ([]byte, error) {
 }
 
 type File struct {
-	ID       string    `json:"id"`
-	Path     string    `json:"path"`
+	ID   string `json:"id"`
+	Path string `json:"path"`
+	// if file was renamed
+	OldPath  string    `json:"old_path"`
 	Checksum string    `json:"checksum"`
 	Info     *FileInfo `json:"info"`
-	Targets  []string  `json:"targets"`
+	// Targets  []string  `json:"targets"`
 }
 
 type FileListOptions struct {
