@@ -23,15 +23,13 @@ type FilesListResp struct {
 }
 
 type TargetConfigsListResp struct {
-	Targets map[string]TargetConfig `json:"targets"`
-	Links   []LinksResp             `json:"links"`
-	Meta    MetaDataResp            `json:"meta"`
+	Links []LinksResp  `json:"links"`
+	Meta  MetaDataResp `json:"meta"`
 }
 
 type TargetListResp struct {
-	Targets map[string]Target `json:"targets"`
-	Links   []LinksResp       `json:"links"`
-	Meta    MetaDataResp      `json:"meta"`
+	Links []LinksResp  `json:"links"`
+	Meta  MetaDataResp `json:"meta"`
 }
 
 type DirectoriesListResp struct {

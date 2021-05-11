@@ -39,7 +39,6 @@ func Test_fileStore_Save(t *testing.T) {
 		tools.TestJSONPath(t, "5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269", "checksum", value)
 		tools.TestJSONPath(t, "test.txt", "info.name", value)
 		tools.TestJSONPath(t, "11", "info.size", value)
-		tools.TestJSONPath(t, "test", "targets.0", value)
 		return nil
 	})
 
@@ -49,7 +48,6 @@ func Test_fileStore_Save(t *testing.T) {
 	file := &core.File{
 		Path:     testFilePath,
 		Checksum: checksum,
-		Targets:  []string{"test"},
 		Info:     info,
 	}
 
@@ -79,7 +77,7 @@ func TestListOffsetLimit(t *testing.T) {
 			Checksum: "abc",
 			Info:     info,
 		}
-		err := fileStore.Save(context.TODO(), "testBucket", file)
+		err := fileStore.Save(context.TODO(), testBucket, file)
 		assert.NoError(t, err)
 	}
 
@@ -91,9 +89,8 @@ func TestListOffsetLimit(t *testing.T) {
 		{
 			name: "case 1",
 			opt: &core.FileListOptions{
-				TargetName: "testBucket",
-				Offset:     0,
-				Limit:      5,
+				Offset: 0,
+				Limit:  5,
 			},
 			expectedData: []string{
 				"/test/foo/file_0000.png",
@@ -106,9 +103,8 @@ func TestListOffsetLimit(t *testing.T) {
 		{
 			name: "case 2",
 			opt: &core.FileListOptions{
-				TargetName: "testBucket",
-				Offset:     5,
-				Limit:      5,
+				Offset: 5,
+				Limit:  5,
 			},
 			expectedData: []string{
 				"/test/foo/file_0005.png",
@@ -121,9 +117,8 @@ func TestListOffsetLimit(t *testing.T) {
 		{
 			name: "case 3",
 			opt: &core.FileListOptions{
-				TargetName: "testBucket",
-				Offset:     100,
-				Limit:      3,
+				Offset: 100,
+				Limit:  3,
 			},
 			expectedData: []string{
 				"/test/foo/file_0100.png",
@@ -134,9 +129,8 @@ func TestListOffsetLimit(t *testing.T) {
 		{
 			name: "case 4",
 			opt: &core.FileListOptions{
-				TargetName: "testBucket",
-				Offset:     1000,
-				Limit:      5,
+				Offset: 1000,
+				Limit:  5,
 			},
 			expectedData: []string{
 				"/test/foo/file_1000.png",
@@ -147,7 +141,7 @@ func TestListOffsetLimit(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			data, err := fileStore.List(context.TODO(), tt.opt)
+			data, err := fileStore.List(context.TODO(), testBucket, tt.opt)
 			assert.NoError(t, err)
 			files := []string{}
 			for _, f := range data {
