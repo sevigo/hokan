@@ -67,7 +67,7 @@ func (s *minioStore) Save(ctx context.Context, result chan core.BackupResult, fi
 		},
 		// TODO: we can use Progress for the reporting the progress back to the client
 	}
-	
+
 	n, err := s.client.FPutObjectWithContext(ctx, s.bucketName, objectName, file.Path, options)
 	if err != nil {
 		result <- core.BackupResult{

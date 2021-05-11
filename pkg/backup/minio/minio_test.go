@@ -34,7 +34,6 @@ func Test_minioStore_SaveNewFile(t *testing.T) {
 	file := &core.File{
 		Path:     testFilePath,
 		Checksum: checksum,
-		Targets:  []string{"minio"},
 		Info:     info,
 	}
 
@@ -77,7 +76,6 @@ func Test_minioStore_SaveError(t *testing.T) {
 	file := &core.File{
 		Path:     testFilePath,
 		Checksum: checksum,
-		Targets:  []string{"minio"},
 		Info:     info,
 	}
 
@@ -114,7 +112,6 @@ func Test_minioStore_SaveFileChange(t *testing.T) {
 	fileB := &core.File{
 		Path:     testFilePath,
 		Checksum: "abX",
-		Targets:  []string{"minio"},
 		Info:     info,
 	}
 

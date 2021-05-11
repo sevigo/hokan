@@ -81,7 +81,7 @@ func (w *Watcher) processFileAddedEvent(e *core.EventData) error {
 }
 
 func (w *Watcher) saveFileToBackup(file *core.File) {
-	storedFile, err := w.fileStore.Find(w.ctx, &core.FileSearchOptions{
+	storedFile, err := w.fileStore.Find(w.ctx, w.backup.Name(), &core.FileSearchOptions{
 		FilePath: file.Path,
 	})
 	if errors.Is(err, core.ErrFileNotFound) || utils.FileHasChanged(file, storedFile) {

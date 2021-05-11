@@ -26,20 +26,20 @@ func New(database core.DB) core.FileStore {
 	}
 }
 
-func (s *fileStore) List(ctx context.Context, opt *core.FileListOptions) ([]*core.File, error) {
+func (s *fileStore) List(ctx context.Context, bucketName string, opt *core.FileListOptions) ([]*core.File, error) {
 	// log.Print("file.List()")
 	if opt == nil {
 		return nil, fmt.Errorf("empty list options")
 	}
 	var files []*core.File
 
-	data, err := s.db.ReadBucket(opt.TargetName, &core.ReadBucketOptions{
+	data, err := s.db.ReadBucket(bucketName, &core.ReadBucketOptions{
 		Offset: opt.Offset,
 		Limit:  opt.Limit,
 		Query:  opt.Path,
 	})
 	if errors.Is(err, &db.ErrBucketNotFound{}) {
-		return nil, core.ErrTargetNotActive
+		return nil, fmt.Errorf("bucket %s not found", bucketName)
 	}
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (s *fileStore) List(ctx context.Context, opt *core.FileListOptions) ([]*cor
 	return files, nil
 }
 
-func (s *fileStore) Find(ctx context.Context, opt *core.FileSearchOptions) (*core.File, error) {
+func (s *fileStore) Find(ctx context.Context, bucketName string, opt *core.FileSearchOptions) (*core.File, error) {
 	if opt == nil {
 		return nil, fmt.Errorf("empty search options")
 	}
@@ -76,7 +76,7 @@ func (s *fileStore) Find(ctx context.Context, opt *core.FileSearchOptions) (*cor
 		return nil, fmt.Errorf("empty search parameter")
 	}
 
-	value, err := s.db.Read(opt.TargetName, key)
+	value, err := s.db.Read(bucketName, key)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (s *fileStore) Find(ctx context.Context, opt *core.FileSearchOptions) (*cor
 }
 
 func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File) error {
-	// log.Printf("file.Save() %q\n", file.Path)
+	log.Printf("file.Save() %q\n", file.Path)
 	key := path.Clean(file.Path)
 	if file.ID == "" {
 		file.ID = basen.Base62Encoding.EncodeToString([]byte(key))

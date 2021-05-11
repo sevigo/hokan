@@ -33,25 +33,22 @@ type File struct {
 	OldPath  string    `json:"old_path"`
 	Checksum string    `json:"checksum"`
 	Info     *FileInfo `json:"info"`
-	// Targets  []string  `json:"targets"`
 }
 
 type FileListOptions struct {
-	TargetName string
-	Path       string
-	Offset     uint64
-	Limit      uint64
+	Path   string
+	Offset uint64
+	Limit  uint64
 }
 
 type FileSearchOptions struct {
-	ID         string
-	TargetName string
-	FilePath   string
+	ID       string
+	FilePath string
 }
 
 type FileStore interface {
-	List(context.Context, *FileListOptions) ([]*File, error)
-	Find(context.Context, *FileSearchOptions) (*File, error)
-	Save(context.Context, string, *File) error
-	Delete(context.Context, string, *File) error
+	List(ctx context.Context, bucketName string, options *FileListOptions) ([]*File, error)
+	Find(ctx context.Context, bucketName string, options *FileSearchOptions) (*File, error)
+	Save(ctx context.Context, bucketName string, file *File) error
+	Delete(ctx context.Context, bucketName string, file *File) error
 }
