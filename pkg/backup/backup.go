@@ -41,7 +41,9 @@ func New(ctx context.Context,
 		backup:    b,
 		Results:   results,
 	}
+
 	go watch.FileAdded()
+	go watch.FileRenamed()
 
 	return b, nil
 }

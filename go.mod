@@ -18,7 +18,7 @@ require (
 	github.com/nicksnyder/basen v1.0.0
 	github.com/r3labs/sse/v2 v2.3.0
 	github.com/segmentio/ksuid v1.0.3
-	github.com/sevigo/notify v0.8.0
+	github.com/sevigo/notify v0.8.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/spf13/viper v1.7.1
