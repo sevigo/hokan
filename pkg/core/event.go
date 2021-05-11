@@ -13,6 +13,7 @@ const (
 	FileAdded
 	FileChanged
 	FileRemoved
+	FileRenamed
 )
 
 type EventData struct {
@@ -37,6 +38,8 @@ func EventToString(e EventType) string {
 		return "file changed"
 	case FileRemoved:
 		return "file removed"
+	case FileRenamed:
+		return "file renamed"
 	default:
 		return "unknown"
 	}

@@ -7,8 +7,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/sevigo/hokan/pkg/core"
 	"github.com/sevigo/hokan/pkg/backup/utils"
+	"github.com/sevigo/hokan/pkg/core"
 )
 
 type Watcher struct {
@@ -20,6 +20,37 @@ type Watcher struct {
 	Results chan core.BackupResult
 }
 
+// add a subscriber to FileAdded event
+func (w *Watcher) FileRenamed() {
+	log.Printf("watcher.FileRenamed(): starting")
+	ctx := w.ctx
+	eventData := w.events.Subscribe(ctx, core.FileRenamed)
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Info("backup.FileRenamed(): event stream canceled")
+			return
+		case e := <-eventData:
+			err := w.processFileRenamedEvent(e)
+			if err != nil {
+				log.WithError(err).Error("backup.FileRenamed(): can't send the file to the target storage")
+			}
+		}
+	}
+}
+
+func (w *Watcher) processFileRenamedEvent(e *core.EventData) error {
+	file, ok := e.Data.(core.File)
+	if !ok {
+		return fmt.Errorf("invalid event data: %v", e)
+	}
+	log.Printf("watcher.processFileRenamedEvent(): event [%s] was fired for %v+\n", core.EventToString(e.Type), file)
+	// w.saveFileToBackup(&file)
+	return nil
+}
+
+// add a subscriber to FileAdded event
 func (w *Watcher) FileAdded() {
 	log.Printf("watcher.FileAdded(): starting")
 	ctx := w.ctx

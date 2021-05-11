@@ -31,6 +31,12 @@ func (w *Watch) StartFileWatcher() {
 				if err != nil {
 					log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileAdded] event")
 				}
+			case event.FileRenamedNewName:
+				err := w.publishFileRenamed(ev.Path, ev.AdditionalInfo.OldName)
+				if err != nil {
+					log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileRenamed] event")
+				}
+
 			default:
 				log.Infof("ignoring this event")
 			}
@@ -38,6 +44,27 @@ func (w *Watch) StartFileWatcher() {
 			w.printNotifyMessage(e)
 		}
 	}
+}
+
+func (w *Watch) publishFileRenamed(newPath, oldPath string) error {
+	if oldPath == "" {
+		return fmt.Errorf("publishFileRenamed(): old path can't be empty")
+	}
+	checksum, info, err := utils.FileChecksumInfo(newPath)
+	if err != nil {
+		return err
+	}
+	// TODO maybe move this event to event.Publish ?
+	w.sse.PublishMessage(fmt.Sprintf("[event] File %q was renamed to %q", oldPath, newPath))
+	return w.event.Publish(w.ctx, &core.EventData{
+		Type: core.FileRenamed,
+		Data: core.File{
+			Path:     newPath,
+			OldPath:  oldPath,
+			Checksum: checksum,
+			Info:     info,
+		},
+	})
 }
 
 func (w *Watch) publishFileChange(path string) error {
