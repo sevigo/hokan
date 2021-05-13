@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/sevigo/hokan/pkg/backup/event"
 	"github.com/sevigo/hokan/pkg/backup/local"
 	"github.com/sevigo/hokan/pkg/backup/minio"
 	"github.com/sevigo/hokan/pkg/backup/void"
@@ -34,16 +35,8 @@ func New(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	watch := &Watcher{
-		ctx:       ctx,
-		fileStore: fileStore,
-		events:    events,
-		backup:    b,
-		Results:   results,
-	}
 
-	go watch.FileAdded()
-	go watch.FileRenamed()
+	event.InitHanler(ctx, events, b, fileStore)
 
 	return b, nil
 }

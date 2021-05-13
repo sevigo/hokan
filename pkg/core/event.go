@@ -16,9 +16,24 @@ const (
 	FileRenamed
 )
 
+type EventHandler struct {
+	Ctx       context.Context
+	Events    EventCreator
+	Backup    Backup
+	FileStore FileStore
+	// write results of any operation here, this will be propagated to the UI
+	Results chan BackupResult
+}
+
 type EventData struct {
 	Type EventType
 	Data interface{}
+}
+
+type EventProcessrFactory func(handler *EventHandler) EventProcessor
+
+type EventProcessor interface {
+	Process(event *EventData) error
 }
 
 type EventCreator interface {
