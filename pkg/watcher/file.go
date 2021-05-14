@@ -26,16 +26,28 @@ func (w *Watch) StartFileWatcher() {
 				"file":  ev.Path,
 			}).Info("FileWatcher() event fired")
 			switch ev.Action {
-			case event.FileAdded, event.FileModified:
-				err := w.publishFileChange(ev.Path)
+			case event.FileAdded: //, event.FileModified:
+				err := w.publishFileAdded(ev.Path)
 				if err != nil {
 					log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileAdded] event")
+				}
+			case event.FileModified:
+				err := w.publishFileChanged(ev.Path)
+				if err != nil {
+					log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileChanged] event")
 				}
 			case event.FileRenamedNewName:
 				err := w.publishFileRenamed(ev.Path, ev.AdditionalInfo.OldName)
 				if err != nil {
 					log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileRenamed] event")
 				}
+			case event.FileRemoved:
+				w.event.Publish(w.ctx, &core.EventData{
+					Type: core.FileRemoved,
+					Data: core.File{
+						Path: ev.Path,
+					},
+				})
 
 			default:
 				log.Infof("ignoring this event")
@@ -67,7 +79,7 @@ func (w *Watch) publishFileRenamed(newPath, oldPath string) error {
 	})
 }
 
-func (w *Watch) publishFileChange(path string) error {
+func (w *Watch) publishFileAdded(path string) error {
 	checksum, info, err := utils.FileChecksumInfo(path)
 	if err != nil {
 		return err
@@ -76,6 +88,22 @@ func (w *Watch) publishFileChange(path string) error {
 	w.sse.PublishMessage(fmt.Sprintf("[event] File %q added", path))
 	return w.event.Publish(w.ctx, &core.EventData{
 		Type: core.FileAdded,
+		Data: core.File{
+			Path:     path,
+			Checksum: checksum,
+			Info:     info,
+		},
+	})
+}
+
+func (w *Watch) publishFileChanged(path string) error {
+	checksum, info, err := utils.FileChecksumInfo(path)
+	if err != nil {
+		return err
+	}
+	w.sse.PublishMessage(fmt.Sprintf("[event] File %q changed", path))
+	return w.event.Publish(w.ctx, &core.EventData{
+		Type: core.FileChanged,
 		Data: core.File{
 			Path:     path,
 			Checksum: checksum,
