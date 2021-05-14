@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"os"
+	"runtime"
 
 	"github.com/mattn/go-colorable"
 	"github.com/sirupsen/logrus"
@@ -20,15 +23,9 @@ func main() {
 	initLogger(conf.Logging)
 	ctx := context.Background()
 
-	logrus.WithFields(logrus.Fields{
-		"animal": "walrus",
-		"size":   10,
-	}).Debug("A group of walrus emerges from the ocean")
-	logrus.WithField("foo", "bar").Error("XXX")
-
 	app, err := InitializeApplication(ctx, conf)
 	if err != nil {
-		logrus.Fatal("main: cannot initialize server")
+		logrus.Fatal("main: can't initialize server")
 	}
 
 	logrus.WithField("host", app.server.Host).Info("InitializeApplication OK")
@@ -41,6 +38,12 @@ func main() {
 			},
 		).Info("starting the http server")
 		return app.server.ListenAndServe(ctx)
+	})
+	g.Go(func() error {
+		if runtime.GOOS == "windows" {
+			fixPowerShell()
+		}
+		return nil
 	})
 
 	if err := g.Wait(); err != nil {
@@ -55,8 +58,6 @@ func initLogger(conf config.Logging) {
 	}
 	logrus.SetLevel(logLevel)
 	logrus.SetOutput(colorable.NewColorableStdout())
-	logrus.SetOutput(colorable.NewColorableStdout())
-	// logrus.SetReportCaller(false)
 
 	if conf.Text {
 		logrus.SetFormatter(&logrus.TextFormatter{
@@ -71,5 +72,12 @@ func initLogger(conf config.Logging) {
 		logrus.SetFormatter(&logrus.JSONFormatter{
 			PrettyPrint: conf.Pretty,
 		})
+	}
+}
+
+func fixPowerShell() {
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		reader.ReadString('\n')
 	}
 }

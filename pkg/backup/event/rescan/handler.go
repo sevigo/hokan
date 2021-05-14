@@ -15,6 +15,6 @@ func New(handler *core.EventHandler) core.EventProcessor {
 }
 
 func (d *dirRescan) Process(event *core.EventData) error {
-	log.Infof("Process dir rescan: %#v", event.Data)
+	log.Infof("rescan.Process() for dir: %+v", event.Data)
 	return nil
 }

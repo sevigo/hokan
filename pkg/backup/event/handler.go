@@ -6,6 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/sevigo/hokan/pkg/backup/event/added"
+	"github.com/sevigo/hokan/pkg/backup/event/changed"
+	"github.com/sevigo/hokan/pkg/backup/event/removed"
 	"github.com/sevigo/hokan/pkg/backup/event/renamed"
 	"github.com/sevigo/hokan/pkg/backup/event/rescan"
 	"github.com/sevigo/hokan/pkg/core"
@@ -13,7 +15,8 @@ import (
 
 var eventFactory = map[core.EventType]core.EventProcessrFactory{
 	core.FileAdded:      added.New,
-	core.FileChanged:    added.New, // XXX: do we need an extra event handler?
+	core.FileChanged:    changed.New,
+	core.FileRemoved:    removed.New,
 	core.WatchDirRescan: rescan.New,
 	core.FileRenamed:    renamed.New,
 }

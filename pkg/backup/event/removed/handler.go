@@ -1,4 +1,4 @@
-package renamed
+package removed
 
 import (
 	"fmt"
@@ -8,19 +8,19 @@ import (
 	"github.com/sevigo/hokan/pkg/core"
 )
 
-type fileRenamed struct {
+type fileRemoved struct {
 	*core.EventHandler
 }
 
 func New(handler *core.EventHandler) core.EventProcessor {
-	return &fileRenamed{handler}
+	return &fileRemoved{handler}
 }
 
-func (f *fileRenamed) Process(e *core.EventData) error {
+func (f *fileRemoved) Process(e *core.EventData) error {
 	file, ok := e.Data.(core.File)
 	if !ok {
 		return fmt.Errorf("invalid event data: %v", e)
 	}
-	log.Printf("renamed.Process(): file %q is renamed to %q", file.OldPath, file.Path)
+	log.Printf("removed.Process(): file %q is renamed", file.Path)
 	return nil
 }
