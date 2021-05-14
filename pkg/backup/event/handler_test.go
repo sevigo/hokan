@@ -28,7 +28,7 @@ func TestInitHanler(t *testing.T) {
 		result core.BackupResult
 	}{
 		{
-			name: "case 1",
+			name: "case 1: file was removed",
 			event: &core.EventData{
 				Type: core.FileRemoved,
 				Data: core.File{
@@ -40,6 +40,20 @@ func TestInitHanler(t *testing.T) {
 				Message: core.BackupFileDeletedMessage,
 			},
 		},
+		{
+			name: "case 2: file was renamed",
+			event: &core.EventData{
+				Type: core.FileRenamed,
+				Data: core.File{
+					Path:    "/path/to/file.txt",
+					OldPath: "/path/to/old-file.txt",
+				},
+			},
+			result: core.BackupResult{
+				Success: true,
+				Message: core.BackupFilerenamedMessage,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -47,8 +61,6 @@ func TestInitHanler(t *testing.T) {
 			events.Publish(ctx, tt.event)
 			result := <-results
 			assert.Equal(t, tt.result, result)
-			// fmt.Printf(">>> %+v\n", result)
 		})
 	}
-	// t.Fail()
 }
