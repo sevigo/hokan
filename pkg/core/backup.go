@@ -9,6 +9,8 @@ var ErrBackupStorageNotFound = errors.New("Backup storage not found")
 
 const BackupSuccessMessage = "requested operation was successful"
 const BackupNoChangeMessage = "file hasn't been modified"
+const BackupFileDeletedMessage = "file marked as deleted"
+const BackupFilerenamedMessage = "file was renamed"
 
 type BackupOptions struct {
 	Name            string

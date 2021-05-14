@@ -12,7 +12,7 @@ import (
 
 	"github.com/sevigo/hokan/mocks"
 	"github.com/sevigo/hokan/pkg/core"
-	"github.com/sevigo/hokan/pkg/watcher/testnotify"
+	"github.com/sevigo/hokan/pkg/watcher/utils/testnotify"
 )
 
 var testFilePath = "file_test.go"
