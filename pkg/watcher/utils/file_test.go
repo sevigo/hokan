@@ -1,12 +1,14 @@
 package utils
 
 import (
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-const validPath = "testdata/test.txt"
+var validPath = path.Join("testdata", "test.txt")
+
 const errorPath = "testdata/nofile"
 
 func TestFileChecksumInfo(t *testing.T) {
@@ -22,7 +24,7 @@ func TestFileChecksumInfo(t *testing.T) {
 			path:     validPath,
 			wantErr:  false,
 			wantSize: int64(11),
-			wantSum:  "5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269",
+			wantSum:  "ea1f27bdefa157182ae6f08e468f91c826525cdea7a9f42783330b2d63e89958",
 		},
 		{
 			name:    "case 2",

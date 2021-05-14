@@ -26,7 +26,7 @@ func (w *Watch) StartFileWatcher() {
 				"file":  ev.Path,
 			}).Info("FileWatcher() event fired")
 			switch ev.Action {
-			case event.FileAdded: //, event.FileModified:
+			case event.FileAdded:
 				err := w.publishFileAdded(ev.Path)
 				if err != nil {
 					log.WithError(err).Error("watcher.StartFileWatcher(): Can't publish [FileAdded] event")

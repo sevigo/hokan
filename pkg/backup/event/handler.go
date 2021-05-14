@@ -21,12 +21,18 @@ var eventFactory = map[core.EventType]core.EventProcessrFactory{
 	core.FileRenamed:    renamed.New,
 }
 
-func InitHanler(ctx context.Context, events core.EventCreator, backup core.Backup, fileStore core.FileStore) {
+func InitHanler(ctx context.Context,
+	events core.EventCreator,
+	backup core.Backup,
+	fileStore core.FileStore,
+	result chan core.BackupResult) {
+
 	handler := &core.EventHandler{
 		Ctx:       ctx,
 		Events:    events,
 		Backup:    backup,
 		FileStore: fileStore,
+		Results:   result,
 	}
 
 	for eventType, factory := range eventFactory {

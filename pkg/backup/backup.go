@@ -36,7 +36,7 @@ func New(ctx context.Context,
 		return nil, err
 	}
 
-	event.InitHanler(ctx, events, b, fileStore)
+	event.InitHanler(ctx, events, b, fileStore, results)
 
 	return b, nil
 }
