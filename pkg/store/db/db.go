@@ -13,7 +13,9 @@ type Bolt struct {
 	path string
 }
 
-// Add basic funtcions here
+// Write the key-value pair to the specified bucket,
+// if bucket does not exist, it will be overwritten
+// if  key-value pair exists in this bucket, it will be overwritten
 func (db *Bolt) Write(bucketName, key, value string) error {
 	return db.conn.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(bucketName))

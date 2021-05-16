@@ -28,6 +28,46 @@ func getTestingFile(t *testing.T) string {
 	return filepath.Join(pwd, testFilePath)
 }
 
+func TestSaveFindDeleteFile(t *testing.T) {
+	filePath := "/foo/bar/test.jpg"
+	checksum := "abcXYZ"
+
+	tmpDir, err := ioutil.TempDir(os.TempDir(), "")
+	assert.NoError(t, err)
+	dbFile := path.Join(tmpDir, "test.db")
+	defer os.RemoveAll(tmpDir)
+
+	storage, err := db.Connect(dbFile)
+	assert.NoError(t, err)
+	assert.NotNil(t, storage)
+	fileStore := New(storage)
+	assert.NotEmpty(t, fileStore)
+
+	file := &core.File{
+		Path:     filePath,
+		Checksum: checksum,
+	}
+	err = fileStore.Save(context.TODO(), "test", file)
+	assert.NoError(t, err)
+
+	fileFind, err := fileStore.Find(context.TODO(), "test", &core.FileSearchOptions{
+		FilePath: filePath,
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, checksum, fileFind.Checksum)
+	assert.Equal(t, filePath, fileFind.Path)
+	assert.False(t, fileFind.IsDeleted)
+
+	fileStore.Delete(context.TODO(), "test", fileFind)	
+	fileFindDel, err := fileStore.Find(context.TODO(), "test", &core.FileSearchOptions{
+		FilePath: filePath,
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, checksum, fileFindDel.Checksum)
+	assert.Equal(t, filePath, fileFindDel.Path)
+	assert.True(t, fileFindDel.IsDeleted)
+}
+
 func Test_fileStore_Save(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()

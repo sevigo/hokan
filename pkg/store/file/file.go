@@ -101,8 +101,21 @@ func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File
 	return s.db.Write(bucketName, key, value.String())
 }
 
-func (s *fileStore) Delete(ctx context.Context, bucketName string, file *core.File) error {
-	log.Printf("file.Delete() %#v\n", file)
+func (s *fileStore) Delete(ctx context.Context, bucketName string, f *core.File) error {
+	log.Printf("file.Delete() %#v", f)
+	file, err := s.Find(ctx, bucketName, &core.FileSearchOptions{
+		FilePath: f.Path,
+	})
+	if err != nil {
+		return err
+	}
 
-	return errors.New("not implemented")
+	// mark as deleted and write back, it will be overwritten
+	file.IsDeleted = true
+	var value bytes.Buffer
+	if err := json.NewEncoder(&value).Encode(file); err != nil {
+		return err
+	}
+	key := path.Clean(file.Path)
+	return s.db.Write(bucketName, key, value.String())
 }

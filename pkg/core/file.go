@@ -30,9 +30,10 @@ type File struct {
 	ID   string `json:"id"`
 	Path string `json:"path"`
 	// if file was renamed
-	OldPath  string    `json:"old_path"`
-	Checksum string    `json:"checksum"`
-	Info     *FileInfo `json:"info"`
+	OldPath   string    `json:"old_path"`
+	Checksum  string    `json:"checksum"`
+	Info      *FileInfo `json:"info"`
+	IsDeleted bool      `json:"is_deleted"`
 }
 
 type FileListOptions struct {
