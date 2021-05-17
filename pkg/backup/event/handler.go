@@ -43,13 +43,14 @@ func InitHanler(ctx context.Context,
 }
 
 func listener(ctx context.Context, event <-chan *core.EventData, processor core.EventProcessor) {
+	log.Infof("starting listener for event type [%s]", processor.Name())
 	for {
 		select {
 		case <-ctx.Done():
 			log.Info("event.Listener(): event stream canceled")
 			return
 		case e := <-event:
-			log.Infof("backup.Listener(): event [%s] is triggerd", core.EventToString(e.Type))
+			log.Infof("event.Listener(): event [%s] is triggerd => process", core.EventToString(e.Type))
 			err := processor.Process(e)
 			if err != nil {
 				log.WithError(err).

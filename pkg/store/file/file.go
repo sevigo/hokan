@@ -102,7 +102,7 @@ func (s *fileStore) Save(ctx context.Context, bucketName string, file *core.File
 }
 
 func (s *fileStore) Delete(ctx context.Context, bucketName string, f *core.File) error {
-	log.Printf("file.Delete() %#v", f)
+	log.Printf("file.Delete() %+v", f)
 	file, err := s.Find(ctx, bucketName, &core.FileSearchOptions{
 		FilePath: f.Path,
 	})

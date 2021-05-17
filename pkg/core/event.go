@@ -33,6 +33,7 @@ type EventData struct {
 type EventProcessrFactory func(handler *EventHandler) EventProcessor
 
 type EventProcessor interface {
+	Name() string
 	Process(event *EventData) error
 }
 

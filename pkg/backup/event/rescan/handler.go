@@ -14,6 +14,10 @@ func New(handler *core.EventHandler) core.EventProcessor {
 	return &dirRescan{handler}
 }
 
+func (f *dirRescan) Name() string {
+	return core.EventToString(core.WatchDirRescan)
+}
+
 func (d *dirRescan) Process(event *core.EventData) error {
 	log.Infof("rescan.Process() for dir: %+v", event.Data)
 	return nil
