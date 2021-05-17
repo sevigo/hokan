@@ -16,6 +16,10 @@ func New(handler *core.EventHandler) core.EventProcessor {
 	return &fileRenamed{handler}
 }
 
+func (f *fileRenamed) Name() string {
+	return core.EventToString(core.FileRenamed)
+}
+
 func (f *fileRenamed) Process(e *core.EventData) error {
 	file, ok := e.Data.(core.File)
 	if !ok {

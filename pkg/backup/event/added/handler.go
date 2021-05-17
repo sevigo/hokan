@@ -18,6 +18,10 @@ func New(handler *core.EventHandler) core.EventProcessor {
 	return &fileAdded{handler}
 }
 
+func (f *fileAdded) Name() string {
+	return core.EventToString(core.FileAdded)
+}
+
 func (f *fileAdded) Process(e *core.EventData) error {
 	file, ok := e.Data.(core.File)
 	if !ok {
